@@ -9,3 +9,5 @@ How to use :
  - gather some Game Developers (for games) and API Users (to have your API used via some cool devices)
  - have some games added to the system
  - Spread the joy :)
+
+Beware, this project is ongoing, extremely unstable and still in early phases. Do not use it for production environments.
