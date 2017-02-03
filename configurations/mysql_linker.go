@@ -15,7 +15,7 @@ const(
 )
 
 //Creates a MySQL communication point for the API for the Data.
-func LinkMySQL() {
+func LinkMySQL(user string, password string) (*DB, error) {
     var database_handle *DB
     var err error
 
@@ -37,5 +37,8 @@ func LinkMySQL() {
         return database_handle, nil
       }
     }
-    defer
+}
+
+func LinkMySQL() (*DB, error){
+  return LinkMySQL(MYSQL_USER, MYSQL_PASSWORD)
 }
