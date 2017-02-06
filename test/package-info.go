@@ -1,3 +1,3 @@
-//This package contains all tests for the API,
-//such as Redis LInking check or Server conf up check.
+//Package test contains all tests for the API,
+//such as Redis Linking check or Server conf up check.
 package test

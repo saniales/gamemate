@@ -1,2 +1,2 @@
-//This package represents support custom library for this project
+//Package libs represents support custom library for this project [DEPRECATED]
 package libs
