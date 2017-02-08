@@ -12,7 +12,8 @@ func TestLinkRedis(test *testing.T) {
 	if testing.Short() {
 		test.Skip("Skipping connection Test in short mode.")
 	} else {
-		var test_pool *redis.Pool = configurations.LinkRedis()
+		configurations.InitCache()
+		test_pool := configurations.CachePool
 		if test_pool != nil {
 			defer test_pool.Close()
 			var test_connection redis.Conn = test_pool.Get()

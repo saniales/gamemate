@@ -15,8 +15,8 @@ const (
 	MYSQL_HOST     = "localhost"
 )
 
-//MySQLArchivePool is a pool of connections to the archive of the system (using MySQL).
-var MySQLArchivePool *sql.DB
+//ArchivesPool is a pool of connections to the archive of the system (in this case using MySQL).
+var ArchivesPool *sql.DB
 
 //ArchivesInitialized is true if a pool of connections to the archives has been initialized at least once.
 var ArchivesInitialized = false
@@ -30,13 +30,13 @@ func InitArchivesWithAuth(user string, password string) error {
 	//creates a handle to the DB, keep in mind that there is a pool of connections in background
 	//and a connection is not open if it isn't needed.
 	//Use database_handle.Ping() to verify if a DB is connected
-	MySQLArchivePool, err = sql.Open(MYSQL_DRIVER, database_namespace)
+	ArchivesPool, err = sql.Open(MYSQL_DRIVER, database_namespace)
 	if err != nil {
 		ArchivesInitialized = false
 		return err
 	}
 	//checking if the host is reachable using the specified DSN (Database NameSpace)
-	err = MySQLArchivePool.Ping()
+	err = ArchivesPool.Ping()
 	if err != nil {
 		ArchivesInitialized = false
 		return err

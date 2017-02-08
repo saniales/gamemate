@@ -6,11 +6,13 @@ import (
 	"net/http" //serves http requests.
 
 	"github.com/labstack/echo"                 //echo main package.
-	"github.com/labstack/echo/engine/fasthttp" //fast go engine, can be replaced.
-	//"strconv" //To convert numbers from Strings and viceversa.
+	"github.com/labstack/echo/engine/fasthttp" //fast go engine, can be replaced with standard.
+
 	"sanino/gamemate/configurations"
-	_ "sanino/gamemate/constants" //Custom package for project constants (e.g. PATHS to connect to API)
+	"sanino/gamemate/constants"
 	"sanino/gamemate/controllers"
+	"sanino/gamemate/models/request"
+
 	_ "sanino/gamemate/libs" //Custom package for this project (structs - API - etc...).
 	//Package to interact with Redis DB
 )
@@ -24,11 +26,12 @@ func main() {
 	configurations.InitArchives()
 	//defer redisPool.Close()
 
-	e.POST(AUTH_PATH, controllers.HandleAuth)
+	e.POST(constants.AUTH_PATH, controllers.HandleAuth)
 
-	e.POST(GET_USER_REQUEST_PATH, func(c echo.Context) error {
-		err := nil
-		user := new(Auth).FromForm(c)
+	e.POST(constants.GET_USER_REQUEST_PATH, func(c echo.Context) error {
+		var err error
+		user := request.Auth{}
+		user.FromForm(c)
 		//user.Email = c.FormValue("Email")
 		//err = user.InsertIntoDB(redisPool)
 		if err != nil {

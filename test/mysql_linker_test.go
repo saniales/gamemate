@@ -1,7 +1,6 @@
 package test
 
 import (
-	"database/sql"
 	"sanino/gamemate/configurations"
 	"testing"
 
@@ -17,9 +16,9 @@ func TestLinkMySQL(test *testing.T) {
 	if testing.Short() {
 		test.Skip("Skipping connection Test in short mode.")
 	} else {
-		var test_handle *sql.DB
 		var err error
-		test_handle, err = configurations.LinkArchivesWithAuth(TEST_USER, TEST_PASSWORD)
+		err = configurations.InitArchivesWithAuth(TEST_USER, TEST_PASSWORD)
+		test_handle := configurations.ArchivesPool
 		if err != nil {
 			test.Log("Error creating DB Object : error => " + err.Error())
 			test.Fail()

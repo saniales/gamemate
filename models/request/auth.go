@@ -1,4 +1,4 @@
-package models
+package request
 
 import (
 	"errors"
@@ -18,7 +18,7 @@ func (receiver *Auth) FromForm(c echo.Context) error {
 	receiver.Username = c.FormValue("Username")
 	receiver.Password = c.FormValue("Password")
 	if receiver.Username == "" || receiver.Password == "" {
-		err = errors.New("Invalid Form Submitted, cannot find username or password.")
+		err = errors.New("Invalid Form Submitted, cannot find username or password")
 	}
 	return err
 }
