@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"crypto/sha512"
+	"encoding/hex"
+	"io"
 	"log"
 	"math/rand"
 	"sanino/gamemate/configurations"
@@ -19,25 +21,35 @@ func generateToken() string {
 	return string(SHA512hash.Sum([]byte(randomNum))[:])
 }
 
-func updateCacheNewSession(expiration int64) (string, error) {
+func updateCacheNewSession(username string, expiration int64) (string, error) {
 	token := generateToken()
 	conn := configurations.CachePool.Get()
+
 	err := conn.Send("MULTI")
 	if err != nil {
 		log.Fatal("cannot start redis transaction, quitting... Error detail =>" + err.Error())
 		return constants.INVALID_TOKEN, err
 	}
-	err = conn.Send("ZADD", "user_tokens", expiration, token) //sets the cache for the token expire 30 minutes
+
+	err = conn.Send("ZADD", "logged_tokens", expiration, token) //sets the cache for the token expire 30 minutes
 	if err != nil {
 		log.Fatal("cannot send ZADD command, quitting... Error detail =>" + err.Error())
 		return constants.INVALID_TOKEN, err
 	}
-	err = conn.Send("SET", "expiration/token/"+token, expiration)
+	err = conn.Send("SET", "user/"+username+"/token", token, "EX", "1800")
 	//if set when a user logons with an expired key it is removed from cache and set
 	if err != nil {
-		log.Fatal("cannot send SET command, quitting... Error detail =>" + err.Error())
+		log.Fatal("cannot send SET user/.../token [v] command, quitting... Error detail =>" + err.Error())
 		return constants.INVALID_TOKEN, err
 	}
+
+	err = conn.Send("SET", "token/"+token+"/user", username, "EX", "1800")
+	//if set when a user logons with an expired key it is removed from cache and set
+	if err != nil {
+		log.Fatal("cannot send SET token/.../user [v] command, quitting... Error detail =>" + err.Error())
+		return constants.INVALID_TOKEN, err
+	}
+
 	err = conn.Send("EXEC")
 	if err != nil {
 		log.Print("cannot commit transaction, quitting... Error detail =>" + err.Error())
@@ -88,6 +100,7 @@ func insertIntoArchives(RegTry request.Registration) error {
 	if err != nil { //did not exec query (syntax)
 		return err
 	}
+
 	affected_rows, err := result.RowsAffected()
 	if affected_rows <= 0 || err != nil { //Did not insert
 		return err
@@ -99,5 +112,30 @@ func insertIntoArchives(RegTry request.Registration) error {
 //
 //Returns true if login is valid, false otherwise and report errors.
 func checkLogin(AuthTry request.Auth) (bool, error) {
-	return false, nil
+	var num_rows int
+	var password_hash string
+	var salt int
+
+	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(*) AS num_rows, password, salt FROM users WHERE username = ?")
+	if err != nil {
+		log.Print(err)
+		return false, err
+	}
+
+	result, err := stmtQuery.Query(AuthTry.Username)
+	if err != nil {
+		log.Print(err)
+		return false, err
+	}
+
+	err = result.Scan(&num_rows, &password_hash, &salt)
+	if err != nil {
+		log.Print(err)
+		return false, err
+	}
+	hash := sha512.New()
+	salted_pwd := AuthTry.Password + strconv.Itoa(salt)
+	io.WriteString(hash, salted_pwd)
+	salted_hash := hex.EncodeToString(hash.Sum(nil))
+	return salted_hash == password_hash, nil
 }

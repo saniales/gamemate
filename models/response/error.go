@@ -6,7 +6,7 @@ type ErrorResponse struct {
 	ErrorCode int    `json:"ErrorCode" xml:"ErrorCode" form:"ErrorCode"`
 }
 
-//ErrorDetail is supposed to be used only during development to debug errors
+//ErrorDetail is supposed to be used only during development to debug errors.
 type ErrorDetail struct {
 	Error        ErrorResponse `json:"Error" xml:"Error" form:"Error"`
 	ErrorMessage string        `json:"ErrorMessage" xml:"ErrorMessage" form:"ErrorMessage"`
@@ -18,7 +18,7 @@ func (receiver *ErrorResponse) FromErrorCode(errorCode int) {
 	receiver.ErrorCode = errorCode
 }
 
-//FromError generates a detailed error report (meant to be used during development to debug)
+//FromError generates a detailed error report (meant to be used during development to debug).
 func (receiver *ErrorDetail) FromError(err error, errorCode int) {
 	receiver.Error = ErrorResponse{}
 	receiver.Error.FromErrorCode(errorCode)

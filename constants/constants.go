@@ -7,7 +7,7 @@ const (
 	AUTH_PATH              string = "/auth"          //Path to handle user authentication.
 	GET_USER_REQUEST_PATH  string = "/user_info"     //Gets info about a user.
 	ROOM_CREATION_PATH     string = "/new_room"      //Path to handle the creation of a new room (only with thde
-	//user who requested the creation). The new room willd be open.
+	//user who requested the creation). The new room will be open.
 	GET_ROOM_REQUEST_PATH   string = "/get_room"      //Path to handle the request of data of a particular rodom.
 	MATCH_CREATION_PATH     string = "/new_match"     //Path to handle the creationd of a match (not started).
 	MATCH_START_PATH        string = "/start_match"   //Path to handle the start of a match (it becomes dLIVE).
