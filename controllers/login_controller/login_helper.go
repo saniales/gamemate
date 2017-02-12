@@ -1,4 +1,4 @@
-package controllers
+package loginController
 
 import (
 	"crypto/sha512"
