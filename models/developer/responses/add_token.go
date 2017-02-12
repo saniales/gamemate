@@ -4,6 +4,7 @@ package developerResponses
 //
 //For NEGATIVE response, please refer to errorResponses.ErrorResponse.
 type AddToken struct {
+	Type         string `json:"Type" xml:"Type" form:"Type"`
 	NewAPI_Token string `json:"SessionToken" xml:"SessionToken" form:"SessionToken"`
 }
 
