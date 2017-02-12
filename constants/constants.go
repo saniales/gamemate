@@ -12,7 +12,7 @@ const (
 	//user who requested the creation). The new room will be open.
 	GET_ROOM_REQUEST_PATH   string = "/get_room"      //Path to handle the request of data of a particular rodom.
 	MATCH_CREATION_PATH     string = "/new_match"     //Path to handle the creationd of a match (not started).
-	MATCH_START_PATH        string = "/start_match"   //Path to handle the start of a match (it becomes dLIVE).
+	MATCH_START_PATH        string = "/start_match"   //Path to handle the start of a match (it becomes LIVE).
 	MATCH_DATA_REQUEST_PATH string = "/get_match"     //Path to handle the request of getting data of a particular match.
 	TURN_ACTION_PATH        string = "/make_move"     //Path to handle an action in a match.
 	TURN_END_PATH           string = "/end_turn"      //Path to handle the end of a turn.
@@ -20,6 +20,5 @@ const (
 
 	MAX_NUMBER_SALT        int           = 20000            //base salt used in password hashing.
 	INVALID_TOKEN          string        = "INVALID"        //Represents an invalid token returned from a func with errors during the creation.
-	MAX_DURATION           string        = "30m"            //The max duration of a session in cache
 	CACHE_REFRESH_INTERVAL time.Duration = time.Minute * 30 //The time between cache refreshes.
 )

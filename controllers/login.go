@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	"net/http"
+	"sanino/gamemate/constants"
 	"sanino/gamemate/models/request"
 	"sanino/gamemate/models/response"
 	"time"
@@ -76,8 +77,7 @@ func HandleRegistration(context echo.Context) error {
 		return context.JSON(http.StatusInternalServerError, errResp)
 	}
 
-	halfHour, _ := time.ParseDuration("30m")
-	token, err := updateCacheNewSession(RegTry.Username, time.Duration(time.Now().Add(halfHour).UnixNano()))
+	token, err := updateCacheNewSession(RegTry.Username, constants.CACHE_REFRESH_INTERVAL)
 	if err != nil {
 		context.Logger().Print(err)
 		errResp.FromError(errors.New("Cannot Insert User"), 500)
