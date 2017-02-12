@@ -28,5 +28,5 @@ func main() {
 	e.POST(constants.AUTH_PATH, controllers.HandleAuth)
 	e.POST(constants.USER_REGISTRATION_PATH, controllers.HandleRegistration)
 
-	e.Run(fasthttp.New(":8080"))
+	e.Logger().Print(e.Run(fasthttp.New(":8080")))
 }

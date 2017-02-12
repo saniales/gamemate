@@ -5,7 +5,7 @@ import (
 	"github.com/labstack/echo/middleware"
 )
 
-//Configures the server for fresh start with the default configuration.
+//InitServer configures the server for fresh start with the default configuration.
 func InitServer() *echo.Echo {
 	server := echo.New()
 	// Middleware
@@ -16,5 +16,6 @@ func InitServer() *echo.Echo {
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{echo.POST},
 	}))
+	collectCacheGarbage()
 	return server
 }

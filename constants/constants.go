@@ -1,10 +1,12 @@
 package constants
 
+import "time"
+
 //Paths Constants
 const (
 	ROOT_PATH              string = "/"              //Path to the root directory of the server.
 	USER_REGISTRATION_PATH string = "/register_user" //Path to handle user registration.
-	AUTH_PATH              string = "/auth"          //Path to handle user authentication.
+	AUTH_PATH              string = "/auth_user"     //Path to handle user authentication.
 	GET_USER_REQUEST_PATH  string = "/user_info"     //Gets info about a user.
 	ROOM_CREATION_PATH     string = "/new_room"      //Path to handle the creation of a new room (only with thde
 	//user who requested the creation). The new room will be open.
@@ -16,7 +18,8 @@ const (
 	TURN_END_PATH           string = "/end_turn"      //Path to handle the end of a turn.
 	TURN_END_MATCH_ACK      string = "/end_match_ack" //Path to let the server know that the client received the
 
-	MAX_NUMBER_SALT int    = 20000     //base salt used in password hashing.
-	INVALID_TOKEN   string = "INVALID" //Represents an invalid token returned from a func with errors during the creation.
-	MAX_DURATION    string = "30m"     //The max duration of a session in cache
+	MAX_NUMBER_SALT        int           = 20000            //base salt used in password hashing.
+	INVALID_TOKEN          string        = "INVALID"        //Represents an invalid token returned from a func with errors during the creation.
+	MAX_DURATION           string        = "30m"            //The max duration of a session in cache
+	CACHE_REFRESH_INTERVAL time.Duration = time.Minute * 30 //The time between cache refreshes.
 )

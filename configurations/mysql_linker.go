@@ -12,7 +12,7 @@ const (
 	MYSQL_USER     = "gamemate_agent"
 	MYSQL_PASSWORD = "elGq9WjXWfuqqJIDP2Zu"
 	MYSQL_DB_NAME  = "gamemate_archives"
-	MYSQL_HOST     = "localhost"
+	MYSQL_HOST     = "localhost:3306"
 )
 
 //ArchivesPool is a pool of connections to the archive of the system (in this case using MySQL).
@@ -25,7 +25,7 @@ var ArchivesInitialized = false
 func InitArchivesWithAuth(user string, password string) error {
 	var err error
 	//creates database name space to connect to database
-	var database_namespace string = fmt.Sprintf("%s:%s@https(%s)/%s", MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, MYSQL_DB_NAME)
+	var database_namespace string = fmt.Sprintf("%s:%s@tcp(%s)/%s", MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, MYSQL_DB_NAME)
 
 	//creates a handle to the DB, keep in mind that there is a pool of connections in background
 	//and a connection is not open if it isn't needed.

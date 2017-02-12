@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"errors"
-	"log"
 	"net/http"
 	"sanino/gamemate/models/request"
 	"sanino/gamemate/models/response"
@@ -19,34 +18,30 @@ func HandleAuth(context echo.Context) error {
 	var err = AuthTry.FromForm(context)
 
 	if err != nil {
-		log.Print(err)
+		context.Logger().Print(err)
 		errResp.FromError(errors.New("Bad Request"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, errResp)
 	}
 
 	isLoggable, err = checkLogin(AuthTry)
 	if err != nil {
-		log.Print(err)
-		errResp.FromError(errors.New("Internal server error"), 500)
+		context.Logger().Print(err)
+		errResp.FromError(errors.New("Cannot Login User"), 500)
 		return context.JSON(http.StatusInternalServerError, errResp)
 	}
 	if !isLoggable {
 		errMsg := "Cannot login. User - Pwd Combination not correct"
 		errResp.FromError(errors.New(errMsg), 1)
-		log.Printf(errMsg, AuthTry)
+		context.Logger().Printf(errMsg)
 		return context.JSON(http.StatusBadRequest, errResp)
 	}
 	halfHour, _ := time.ParseDuration("30m")
-	token, err := updateCacheNewSession(AuthTry.Username, time.Now().Add(halfHour).UnixNano())
+	token, err := updateCacheNewSession(AuthTry.Username, time.Duration(time.Now().Add(halfHour).UnixNano()))
 	if err != nil {
-		log.Print(err)
-		errResp.FromError(errors.New("Internal Server Error"), 500)
+		context.Logger().Print(err)
+		errResp.FromError(errors.New("Cannot Login User"), 500)
 		return context.JSON(http.StatusInternalServerError, errResp)
 	}
-	// answers with session token valid for 30 minutes from last session
-	// it has to be created and put in redis after correct authentication.
-	// otherwise the system must reply with a system_error struct {Code : 1}
-	// if debug it includes a message {errCode : 1, message : "ZIOBANANA"}
 	return context.JSON(http.StatusCreated, response.Auth{SessionToken: token})
 }
 
@@ -56,36 +51,36 @@ func HandleRegistration(context echo.Context) error {
 	var RegTry = request.Registration{}
 	var err = RegTry.FromForm(context)
 	if err != nil {
-		log.Print(err)
-		errResp.FromError(errors.New("Internal Server Error"), 500)
-		return context.JSON(http.StatusInternalServerError, errResp)
+		context.Logger().Print(err)
+		errResp.FromError(errors.New("Bad Request"), http.StatusBadRequest)
+		return context.JSON(http.StatusBadRequest, errResp)
 	}
 	//check if user already exists
-	isRegisteredUser, err := isRegistered(RegTry.Username)
+	isRegisteredUser, err := isRegistered(RegTry.Username, RegTry.Email)
 	if err != nil {
-		log.Print(err)
-		errResp.FromError(errors.New("Internal Server Error"), 500)
+		context.Logger().Print(err)
+		errResp.FromError(errors.New("Cannot insert user"), 500)
 		return context.JSON(http.StatusInternalServerError, errResp)
 	}
 	if isRegisteredUser {
-		log.Print("The user " + RegTry.Username + " is already registered into the system, reporting error...")
+		context.Logger().Print("The user " + RegTry.Username + " is already registered into the system")
 		errResp.FromError(errors.New("User already registered"), 2)
-		return context.JSON(http.StatusInternalServerError, errResp)
+		return context.JSON(http.StatusBadRequest, errResp)
 	}
 	//else query and if query successful add user also into cache and reply with session_token
 	//generating random salt
 	err = insertIntoArchives(RegTry)
 	if err != nil {
-		log.Print(err)
-		errResp.FromError(errors.New("Internal Server Error"), 500)
+		context.Logger().Print(err)
+		errResp.FromError(errors.New("Cannot Insert User"), 500)
 		return context.JSON(http.StatusInternalServerError, errResp)
 	}
 
 	halfHour, _ := time.ParseDuration("30m")
-	token, err := updateCacheNewSession(RegTry.Username, time.Now().Add(halfHour).UnixNano())
+	token, err := updateCacheNewSession(RegTry.Username, time.Duration(time.Now().Add(halfHour).UnixNano()))
 	if err != nil {
-		log.Print(err)
-		errResp.FromError(errors.New("Internal Server Error"), 500)
+		context.Logger().Print(err)
+		errResp.FromError(errors.New("Cannot Insert User"), 500)
 		return context.JSON(http.StatusInternalServerError, errResp)
 	}
 
