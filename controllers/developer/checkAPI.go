@@ -2,8 +2,8 @@ package developerController
 
 import "sanino/gamemate/configurations"
 
-//CheckAPI_Token Provides a control for forged requests with fake API_Tokens
-func CheckAPI_Token(token string) (bool, error) {
+//IsValidAPI_Token Provides a control for forged requests with fake API_Tokens
+func IsValidAPI_Token(token string) (bool, error) {
 	conn := configurations.CachePool.Get()
 	defer conn.Close()
 

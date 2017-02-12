@@ -1,6 +1,8 @@
 package outGameResponses
 
-//GameList represents a list of games available to an user.
+//GameList represents a list of games available to an user, which made a SUCCESSFULL request.
+//
+//For NEGATIVE response, please refer to errorResponses.ErrorResponse.
 type GameList struct {
 	Type  string
 	Games []Game

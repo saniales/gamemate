@@ -1,4 +1,4 @@
-package loginRequests
+package developerRequests
 
 import (
 	"errors"
@@ -6,8 +6,8 @@ import (
 	"github.com/labstack/echo"
 )
 
-//Auth represents an auth try to the system.
-type Auth struct {
+//DevAuth represents an auth try to the system.
+type DevAuth struct {
 	Type      string `json:"Type" xml:"Type" form:"Type"`
 	API_Token string `json:"API_Token" xml:"API_Token" form:"API_Token"`
 	Username  string `json:"Username" xml:"Username" form:"Username"`
@@ -15,14 +15,14 @@ type Auth struct {
 }
 
 // FromForm Converts from a submitted form (or request) to his struct.
-func (receiver *Auth) FromForm(c echo.Context) error {
+func (receiver *DevAuth) FromForm(c echo.Context) error {
 	var err error
 	receiver.Type = c.FormValue("Type")
 	receiver.API_Token = c.FormValue("API_Token")
 	receiver.Username = c.FormValue("Username")
 	receiver.Password = c.FormValue("Password")
 
-	if receiver.Type != "Auth" || receiver.Username == "" || receiver.Password == "" || receiver.API_Token == "" {
+	if receiver.Type != "DevAuth" || receiver.Username == "" || receiver.Password == "" || receiver.API_Token == "" {
 		err = errors.New("Invalid Form Submitted")
 	}
 	return err

@@ -28,8 +28,11 @@ func (receiver *Registration) FromForm(c echo.Context) error {
 	receiver.Email = c.FormValue("Email")
 	receiver.Birthday = c.FormValue("Birthday")
 	receiver.Gender = c.FormValue("Gender")
-	if receiver.Type == "" || receiver.API_Token == "" || receiver.Username == "" || receiver.Password == "" || receiver.Email == "" || receiver.Birthday == "" || receiver.Gender == "" {
-		err = errors.New("Invalid Form Submitted, cannot find some fields")
+
+	if receiver.Type != "Registration" || receiver.API_Token == "" ||
+		receiver.Username == "" || receiver.Password == "" || receiver.Email == "" ||
+		receiver.Birthday == "" || receiver.Gender == "" {
+		err = errors.New("Invalid Form Submitted")
 	} else if _, err = receiver.BirthdayDate(); err != nil {
 		err = errors.New("Invalid Form Submitted, Birthday is not in a correct format => " + receiver.Birthday)
 	}
