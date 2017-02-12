@@ -19,6 +19,8 @@ type Registration struct {
 }
 
 // FromForm Converts from a submitted form (or request) to his struct.
+//
+// Does not check for the validity of the items inside the struct (e.g. tokens)
 func (receiver *Registration) FromForm(c echo.Context) error {
 	var err error
 	receiver.Type = c.FormValue("Type")

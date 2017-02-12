@@ -14,6 +14,8 @@ type AddToken struct {
 }
 
 //FromForm creates a valid Sruct based on form data submitted, or returns error.
+//
+// Does not check for the validity of the items inside the struct (e.g. tokens)
 func (receiver *AddToken) FromForm(c echo.Context) error {
 	var err error
 	receiver.Type = c.FormValue("Type")
