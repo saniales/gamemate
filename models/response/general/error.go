@@ -1,4 +1,4 @@
-package response
+package errorResponses
 
 //ErrorResponse represents a response from the system regarding an error during an operation.
 type ErrorResponse struct {

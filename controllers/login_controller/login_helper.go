@@ -8,7 +8,7 @@ import (
 	"math/rand"
 	"sanino/gamemate/configurations"
 	"sanino/gamemate/constants"
-	"sanino/gamemate/models/request"
+	"sanino/gamemate/models/request/login"
 	"strconv"
 	"strings"
 	"time"

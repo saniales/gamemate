@@ -1,4 +1,4 @@
-package request
+package requestInterfaces
 
 import "github.com/labstack/echo"
 

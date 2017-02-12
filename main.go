@@ -8,7 +8,6 @@ import (
 	"sanino/gamemate/configurations"
 	"sanino/gamemate/constants"
 	"sanino/gamemate/controllers/login_controller"
-	//Package to interact with Redis DB
 )
 
 //Main function of the server : here there are the allowed types of connections

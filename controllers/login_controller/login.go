@@ -4,9 +4,8 @@ import (
 	"errors"
 	"net/http"
 	"sanino/gamemate/constants"
-	"sanino/gamemate/models/request"
+	"sanino/gamemate/models/request/login"
 	"sanino/gamemate/models/response"
-	"time"
 
 	"github.com/labstack/echo"
 )
@@ -27,7 +26,7 @@ func HandleAuth(context echo.Context) error {
 	isLoggable, err = checkLogin(AuthTry)
 	if err != nil {
 		context.Logger().Print(err)
-		errResp.FromError(errors.New("Cannot Login User"), 500)
+		errResp.FromError(errors.New("Cannot Login User"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, errResp)
 	}
 	if !isLoggable {
@@ -36,14 +35,15 @@ func HandleAuth(context echo.Context) error {
 		context.Logger().Printf(errMsg)
 		return context.JSON(http.StatusBadRequest, errResp)
 	}
-	halfHour, _ := time.ParseDuration("30m")
-	token, err := updateCacheNewSession(AuthTry.Username, time.Duration(time.Now().Add(halfHour).UnixNano()))
+	token, err := updateCacheNewSession(AuthTry.Username, constants.CACHE_REFRESH_INTERVAL)
 	if err != nil {
 		context.Logger().Print(err)
-		errResp.FromError(errors.New("Cannot Login User"), 500)
+		errResp.FromError(errors.New("Cannot Login User"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, errResp)
 	}
-	return context.JSON(http.StatusCreated, response.Auth{SessionToken: token})
+	responseFromServer := response.Auth{}
+	responseFromServer.FromToken(token)
+	return context.JSON(http.StatusCreated, responseFromServer)
 }
 
 //HandleRegistration handles the registration of a user for the system.
@@ -60,7 +60,7 @@ func HandleRegistration(context echo.Context) error {
 	isRegisteredUser, err := isRegistered(RegTry.Username, RegTry.Email)
 	if err != nil {
 		context.Logger().Print(err)
-		errResp.FromError(errors.New("Cannot insert user"), 500)
+		errResp.FromError(errors.New("Cannot insert user"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, errResp)
 	}
 	if isRegisteredUser {
@@ -73,14 +73,14 @@ func HandleRegistration(context echo.Context) error {
 	err = insertIntoArchives(RegTry)
 	if err != nil {
 		context.Logger().Print(err)
-		errResp.FromError(errors.New("Cannot Insert User"), 500)
+		errResp.FromError(errors.New("Cannot Insert User"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, errResp)
 	}
 
 	token, err := updateCacheNewSession(RegTry.Username, constants.CACHE_REFRESH_INTERVAL)
 	if err != nil {
 		context.Logger().Print(err)
-		errResp.FromError(errors.New("Cannot Insert User"), 500)
+		errResp.FromError(errors.New("Cannot Insert User"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, errResp)
 	}
 
