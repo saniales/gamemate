@@ -3,10 +3,11 @@ package loginController
 import (
 	"errors"
 	"net/http"
+
 	"sanino/gamemate/constants"
-	"sanino/gamemate/models/requests/login"
-	"sanino/gamemate/models/responses/errors"
-	"sanino/gamemate/models/responses/login"
+	"sanino/gamemate/models/shared/responses/errors"
+	"sanino/gamemate/models/user/requests/login"
+	"sanino/gamemate/models/user/responses/login"
 
 	"github.com/labstack/echo"
 )

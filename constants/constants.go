@@ -21,4 +21,5 @@ const (
 	MAX_NUMBER_SALT        int           = 20000            //base salt used in password hashing.
 	INVALID_TOKEN          string        = "INVALID"        //Represents an invalid token returned from a func with errors during the creation.
 	CACHE_REFRESH_INTERVAL time.Duration = time.Minute * 30 //The time between cache refreshes.
+	DEBUG                  bool          = true             //if true, application is being debugged.
 )

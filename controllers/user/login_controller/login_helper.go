@@ -9,7 +9,7 @@ import (
 
 	"sanino/gamemate/configurations"
 	"sanino/gamemate/constants"
-	"sanino/gamemate/models/requests/login"
+	"sanino/gamemate/models/user/requests/login"
 
 	"strconv"
 	"strings"
@@ -23,6 +23,7 @@ func generateToken() string {
 func updateCacheNewSession(username string, expiration time.Duration) (string, error) {
 	token := generateToken()
 	conn := configurations.CachePool.Get()
+	defer conn.Close()
 
 	err := conn.Send("MULTI")
 	if err != nil {
@@ -54,6 +55,7 @@ func updateCacheNewSession(username string, expiration time.Duration) (string, e
 	if err != nil {
 		return constants.INVALID_TOKEN, err
 	}
+  
 	return token, nil
 }
 
@@ -71,6 +73,7 @@ func isRegistered(username string, source_email string) (bool, error) {
 	if err != nil { //cannot check, consider error
 		return true, err
 	}
+	defer stmtQuery.Close()
 
 	var num_rows int
 	rows.Scan(&num_rows)
@@ -83,6 +86,8 @@ func insertIntoArchives(RegTry loginRequests.Registration) error {
 	rand.Seed(time.Now().UTC().UnixNano())
 	salt := rand.Intn(constants.MAX_NUMBER_SALT)
 	saltedPass := RegTry.Password + strconv.Itoa(salt)
+
+a ok
 	stmtQuery, err := configurations.ArchivesPool.Prepare("INSERT INTO users (id, username, hash_pwd, hash_salt, email, birthday, gender) VALUES (NULL, ?," + convertToHexString(saltedPass) + ", ?, ?, ?, ?)")
 	if err != nil {
 		return err
@@ -113,6 +118,7 @@ func checkLogin(AuthTry loginRequests.Auth) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	defer stmtQuery.Close()
 
 	result, err := stmtQuery.Query(AuthTry.Username)
 	if err != nil {

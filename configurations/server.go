@@ -1,6 +1,8 @@
 package configurations
 
 import (
+	"sanino/gamemate/constants"
+
 	"github.com/labstack/echo" //echo main package.
 	"github.com/labstack/echo/middleware"
 )
@@ -16,6 +18,7 @@ func InitServer() *echo.Echo {
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{echo.POST},
 	}))
+	server.SetDebug(constants.DEBUG)
 	collectCacheGarbage()
 	return server
 }
