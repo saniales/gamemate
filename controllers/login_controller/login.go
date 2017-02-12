@@ -4,17 +4,18 @@ import (
 	"errors"
 	"net/http"
 	"sanino/gamemate/constants"
-	"sanino/gamemate/models/request/login"
-	"sanino/gamemate/models/response"
+	"sanino/gamemate/models/requests/login"
+	"sanino/gamemate/models/responses/errors"
+	"sanino/gamemate/models/responses/login"
 
 	"github.com/labstack/echo"
 )
 
 //HandleAuth handles the authentication of the user for the system.
 func HandleAuth(context echo.Context) error {
-	errResp := response.ErrorDetail{}
+	errResp := errorResponses.ErrorDetail{}
 	var isLoggable bool
-	var AuthTry = request.Auth{}
+	var AuthTry = loginRequests.Auth{}
 	var err = AuthTry.FromForm(context)
 
 	if err != nil {
@@ -41,15 +42,15 @@ func HandleAuth(context echo.Context) error {
 		errResp.FromError(errors.New("Cannot Login User"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, errResp)
 	}
-	responseFromServer := response.Auth{}
+	responseFromServer := loginResponses.Auth{}
 	responseFromServer.FromToken(token)
 	return context.JSON(http.StatusCreated, responseFromServer)
 }
 
 //HandleRegistration handles the registration of a user for the system.
 func HandleRegistration(context echo.Context) error {
-	errResp := response.ErrorDetail{}
-	var RegTry = request.Registration{}
+	errResp := errorResponses.ErrorDetail{}
+	var RegTry = loginRequests.Registration{}
 	var err = RegTry.FromForm(context)
 	if err != nil {
 		context.Logger().Print(err)
@@ -85,6 +86,6 @@ func HandleRegistration(context echo.Context) error {
 	}
 
 	//finished, sending token to client
-	responseFromServer := response.Auth{SessionToken: token}
+	responseFromServer := loginResponses.Auth{SessionToken: token}
 	return context.JSON(http.StatusCreated, responseFromServer)
 }

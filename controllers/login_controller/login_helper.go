@@ -6,9 +6,11 @@ import (
 	"errors"
 	"io"
 	"math/rand"
+
 	"sanino/gamemate/configurations"
 	"sanino/gamemate/constants"
-	"sanino/gamemate/models/request/login"
+	"sanino/gamemate/models/requests/login"
+
 	"strconv"
 	"strings"
 	"time"
@@ -77,7 +79,7 @@ func isRegistered(username string, source_email string) (bool, error) {
 
 //insertIntoArchives (without check of previous insertions, only error reporting)
 //inserts a new User into the archives, doing the salty & hashy work.
-func insertIntoArchives(RegTry request.Registration) error {
+func insertIntoArchives(RegTry loginRequests.Registration) error {
 	rand.Seed(time.Now().UTC().UnixNano())
 	salt := rand.Intn(constants.MAX_NUMBER_SALT)
 	saltedPass := RegTry.Password + strconv.Itoa(salt)
@@ -102,7 +104,7 @@ func insertIntoArchives(RegTry request.Registration) error {
 //checkLogin checks if a user pass combination is valid for the specified auth try.
 //
 //Returns true if login is valid, false otherwise and report errors.
-func checkLogin(AuthTry request.Auth) (bool, error) {
+func checkLogin(AuthTry loginRequests.Auth) (bool, error) {
 	var num_rows int
 	var password_hash string
 	var salt int
