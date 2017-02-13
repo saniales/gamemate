@@ -3,6 +3,7 @@ package developerController
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"sanino/gamemate/configurations"
 
@@ -32,7 +33,6 @@ func IsValidAPI_Token(token string) (bool, error) {
 				msgCache + "\" Message from Cache and \"" +
 				msgArchives + "\" Message from Archives.")
 		}
-		//TODO: OK, but cache has errors (which should have been fixed, but this feature is not implemented yet)
 		return true, errors.New("Check API Error: Cache says \"" + msgCache + "\"")
 	}
 	return true, nil
@@ -59,7 +59,25 @@ func checkAPI_TokenInCache(token string) (bool, error) {
 func updateCacheWithAPI_Token(token string) error {
 	conn := configurations.CachePool.Get()
 	defer conn.Close()
-	err := conn.Send("SADD", "API_Tokens", token)
+	//the cache is valid for 24 hours, if an app is not used it should not be in cache.
+	err := conn.Send("SADD", "API_Tokens", token, "EX", time.Hour*24)
+	if err != nil {
+		return err
+	}
+	err = conn.Flush()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+//removeAPI_TokenFromCache removes from the Cache the specified API_Token.
+//
+//Return error if did not manage to update the cache.
+func removeAPI_TokenFromCache(token string) error {
+	conn := configurations.CachePool.Get()
+	defer conn.Close()
+	err := conn.Send("SREM", "API_Tokens", token)
 	if err != nil {
 		return err
 	}
@@ -75,7 +93,9 @@ func updateCacheWithAPI_Token(token string) error {
 //
 //Return true if found, false otherwise.
 func checkAPI_TokenInArchives(token string) (bool, error) {
-	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(token) FROM API_Tokens WHERE token = ?")
+	//TODO : replace DELETE WITH disable flag and the search in archives with a search of enabled.
+	//this can maintain the history of tokens.
+	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(token) FROM API_Tokens WHERE token = ? AND enabled = 1")
 	if err != nil {
 		return false, err
 	}
@@ -99,4 +119,52 @@ func checkAPI_TokenInArchives(token string) (bool, error) {
 		return true, nil
 	}
 	return false, nil
+}
+
+//addAPI_TokenInArchives adds a token linked to the specified developer to the archives.
+func addAPI_TokenInArchives(developerID int64, token string) error {
+	panic("NOT IMPLEMENTED")
+	//TODO : replace DELETE WITH disable flag and the search in archives with a search of enabled.
+	//this can maintain the history of tokens.
+	stmtQuery, err := configurations.ArchivesPool.Prepare("INSERT INTO API_Tokens (developerID, token) VALUES (?, ?)")
+	if err != nil {
+		return err
+	}
+	defer stmtQuery.Close()
+	result, err := stmtQuery.Exec(developerID, token)
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows <= 0 {
+		return errors.New("No Row Affected, possible problem with the query")
+	}
+	return nil
+}
+
+//removeAPI_TokenFromArchives removes a token from the Archives.
+func removeAPI_TokenFromArchives(token string) error {
+	panic("NOT IMPLEMENTED")
+	//TODO : replace DELETE WITH disable flag and the search in archives with a search of enabled.
+	//this can maintain the history of tokens.
+	stmtQuery, err := configurations.ArchivesPool.Prepare("DELETE FROM API_Tokens WHERE token = ?")
+	if err != nil {
+		return err
+	}
+	defer stmtQuery.Close()
+	result, err := stmtQuery.Exec(token)
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows <= 0 {
+		return errors.New("No Row Affected, possible problem with the query")
+	}
+	return nil
 }
