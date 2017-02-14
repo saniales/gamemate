@@ -14,11 +14,13 @@ import (
 )
 
 func registerDeveloper(RegTry developerRequests.DevRegistration) error {
-	err := checkLogin(developerRequests.DevAuth{Email: RegTry.Email, Password: RegTry.Password})
+	isLoggable, err := checkLogin(developerRequests.DevAuth{Email: RegTry.Email, Password: RegTry.Password})
 	if err == nil {
+		return errors.New("Cannot check if user is registered")
+	}
+	if isLoggable {
 		return errors.New("Developer already registered")
 	}
-
 	salt := rand.Intn(constants.MAX_NUMBER_SALT)
 	saltedPass := RegTry.Password + strconv.Itoa(salt)
 

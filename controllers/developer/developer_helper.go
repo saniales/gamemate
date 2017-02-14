@@ -121,7 +121,7 @@ func checkAPI_TokenInArchives(token string) (bool, error) {
 
 //addAPI_TokenInArchives adds a token linked to the specified developer to the archives.
 func addAPI_TokenInArchives(developerEmail string) (string, error) {
-	var token string = controllerSharedFuncs.GenerateToken()
+	token := controllerSharedFuncs.GenerateToken()
 	//TODO: find a way to handle duplicates. or leave the query fail and retry.
 
 	stmtQuery, err := configurations.ArchivesPool.Prepare("INSERT INTO API_Tokens (developerEmail, token, enabled) VALUES (?, ?, 1)")
