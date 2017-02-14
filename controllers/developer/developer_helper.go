@@ -2,10 +2,10 @@ package developerController
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"sanino/gamemate/configurations"
+	"sanino/gamemate/controllers/shared"
 
 	"github.com/garyburd/redigo/redis"
 )
@@ -93,8 +93,6 @@ func removeAPI_TokenFromCache(token string) error {
 //
 //Return true if found, false otherwise.
 func checkAPI_TokenInArchives(token string) (bool, error) {
-	//TODO : replace DELETE WITH disable flag and the search in archives with a search of enabled.
-	//this can maintain the history of tokens.
 	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(token) FROM API_Tokens WHERE token = ? AND enabled = 1")
 	if err != nil {
 		return false, err
@@ -113,8 +111,8 @@ func checkAPI_TokenInArchives(token string) (bool, error) {
 
 	if num_rows > 0 {
 		err = updateCacheWithAPI_Token(token)
-		if err != nil {
-			return true, fmt.Errorf("API_Token %s has been found in archives, however, Cache has not been updated", token)
+		if err != nil { //did not update cache but the request has been satisfied.
+			return true, nil
 		}
 		return true, nil
 	}
@@ -122,35 +120,32 @@ func checkAPI_TokenInArchives(token string) (bool, error) {
 }
 
 //addAPI_TokenInArchives adds a token linked to the specified developer to the archives.
-func addAPI_TokenInArchives(developerID int64, token string) error {
-	panic("NOT IMPLEMENTED")
-	//TODO : replace DELETE WITH disable flag and the search in archives with a search of enabled.
-	//this can maintain the history of tokens.
-	stmtQuery, err := configurations.ArchivesPool.Prepare("INSERT INTO API_Tokens (developerID, token) VALUES (?, ?)")
+func addAPI_TokenInArchives(developerEmail string) (string, error) {
+	var token string = controllerSharedFuncs.GenerateToken()
+	//TODO: find a way to handle duplicates. or leave the query fail and retry.
+
+	stmtQuery, err := configurations.ArchivesPool.Prepare("INSERT INTO API_Tokens (developerEmail, token, enabled) VALUES (?, ?, 1)")
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer stmtQuery.Close()
-	result, err := stmtQuery.Exec(developerID, token)
+	result, err := stmtQuery.Exec(developerEmail, token)
 	if err != nil {
-		return err
+		return "", err
 	}
 	rows, err := result.RowsAffected()
 	if err != nil {
-		return err
+		return "", err
 	}
 	if rows <= 0 {
-		return errors.New("No Row Affected, possible problem with the query")
+		return "", errors.New("No Row Affected, possible problem with the query")
 	}
-	return nil
+	return token, nil
 }
 
 //removeAPI_TokenFromArchives removes a token from the Archives.
 func removeAPI_TokenFromArchives(token string) error {
-	panic("NOT IMPLEMENTED")
-	//TODO : replace DELETE WITH disable flag and the search in archives with a search of enabled.
-	//this can maintain the history of tokens.
-	stmtQuery, err := configurations.ArchivesPool.Prepare("DELETE FROM API_Tokens WHERE token = ?")
+	stmtQuery, err := configurations.ArchivesPool.Prepare("UPDATE API_Tokens SET enabled = 0 WHERE token = ?")
 	if err != nil {
 		return err
 	}

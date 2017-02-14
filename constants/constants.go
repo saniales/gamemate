@@ -18,8 +18,10 @@ const (
 	TURN_END_PATH           string = "/end_turn"      //Path to handle the end of a turn.
 	TURN_END_MATCH_ACK      string = "/end_match_ack" //Path to let the server know that the client received the
 
-	MAX_NUMBER_SALT        int           = 20000            //base salt used in password hashing.
-	INVALID_TOKEN          string        = "INVALID"        //Represents an invalid token returned from a func with errors during the creation.
-	CACHE_REFRESH_INTERVAL time.Duration = time.Minute * 30 //The time between cache refreshes.
-	DEBUG                  bool          = true             //if true, application is being debugged.
+	MAX_NUMBER_SALT        int           = 20000               //base salt used in password hashing.
+	INVALID_TOKEN          string        = "INVALID"           //Represents an invalid token returned from a func with errors during the creation.
+	CACHE_REFRESH_INTERVAL time.Duration = time.Minute * 30    //The time between cache refreshes.
+	LOGGED_USERS_SET       string        = "logged_users"      //represents the name of session set in cache of logged users.
+	LOGGED_DEVELOPERS_SET  string        = "logged_developers" //represents the name of session set in cache of logged developers.
+	DEBUG                  bool          = true                //if true, application is being debugged.
 )

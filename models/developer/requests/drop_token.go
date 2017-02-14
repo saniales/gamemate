@@ -1,4 +1,4 @@
-package developerResponses
+package developerRequests
 
 import (
 	"errors"

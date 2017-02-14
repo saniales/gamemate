@@ -1,7 +1,9 @@
 package configurations
 
 import (
+	"math/rand"
 	"sanino/gamemate/constants"
+	"time"
 
 	"github.com/labstack/echo" //echo main package.
 	"github.com/labstack/echo/middleware"
@@ -9,6 +11,7 @@ import (
 
 //InitServer configures the server for fresh start with the default configuration.
 func InitServer() *echo.Echo {
+	rand.Seed(time.Now().UTC().UnixNano())
 	server := echo.New()
 	// Middleware
 	server.Use(middleware.Logger())

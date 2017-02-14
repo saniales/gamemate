@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"sanino/gamemate/constants"
+	"sanino/gamemate/controllers/shared"
 	"sanino/gamemate/models/shared/responses/errors"
 	"sanino/gamemate/models/user/requests/login"
 	"sanino/gamemate/models/user/responses/login"
@@ -37,7 +38,7 @@ func HandleAuth(context echo.Context) error {
 		context.Logger().Printf(errMsg)
 		return context.JSON(http.StatusBadRequest, errResp)
 	}
-	token, err := updateCacheNewSession(AuthTry.Username, constants.CACHE_REFRESH_INTERVAL)
+	token, err := controllerSharedFuncs.UpdateCacheNewSession(constants.LOGGED_USERS_SET, AuthTry.Username, constants.CACHE_REFRESH_INTERVAL)
 	if err != nil {
 		context.Logger().Print(err)
 		errResp.FromError(errors.New("Cannot Login User"), http.StatusInternalServerError)
@@ -79,7 +80,7 @@ func HandleRegistration(context echo.Context) error {
 		return context.JSON(http.StatusInternalServerError, errResp)
 	}
 
-	token, err := updateCacheNewSession(RegTry.Username, constants.CACHE_REFRESH_INTERVAL)
+	token, err := updateCacheNewUserSession(RegTry.Email)
 	if err != nil {
 		context.Logger().Print(err)
 		errResp.FromError(errors.New("Cannot Insert User"), http.StatusInternalServerError)
@@ -87,6 +88,7 @@ func HandleRegistration(context echo.Context) error {
 	}
 
 	//finished, sending token to client
-	responseFromServer := loginResponses.Auth{SessionToken: token}
+	responseFromServer := loginResponses.Auth{}
+	responseFromServer.FromToken(token)
 	return context.JSON(http.StatusCreated, responseFromServer)
 }
