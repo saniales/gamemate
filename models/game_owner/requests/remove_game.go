@@ -1,4 +1,4 @@
-package vendorRequests
+package gameOwnerRequests
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-//RemoveGame represents a request to remove a game from a vendors list.
+//RemoveGame represents a request to remove a game from a gameOwners list.
 //
 //Only the owner of the game can perform this action.
 type RemoveGame struct {

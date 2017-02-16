@@ -1,4 +1,4 @@
-package vendorRequests
+package gameOwnerRequests
 
 import (
 	"errors"
@@ -7,8 +7,8 @@ import (
 	"github.com/labstack/echo"
 )
 
-//VendorGameAction represents a request to enable a game for a user.
-type VendorGameAction struct {
+//GameOwnerAction represents a request to enable a game for a user.
+type GameOwnerAction struct {
 	Type         string `json:"Type" xml:"Type" form:"Type"`
 	API_Token    string `json:"API_Token" xml:"API_Token" form:"API_Token"`
 	SessionToken string `json:"SessionToken" xml:"SessionToken" form:"SessionToken"`
@@ -20,7 +20,7 @@ type VendorGameAction struct {
 //FromForm creates a valid Sruct based on form data submitted, or returns error.
 //
 // Does not check for the validity of the items inside the struct (e.g. tokens)
-func (receiver *VendorGameAction) FromForm(c echo.Context) error {
+func (receiver *GameOwnerAction) FromForm(c echo.Context) error {
 	var err error
 	errMsg := "Invalid Form Submitted"
 	receiver.Type = c.FormValue("Type")
@@ -42,7 +42,7 @@ func (receiver *VendorGameAction) FromForm(c echo.Context) error {
 		return errors.New(errMsg)
 	}
 
-	if receiver.Type != "VendorGameAction" || receiver.API_Token == "" ||
+	if receiver.Type != "GameOwnerAction" || receiver.API_Token == "" ||
 		receiver.SessionToken == "" || receiver.GameID <= 0 ||
 		receiver.UserID <= 0 {
 		return errors.New(errMsg)

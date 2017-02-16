@@ -1,4 +1,4 @@
-package vendorRequests
+package gameOwnerRequests
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-//MyGames represents a request to obtain a VendorGameList for the vendor.
+//MyGames represents a request to obtain a gameOwnerGameList for the gameOwner.
 type MyGames struct {
 	Type         string `json:"Type" xml:"Type" form:"Type"`
 	API_Token    string `json:"API_Token" xml:"API_Token" form:"API_Token"`

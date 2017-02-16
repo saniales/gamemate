@@ -1,6 +1,6 @@
-package vendorResponses
+package gameOwnerResponses
 
-//AddGame represents a POSITIVE response to a vendorRequests.AddGame
+//AddGame represents a POSITIVE response to a gameOwnerRequests.AddGame
 //
 //For NEGATIVE response, please refer to errorResponses.ErrorResponse.
 type AddGame struct {

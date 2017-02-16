@@ -1,4 +1,4 @@
-package developerController
+package gameOwnerController
 
 import (
 	"errors"
@@ -7,14 +7,14 @@ import (
 	"sanino/gamemate/configurations"
 	"sanino/gamemate/constants"
 	"sanino/gamemate/controllers/shared"
-	"sanino/gamemate/models/developer/requests"
+	"sanino/gamemate/models/game_owner/requests"
 	"strconv"
 
 	"github.com/garyburd/redigo/redis"
 )
 
-func registerDeveloper(RegTry developerRequests.DevRegistration) error {
-	isLoggable, err := checkLogin(developerRequests.DevAuth{Email: RegTry.Email, Password: RegTry.Password})
+func registerOwner(RegTry gameOwnerRequests.GameOwnerRegistration) error {
+	isLoggable, err := checkLogin(gameOwnerRequests.GameOwnerAuth{Email: RegTry.Email, Password: RegTry.Password})
 	if err == nil {
 		return errors.New("Cannot check if user is registered")
 	}
@@ -25,7 +25,7 @@ func registerDeveloper(RegTry developerRequests.DevRegistration) error {
 	saltedPass := RegTry.Password + strconv.Itoa(salt)
 
 	stmtQuery, err := configurations.ArchivesPool.Prepare(
-		fmt.Sprintf("INSERT INTO developers (ID, email, password) VALUES (NULL, ?, %s)",
+		fmt.Sprintf("INSERT INTO game_owners (ID, email, password) VALUES (NULL, ?, %s)",
 			controllerSharedFuncs.ConvertToHexString(saltedPass)),
 	)
 	if err != nil {
@@ -49,7 +49,7 @@ func registerDeveloper(RegTry developerRequests.DevRegistration) error {
 //some errors occurred with the Archives.
 //
 //Returns true if found, false otherwise.
-func checkLogin(AuthTry developerRequests.DevAuth) (bool, error) {
+func checkLogin(AuthTry gameOwnerRequests.GameOwnerAuth) (bool, error) {
 
 	var num_rows int
 	var password_hash string
@@ -66,7 +66,7 @@ func checkLogin(AuthTry developerRequests.DevAuth) (bool, error) {
 		return false, err
 	}
 	if !result.Next() {
-		return false, errors.New("Cannot login user")
+		return false, errors.New("Cannot login user, Database error")
 	}
 	err = result.Scan(&num_rows, &password_hash, &salt)
 	if err != nil {
@@ -79,13 +79,13 @@ func checkLogin(AuthTry developerRequests.DevAuth) (bool, error) {
 	return salted_hash == "0x"+password_hash, nil
 }
 
-func updateCacheWithSessionDeveloperToken(email string) (string, error) {
-	return controllerSharedFuncs.UpdateCacheNewSession(constants.LOGGED_DEVELOPERS_SET, email, constants.CACHE_REFRESH_INTERVAL)
+func updateCacheWithSessionGameOwnerToken(email string) (string, error) {
+	return controllerSharedFuncs.UpdateCacheNewSession(constants.LOGGED_OWNERS_SET, email, constants.CACHE_REFRESH_INTERVAL)
 }
 
-func getDevEmailFromSessionToken(token string) (string, error) {
+func getOwnerEmailFromSessionToken(token string) (string, error) {
 	conn := configurations.CachePool.Get()
-	email, err := redis.String(conn.Do("GET", "token/"+token+"/"+constants.LOGGED_DEVELOPERS_SET))
+	email, err := redis.String(conn.Do("GET", "token/"+token+"/"+constants.LOGGED_OWNERS_SET))
 	if err != nil {
 		return "", err
 	}

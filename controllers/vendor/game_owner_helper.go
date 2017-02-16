@@ -1,66 +1,37 @@
-package developerController
+package gameOwnerController
 
 import (
 	"errors"
-	"time"
 
 	"sanino/gamemate/configurations"
 	"sanino/gamemate/controllers/shared"
-
-	"github.com/garyburd/redigo/redis"
+	"sanino/gamemate/models/game_owner/data_structures"
 )
 
-//IsValidAPI_Token Provides a control for forged requests with fake API_Tokens
-//
-//Returns true if the token is valid, false otherwise.
-func IsValidAPI_Token(token string) (bool, error) {
-	var msgCache, msgArchives string
-	isInCache, errCache := checkAPI_TokenInCache(token)
-	if !isInCache {
-		if errCache != nil {
-			msgCache = errCache.Error()
-		} else {
-			msgCache = "No Error"
-		}
-		isInArchives, errArchives := checkAPI_TokenInArchives(token)
-		if !isInArchives {
-			if errArchives != nil {
-				msgArchives = errArchives.Error()
-			} else {
-				msgArchives = "No Error"
-			}
-			return false, errors.New("Check API Error: \"" +
-				msgCache + "\" Message from Cache and \"" +
-				msgArchives + "\" Message from Archives.")
-		}
-		return true, errors.New("Check API Error: Cache says \"" + msgCache + "\"")
-	}
-	return true, nil
-}
-
-//checkAPI_TokenInCache searchs for an API_Token in the cache.
-//
-//Return true if found, false otherwise.
-func checkAPI_TokenInCache(token string) (bool, error) {
-	conn := configurations.CachePool.Get()
-	defer conn.Close()
-
-	result, err := redis.Int64(conn.Do("SISMEMBER", "API_Tokens", token))
-	if err != nil {
-		return false, err
-	}
-
-	return result == 1, nil
-}
-
-//updateCacheWithAPI_Token updates the Cache with the specified API_Token.
+//updateCacheWithNewGame updates the Cache with the specified API_Token.
 //
 //Return error if did not manage to update the cache.
-func updateCacheWithAPI_Token(token string) error {
+func updateCacheWithNewGame(game gameOwnerDataStructs.Game) error {
 	conn := configurations.CachePool.Get()
 	defer conn.Close()
-	//the cache is valid for 24 hours, if an app is not used it should not be in cache.
-	err := conn.Send("SADD", "API_Tokens", token, "EX", time.Hour*24)
+
+	err := conn.Send("MULTI")
+	if err != nil {
+		return err
+	}
+
+	//a game must be in cache until it's removed
+	err = conn.Send("SADD", "all_games", Game.Name)
+	if err != nil {
+		return err
+	}
+
+	err = conn.Send("HMSET", "games/"+Game.Name, "ID", Game.ID, "max_players", Game.MaxPlayers)
+	if err != nil {
+		return err
+	}
+
+	err = conn.Send("EXEC")
 	if err != nil {
 		return err
 	}
@@ -71,16 +42,23 @@ func updateCacheWithAPI_Token(token string) error {
 	return nil
 }
 
-//removeAPI_TokenFromCache removes from the Cache the specified API_Token.
+//removeGameFromCache removes from the Cache the specified API_Token.
 //
 //Return error if did not manage to update the cache.
-func removeAPI_TokenFromCache(token string) error {
+func removeGameFromCache(Name string) error {
 	conn := configurations.CachePool.Get()
 	defer conn.Close()
+
 	err := conn.Send("SREM", "API_Tokens", token)
 	if err != nil {
 		return err
 	}
+
+	err = conn.Send("DEL", "games"+Name)
+	if err != nil {
+		return err
+	}
+
 	err = conn.Flush()
 	if err != nil {
 		return err
@@ -88,17 +66,17 @@ func removeAPI_TokenFromCache(token string) error {
 	return nil
 }
 
-//checkAPI_TokenInArchives checks for the existance of the token in the archives
+//checkGameInArchives checks for the existance of the game in the archives
 //and, if found, updates the cache.
 //
 //Return true if found, false otherwise.
-func checkAPI_TokenInArchives(token string) (bool, error) {
-	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(token) FROM API_Tokens WHERE token = ? AND enabled = 1")
+func checkGameInArchives(name string, ownerID int64) (bool, error) {
+	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(name) FROM games WHERE name = ? AND ownerID = ?")
 	if err != nil {
 		return false, err
 	}
 	defer stmtQuery.Close()
-	result, err := stmtQuery.Query(token)
+	result, err := stmtQuery.Query(name, ownerID)
 	if err != nil {
 		return false, err
 	}
@@ -110,7 +88,7 @@ func checkAPI_TokenInArchives(token string) (bool, error) {
 	result.Scan(&num_rows)
 
 	if num_rows > 0 {
-		err = updateCacheWithAPI_Token(token)
+		err = updateCacheWithNewGame(name)
 		if err != nil { //did not update cache but the request has been satisfied.
 			return true, nil
 		}

@@ -1,6 +1,6 @@
-package vendorResponses
+package gameOwnerResponses
 
-//RemoveGame represents a response to a vendorRequests.RemoveGame.
+//RemoveGame represents a response to a gameOwnerRequests.RemoveGame.
 //
 //Only the owner of the game can perform this action.
 //For NEGATIVE response, please refer to errorResponses.ErrorResponse.
@@ -12,7 +12,7 @@ type RemoveGame struct {
 
 //FromGameID fills the struct with a POSITIVE response from a GameID.
 func (receiver *RemoveGame) FromGameID(GameID int64) {
-	receiver.Type = "VendorGameAction"
+	receiver.Type = "GameOwnerGameAction"
 	receiver.GameID = GameID
 	receiver.Result = "OK"
 }

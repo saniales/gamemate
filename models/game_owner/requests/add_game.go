@@ -1,4 +1,4 @@
-package vendorRequests
+package gameOwnerRequests
 
 import (
 	"errors"
