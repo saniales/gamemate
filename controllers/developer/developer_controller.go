@@ -42,6 +42,9 @@ func HandleAddAPI_Token(context echo.Context) error {
 		errorResp.FromError(errors.New("Cannot create API Token"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, errorResp)
 	}
+	if err != nil {
+		context.Logger().Print(fmt.Errorf("Cannot add new API Token in Cache, warning => %v", err))
+	}
 	response := developerResponses.AddToken{}
 	response.FromAPIToken(token)
 	return context.JSON(http.StatusCreated, response)

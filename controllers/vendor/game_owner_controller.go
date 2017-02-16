@@ -50,8 +50,8 @@ func HandleAddGame(context echo.Context) error {
 }
 
 //HandleDropAPI_Token handles a request to remove a developer API Token.
-func HandleDropAPI_Token(context echo.Context) error {
-	request := developerRequests.DropToken{}
+func HandleRemoveGame(context echo.Context) error {
+	request := gameOwnerRequests.RemoveGame{}
 	err := request.FromForm(context)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
@@ -59,7 +59,7 @@ func HandleDropAPI_Token(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
 
-	IsValid, err := IsValidAPI_Token(request.API_Token)
+	IsValid, err := developerController.IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
 		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
@@ -67,7 +67,7 @@ func HandleDropAPI_Token(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
 
-	err = removeAPI_TokenFromCache(request.TokenToDrop)
+	err = removeGameFromCache()
 	if err != nil {
 		context.Logger().Print(fmt.Errorf("%s API Token not removed. Error => %v", request.TokenToDrop, err))
 		errorResp := errorResponses.ErrorDetail{}
@@ -83,14 +83,15 @@ func HandleDropAPI_Token(context echo.Context) error {
 		return context.JSON(http.StatusInternalServerError, errorResp)
 	}
 
-	response := developerResponses.DropToken{}
-	response.FromOldAPIToken(request.TokenToDrop)
-	return context.JSON(http.StatusOK, response)
+	response := gameOwnerResponses.RemoveGame{}
+	panic("CAZZEN")
+	//response.FromGameID(1)
+	//return context.JSON(http.StatusOK, response)
 }
 
 //HandleRegistration handles a request to register a developer.
 func HandleRegistration(context echo.Context) error {
-	request := developerRequests.DevRegistration{}
+	request := gameOwnerRequests.GameOwnerRegistration{}
 	err := request.FromForm(context)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
@@ -98,28 +99,36 @@ func HandleRegistration(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
 
-	err = registerDeveloper(request)
+	IsValid, err := developerController.IsValidAPI_Token(request.API_Token)
+	if !IsValid || err != nil {
+		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
+		errorResp := errorResponses.ErrorDetail{}
+		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
+		return context.JSON(http.StatusBadRequest, errorResp)
+	}
+
+	err = registerOwner(request)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(err, http.StatusInternalServerError)
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
 
-	token, err := updateCacheWithSessionDeveloperToken(request.Email)
+	token, err := updateCacheWithSessionOwnerToken(request.Email)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("User registered, but I did not login automatically, try to login later"), http.StatusBadRequest)
 		return context.JSON(http.StatusInternalServerError, errorResp)
 	}
 
-	responseFromServer := developerResponses.DevAuth{}
+	responseFromServer := gameOwnerResponses.GameOwnerAuth{}
 	responseFromServer.FromToken(token)
 	return context.JSON(http.StatusCreated, responseFromServer)
 }
 
 //HandleLogin handles login requests for developers.
 func HandleLogin(context echo.Context) error {
-	request := developerRequests.DevAuth{}
+	request := gameOwnerRequests.GameOwnerAuth{}
 	err := request.FromForm(context)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
@@ -127,7 +136,7 @@ func HandleLogin(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
 
-	IsValid, err := IsValidAPI_Token(request.API_Token)
+	IsValid, err := developerController.IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
 		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
@@ -148,14 +157,14 @@ func HandleLogin(context echo.Context) error {
 		errorResp.FromError(errors.New("User - Password combination wrong, retry"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
-	token, err := updateCacheWithSessionDeveloperToken(request.Email)
+	token, err := updateCacheWithSessionOwnerToken(request.Email)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(err)
 		errorResp.FromError(errors.New("Temporary error, retry in a few seconds"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, errorResp)
 	}
-	response := developerResponses.DevAuth{}
+	response := gameOwnerResponses.GameOwnerAuth{}
 	response.FromToken(token)
 	return context.JSON(http.StatusCreated, response)
 }

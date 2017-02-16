@@ -85,7 +85,7 @@ func updateCacheWithSessionDeveloperToken(email string) (string, error) {
 
 func getDevEmailFromSessionToken(token string) (string, error) {
 	conn := configurations.CachePool.Get()
-	email, err := redis.String(conn.Do("GET", "token/"+token+"/"+constants.LOGGED_DEVELOPERS_SET))
+	email, err := redis.String(conn.Do("GET", "token/"+token+"/"+constants.LOGGED_DEVELOPERS_SET+":email"))
 	if err != nil {
 		return "", err
 	}

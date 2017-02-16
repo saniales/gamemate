@@ -24,11 +24,11 @@ const (
 	DEVELOPER_ADD_API_TOKEN_PATH string = "/dev/api_token/add"  //Path to handle add api token requests.
 	DEVELOPER_DROP_API_TOKEN     string = "/dev/api_token/drop" //Path to handle drop api token requests.
 
-	VENDOR_AUTH_PATH         string = "/vendor/auth"        //Path to handle vendor authentication.
-	VENDOR_REGISTRATION_PATH string = "/vendor/register"    //Path to handle vendor registration.
-	VENDOR_ADD_GAME_PATH     string = "/vendor/game/add"    //Path to handle add game requests.
-	VENDOR_REMOVE_GAME_PATH  string = "/vendor/game/remove" //Path to handle remove game requests.
-	VENDOR_GAME_LIST         string = "/vendor/game/list"   //Path to handle requests to show games of a vendor.
+	GAME_OWNER_AUTH_PATH         string = "/owner/auth"        //Path to handle GAME_OWNER authentication.
+	GAME_OWNER_REGISTRATION_PATH string = "/owner/register"    //Path to handle GAME_OWNER registration.
+	GAME_OWNER_ADD_GAME_PATH     string = "/owner/game/add"    //Path to handle add game requests.
+	GAME_OWNER_REMOVE_GAME_PATH  string = "/owner/game/remove" //Path to handle remove game requests.
+	GAME_OWNER_GAME_LIST         string = "/owner/game/list"   //Path to handle requests to show games of a GAME_OWNER.
 
 	//misc
 	MAX_NUMBER_SALT        int           = 20000               //base salt used in password hashing.

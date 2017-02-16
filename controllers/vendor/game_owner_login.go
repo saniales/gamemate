@@ -79,18 +79,18 @@ func checkLogin(AuthTry gameOwnerRequests.GameOwnerAuth) (bool, error) {
 	return salted_hash == "0x"+password_hash, nil
 }
 
-func updateCacheWithSessionGameOwnerToken(email string) (string, error) {
+func updateCacheWithSessionOwnerToken(email string) (string, error) {
 	return controllerSharedFuncs.UpdateCacheNewSession(constants.LOGGED_OWNERS_SET, email, constants.CACHE_REFRESH_INTERVAL)
 }
 
-func getOwnerEmailFromSessionToken(token string) (string, error) {
+func getOwnerIDFromSessionToken(token string) (int64, error) {
 	conn := configurations.CachePool.Get()
-	email, err := redis.String(conn.Do("GET", "token/"+token+"/"+constants.LOGGED_OWNERS_SET))
+	ID, err := redis.Int64(conn.Do("GET", "token/"+token+"/"+constants.LOGGED_OWNERS_SET))
 	if err != nil {
 		return "", err
 	}
-	if email == "" {
-		return "", errors.New("Invalid Session")
+	if ID == 0 {
+		return -1, errors.New("Invalid Session")
 	}
-	return email, nil
+	return ID, nil
 }

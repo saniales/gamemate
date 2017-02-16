@@ -49,12 +49,17 @@ func removeGameFromCache(Name string) error {
 	conn := configurations.CachePool.Get()
 	defer conn.Close()
 
-	err := conn.Send("SREM", "API_Tokens", token)
+	err := conn.Send("MULTI")
 	if err != nil {
 		return err
 	}
 
-	err = conn.Send("DEL", "games"+Name)
+	err = conn.Send("SREM", "all_games", Name)
+	if err != nil {
+		return err
+	}
+
+	err = conn.Send("DEL", "games/"+Name)
 	if err != nil {
 		return err
 	}
@@ -63,6 +68,12 @@ func removeGameFromCache(Name string) error {
 	if err != nil {
 		return err
 	}
+
+	err = conn.Send("EXEC")
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -98,10 +109,10 @@ func checkGameInArchives(name string, ownerID int64) (bool, error) {
 }
 
 //addAPI_TokenInArchives adds a token linked to the specified developer to the archives.
-func addAPI_TokenInArchives(developerEmail string) (string, error) {
+func addGameInArchives(ownerID int64) (string, error) {
 	token := controllerSharedFuncs.GenerateToken()
 	//TODO: find a way to handle duplicates. or leave the query fail and retry.
-	stmtQuery, err := configurations.ArchivesPool.Prepare("INSERT INTO API_Tokens (developerEmail, token, enabled) VALUES (?, ?, 1)")
+	stmtQuery, err := configurations.ArchivesPool.Prepare("INSERT INTO games (ownerId, name, description, max_players) VALUES (?, ?, ?)")
 	if err != nil {
 		return "", err
 	}
@@ -120,15 +131,15 @@ func addAPI_TokenInArchives(developerEmail string) (string, error) {
 	return token, nil
 }
 
-//removeAPI_TokenFromArchives removes a token from the Archives.
-func removeAPI_TokenFromArchives(token string) error {
-	stmtQuery, err := configurations.ArchivesPool.Prepare("UPDATE API_Tokens SET enabled = 0 WHERE token = ?")
+//removeGameFromArchives removes a token from the Archives.
+func removeGameFromArchives( /*Owner string, */ Name string) error {
+	stmtQuery, err := configurations.ArchivesPool.Prepare("DELETE FROM games WHERE Name = ?")
 	if err != nil {
 		return err
 	}
 	defer stmtQuery.Close()
 
-	result, err := stmtQuery.Exec(token)
+	result, err := stmtQuery.Exec(Name)
 	if err != nil {
 		return err
 	}
