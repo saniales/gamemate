@@ -4,6 +4,7 @@ import (
 	"crypto/sha512"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"io"
 	"sanino/gamemate/configurations"
 	"sanino/gamemate/constants"
@@ -20,7 +21,12 @@ func GenerateToken() string {
 }
 
 //UpdateCacheNewSession Updates the cache SessionSet with the email and the expiration.
-func UpdateCacheNewSession(SessionSet string, email string, expiration time.Duration) (string, error) {
+//
+//ID represents the ID of the entity to put
+//values represents additional data to create hashmaps,
+//they must be in the form ["key1", "value1", "key2", "value2", ..., and so on];
+//can be empty.
+func UpdateCacheNewSession(SessionSet string, expiration time.Duration, ID int64, values ...string) (string, error) {
 	var token string
 	conn := configurations.CachePool.Get()
 	defer conn.Close()
@@ -48,13 +54,15 @@ func UpdateCacheNewSession(SessionSet string, email string, expiration time.Dura
 	if err != nil {
 		return constants.INVALID_TOKEN, err
 	}
-	err = conn.Send("SET", SessionSet+"/"+email+"/token", token, "EX", int(expiration.Seconds()))
+
+	err = conn.Send("HMSET", SessionSet+"/with_token/"+token, "ID", ID, values, "EX", int(expiration.Seconds()))
 	//if set when a user logons with an expired key it is removed from cache and set
 	if err != nil {
 		return constants.INVALID_TOKEN, err
 	}
 
-	err = conn.Send("SET", "token/"+token+"/"+SessionSet, email, "EX", int(expiration.Seconds()))
+	command := fmt.Sprintf("%s/%d", SessionSet, ID)
+	err = conn.Send("SET", command, token, "EX", int(expiration.Seconds()))
 	//if set when a user logons with an expired key it is removed from cache and set
 	if err != nil {
 		return constants.INVALID_TOKEN, err

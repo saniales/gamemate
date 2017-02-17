@@ -28,14 +28,14 @@ func HandleAddAPI_Token(context echo.Context) error {
 		errorResp.FromError(err, http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
-	email, err := getDevEmailFromSessionToken(request.SessionToken)
+	ID, err := getDevIDFromSessionToken(request.SessionToken)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(fmt.Errorf("%s token rejected by the system, Invalid Session", request.SessionToken))
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
-	token, err := addAPI_TokenInArchives(email)
+	token, err := addAPI_TokenInArchives(ID)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(fmt.Errorf("Cannot create new API Token, error => %v", err))
@@ -76,7 +76,15 @@ func HandleDropAPI_Token(context echo.Context) error {
 		return context.JSON(http.StatusInternalServerError, errorResp)
 	}
 
-	err = removeAPI_TokenFromArchives(request.TokenToDrop)
+	ID, err := getDevIDFromSessionToken(request.SessionToken)
+	if err != nil {
+		errorResp := errorResponses.ErrorDetail{}
+		context.Logger().Print(fmt.Errorf("%s token rejected by the system, Invalid Session", request.SessionToken))
+		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
+		return context.JSON(http.StatusBadRequest, errorResp)
+	}
+
+	err = removeAPI_TokenFromArchives(ID, request.TokenToDrop)
 	if err != nil {
 		context.Logger().Print(fmt.Errorf("%s API Token not removed. Error => %v", request.TokenToDrop, err))
 		errorResp := errorResponses.ErrorDetail{}
@@ -99,14 +107,14 @@ func HandleRegistration(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
 
-	err = registerDeveloper(request)
+	ID, err := registerDeveloper(request)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(err, http.StatusInternalServerError)
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
 
-	token, err := updateCacheWithSessionDeveloperToken(request.Email)
+	token, err := updateCacheWithSessionDeveloperToken(ID)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("User registered, but I did not login automatically, try to login later"), http.StatusBadRequest)
@@ -136,7 +144,7 @@ func HandleLogin(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
 
-	isLoggable, err := checkLogin(request)
+	isLoggable, developerID, err := checkLogin(request)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(err)
@@ -149,7 +157,8 @@ func HandleLogin(context echo.Context) error {
 		errorResp.FromError(errors.New("User - Password combination wrong, retry"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
-	token, err := updateCacheWithSessionDeveloperToken(request.Email)
+
+	token, err := updateCacheWithSessionDeveloperToken(developerID)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(err)

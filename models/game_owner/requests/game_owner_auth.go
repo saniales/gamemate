@@ -10,7 +10,7 @@ import (
 type GameOwnerAuth struct {
 	Type      string `json:"Type" xml:"Type" form:"Type"`
 	API_Token string `json:"API_Token" xml:"API_Token" form:"API_Token"`
-	Username  string `json:"Username" xml:"Username" form:"Username"`
+	Email     string `json:"Email" xml:"Email" form:"Email"`
 	Password  string `json:"Password" xml:"Password" form:"Password"`
 }
 
@@ -21,10 +21,10 @@ func (receiver *GameOwnerAuth) FromForm(c echo.Context) error {
 	var err error
 	receiver.Type = c.FormValue("Type")
 	receiver.API_Token = c.FormValue("API_Token")
-	receiver.Username = c.FormValue("Username")
+	receiver.Email = c.FormValue("Email")
 	receiver.Password = c.FormValue("Password")
 
-	if receiver.Type != "GameOwnerAuth" || receiver.Username == "" || receiver.Password == "" || receiver.API_Token == "" {
+	if receiver.Type != "GameOwnerAuth" || receiver.Email == "" || receiver.Password == "" || receiver.API_Token == "" {
 		err = errors.New("Invalid Form Submitted")
 	}
 	return err

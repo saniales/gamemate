@@ -22,6 +22,6 @@ func InitServer() *echo.Echo {
 		AllowMethods: []string{echo.POST},
 	}))
 	server.SetDebug(constants.DEBUG)
-	collectCacheGarbage()
+	collectCacheGarbage(server)
 	return server
 }

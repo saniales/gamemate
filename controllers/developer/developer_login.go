@@ -13,13 +13,16 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-func registerDeveloper(RegTry developerRequests.DevRegistration) error {
-	isLoggable, err := checkLogin(developerRequests.DevAuth{Email: RegTry.Email, Password: RegTry.Password})
+//registerDeveloper inserts a developer into the archives.
+//
+//Returns ID if successfull, error otherwise is filled.
+func registerDeveloper(RegTry developerRequests.DevRegistration) (int64, error) {
+	isLoggable, _, err := checkLogin(developerRequests.DevAuth{Email: RegTry.Email, Password: RegTry.Password})
 	if err == nil {
-		return errors.New("Cannot check if user is registered")
+		return -1, errors.New("Cannot check if user is registered")
 	}
 	if isLoggable {
-		return errors.New("Developer already registered")
+		return -1, errors.New("Developer already registered")
 	}
 	salt := rand.Intn(constants.MAX_NUMBER_SALT)
 	saltedPass := RegTry.Password + strconv.Itoa(salt)
@@ -29,68 +32,83 @@ func registerDeveloper(RegTry developerRequests.DevRegistration) error {
 			controllerSharedFuncs.ConvertToHexString(saltedPass)),
 	)
 	if err != nil {
-		return err
+		return -1, err
 	}
+	defer stmtQuery.Close()
+
 	result, err := stmtQuery.Exec(RegTry.Email)
 	if err != nil {
-		return err
+		return -1, err
 	}
+
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return err
+		return -1, err
 	}
 	if rowsAff <= 0 {
-		return errors.New("No row affected, possible error with the query")
+		return -1, errors.New("No row affected, possible error with the query")
 	}
-	return nil
+
+	insertID, err := result.LastInsertId()
+	if err != nil {
+		return -1, err
+	}
+	return insertID, nil
 }
 
 //checkLogin searchs for an user with the specified credentials, return error
 //some errors occurred with the Archives.
 //
 //Returns true if found, false otherwise.
-func checkLogin(AuthTry developerRequests.DevAuth) (bool, error) {
+//Additionally returns if found the developerID (V.2)
+func checkLogin(AuthTry developerRequests.DevAuth) (bool, int64, error) {
 
 	var num_rows int
 	var password_hash string
+	var developerID int64
 	var salt int
 
-	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(*) AS num_rows, HEX(hash_pwd), hash_salt FROM developers WHERE email = ? GROUP BY hash_pwd, hash_salt")
+	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(*) AS num_rows, HEX(hash_pwd), hash_salt, ID FROM developers WHERE email = ? GROUP BY hash_pwd, hash_salt")
 	if err != nil {
-		return false, err
+		return false, -1, err
 	}
 	defer stmtQuery.Close()
 
 	result, err := stmtQuery.Query(AuthTry.Email)
 	if err != nil {
-		return false, err
+		return false, -1, err
 	}
 	if !result.Next() {
-		return false, errors.New("Cannot login user")
+		return false, -1, errors.New("Cannot login user")
 	}
-	err = result.Scan(&num_rows, &password_hash, &salt)
+	err = result.Scan(&num_rows, &password_hash, &salt, &developerID)
 	if err != nil {
-		return false, err
+		return false, -1, err
 	}
 	salted_pwd := AuthTry.Password + strconv.Itoa(salt)
 	salted_hash := controllerSharedFuncs.ConvertToHexString(salted_pwd)
 	//fmt.Println("0x" + password_hash)
 	//fmt.Println(salted_hash)
-	return salted_hash == "0x"+password_hash, nil
+	if salted_hash == "0x"+password_hash {
+		return true, developerID, nil
+	}
+	return false, -1, nil
 }
 
-func updateCacheWithSessionDeveloperToken(email string) (string, error) {
-	return controllerSharedFuncs.UpdateCacheNewSession(constants.LOGGED_DEVELOPERS_SET, email, constants.CACHE_REFRESH_INTERVAL)
+func updateCacheWithSessionDeveloperToken(developerID int64) (string, error) {
+	return controllerSharedFuncs.UpdateCacheNewSession(constants.LOGGED_DEVELOPERS_SET, constants.CACHE_REFRESH_INTERVAL, developerID) //can add extra data, see documentation
 }
 
-func getDevEmailFromSessionToken(token string) (string, error) {
+func getDevIDFromSessionToken(token string) (int64, error) {
+	command := fmt.Sprintf("%s/with_token/%s", constants.LOGGED_DEVELOPERS_SET, token)
+
 	conn := configurations.CachePool.Get()
-	email, err := redis.String(conn.Do("GET", "token/"+token+"/"+constants.LOGGED_DEVELOPERS_SET+":email"))
+	ID, err := redis.Int64(conn.Do("HMGET", command, "ID"))
 	if err != nil {
-		return "", err
+		return -1, err
 	}
-	if email == "" {
-		return "", errors.New("Invalid Session")
+	if ID == 0 {
+		return -1, errors.New("Invalid Session")
 	}
-	return email, nil
+	return ID, nil
 }

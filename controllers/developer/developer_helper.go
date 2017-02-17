@@ -2,9 +2,9 @@ package developerController
 
 import (
 	"errors"
-	"time"
 
 	"sanino/gamemate/configurations"
+	"sanino/gamemate/constants"
 	"sanino/gamemate/controllers/shared"
 
 	"github.com/garyburd/redigo/redis"
@@ -45,7 +45,7 @@ func checkAPI_TokenInCache(token string) (bool, error) {
 	conn := configurations.CachePool.Get()
 	defer conn.Close()
 
-	result, err := redis.Int64(conn.Do("SISMEMBER", "API_Tokens", token))
+	result, err := redis.Int64(conn.Do("SISMEMBER", constants.API_TOKENS_SET, token))
 	if err != nil {
 		return false, err
 	}
@@ -59,11 +59,13 @@ func checkAPI_TokenInCache(token string) (bool, error) {
 func updateCacheWithAPI_Token(token string) error {
 	conn := configurations.CachePool.Get()
 	defer conn.Close()
+
 	//the cache is valid for 24 hours, if an app is not used it should not be in cache.
-	err := conn.Send("SADD", "API_Tokens", token, "EX", time.Hour*24)
+	err := conn.Send("SADD", constants.API_TOKENS_SET, token)
 	if err != nil {
 		return err
 	}
+
 	err = conn.Flush()
 	if err != nil {
 		return err
@@ -77,7 +79,7 @@ func updateCacheWithAPI_Token(token string) error {
 func removeAPI_TokenFromCache(token string) error {
 	conn := configurations.CachePool.Get()
 	defer conn.Close()
-	err := conn.Send("SREM", "API_Tokens", token)
+	err := conn.Send("SREM", constants.API_TOKENS_SET, token)
 	if err != nil {
 		return err
 	}
@@ -120,15 +122,15 @@ func checkAPI_TokenInArchives(token string) (bool, error) {
 }
 
 //addAPI_TokenInArchives adds a token linked to the specified developer to the archives.
-func addAPI_TokenInArchives(developerEmail string) (string, error) {
+func addAPI_TokenInArchives(developerID int64) (string, error) {
 	token := controllerSharedFuncs.GenerateToken()
 	//TODO: find a way to handle duplicates. or leave the query fail and retry.
-	stmtQuery, err := configurations.ArchivesPool.Prepare("INSERT INTO API_Tokens (developerEmail, token, enabled) VALUES (?, ?, 1)")
+	stmtQuery, err := configurations.ArchivesPool.Prepare("INSERT INTO API_Tokens (developerID, token, enabled) VALUES (?, ?, 1)")
 	if err != nil {
 		return "", err
 	}
 	defer stmtQuery.Close()
-	result, err := stmtQuery.Exec(developerEmail, token)
+	result, err := stmtQuery.Exec(developerID, token)
 	if err != nil {
 		return "", err
 	}
@@ -143,14 +145,16 @@ func addAPI_TokenInArchives(developerEmail string) (string, error) {
 }
 
 //removeAPI_TokenFromArchives removes a token from the Archives.
-func removeAPI_TokenFromArchives(token string) error {
-	stmtQuery, err := configurations.ArchivesPool.Prepare("UPDATE API_Tokens SET enabled = 0 WHERE token = ?")
+//
+//Request is valid only if the API Token to remove is owned by the requestor.
+func removeAPI_TokenFromArchives(developerID int64, token string) error {
+	stmtQuery, err := configurations.ArchivesPool.Prepare("UPDATE API_Tokens SET enabled = 0 WHERE token = ? AND developerID = ?")
 	if err != nil {
 		return err
 	}
 	defer stmtQuery.Close()
 
-	result, err := stmtQuery.Exec(token)
+	result, err := stmtQuery.Exec(token, developerID)
 	if err != nil {
 		return err
 	}
@@ -159,7 +163,7 @@ func removeAPI_TokenFromArchives(token string) error {
 		return err
 	}
 	if rows <= 0 {
-		return errors.New("No Row Affected, possible problem with the query")
+		return errors.New("No Row Affected, possible problem with the query or developerID is not the owner")
 	}
 	return nil
 }

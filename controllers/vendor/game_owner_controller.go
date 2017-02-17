@@ -29,14 +29,14 @@ func HandleAddGame(context echo.Context) error {
 		errorResp.FromError(err, http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
-	email, err := getOwnerEmailFromSessionToken(request.SessionToken)
+	ownerID, err := getOwnerIDFromSessionToken(request.SessionToken)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(fmt.Errorf("%s token rejected by the system, Invalid Session", request.SessionToken))
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
-	token, err := addGameInArchives(email)
+	gameID, err := addGameInArchives(ownerID, request.GameName, request.GameDescription, request.MatchMaxPlayers)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(fmt.Errorf("Cannot create new API Token, error => %v", err))
@@ -45,11 +45,11 @@ func HandleAddGame(context echo.Context) error {
 	}
 	response := gameOwnerResponses.AddGame{}
 
-	panic("IMPLEMENT IT, FAG")
+	response.FromGameID(gameID)
 	return context.JSON(http.StatusCreated, response)
 }
 
-//HandleDropAPI_Token handles a request to remove a developer API Token.
+//HandleRemoveGame handles a request to remove a developer API Token.
 func HandleRemoveGame(context echo.Context) error {
 	request := gameOwnerRequests.RemoveGame{}
 	err := request.FromForm(context)
@@ -66,27 +66,32 @@ func HandleRemoveGame(context echo.Context) error {
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
-
-	err = removeGameFromCache()
+	ownerID, err := getOwnerIDFromSessionToken(request.SessionToken)
 	if err != nil {
-		context.Logger().Print(fmt.Errorf("%s API Token not removed. Error => %v", request.TokenToDrop, err))
+		errorResp := errorResponses.ErrorDetail{}
+		context.Logger().Print(fmt.Errorf("%s token rejected by the system, Invalid Session", request.SessionToken))
+		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
+		return context.JSON(http.StatusBadRequest, errorResp)
+	}
+	err = removeGameFromCache(request.GameID)
+	if err != nil {
+		context.Logger().Print(fmt.Errorf("Game with ID:%d not removed. Error => %v", request.GameID, err))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Cannot remove API Token"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, errorResp)
 	}
 
-	err = removeAPI_TokenFromArchives(request.TokenToDrop)
+	err = removeGameFromArchives(ownerID, request.GameID)
 	if err != nil {
-		context.Logger().Print(fmt.Errorf("%s API Token not removed. Error => %v", request.TokenToDrop, err))
+		context.Logger().Print(fmt.Errorf("Game with ID:%d not removed. Error => %v", request.GameID, err))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Cannot remove API Token"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, errorResp)
 	}
 
 	response := gameOwnerResponses.RemoveGame{}
-	panic("CAZZEN")
-	//response.FromGameID(1)
-	//return context.JSON(http.StatusOK, response)
+	response.FromGameID(1)
+	return context.JSON(http.StatusOK, response)
 }
 
 //HandleRegistration handles a request to register a developer.
@@ -107,14 +112,14 @@ func HandleRegistration(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
 
-	err = registerOwner(request)
+	ownerID, err := registerOwner(request)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(err, http.StatusInternalServerError)
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
 
-	token, err := updateCacheWithSessionOwnerToken(request.Email)
+	token, err := updateCacheWithSessionOwnerToken(ownerID)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("User registered, but I did not login automatically, try to login later"), http.StatusBadRequest)
@@ -144,7 +149,7 @@ func HandleLogin(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
 
-	isLoggable, err := checkLogin(request)
+	isLoggable, ownerID, err := checkLogin(request)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(err)
@@ -157,7 +162,7 @@ func HandleLogin(context echo.Context) error {
 		errorResp.FromError(errors.New("User - Password combination wrong, retry"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
-	token, err := updateCacheWithSessionOwnerToken(request.Email)
+	token, err := updateCacheWithSessionOwnerToken(ownerID)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(err)

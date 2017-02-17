@@ -4,8 +4,6 @@ import (
 	"errors"
 	"net/http"
 
-	"sanino/gamemate/constants"
-	"sanino/gamemate/controllers/shared"
 	"sanino/gamemate/models/shared/responses/errors"
 	"sanino/gamemate/models/user/requests/login"
 	"sanino/gamemate/models/user/responses/login"
@@ -26,7 +24,7 @@ func HandleAuth(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, errResp)
 	}
 
-	isLoggable, err = checkLogin(AuthTry)
+	isLoggable, userID, err := checkLogin(AuthTry) //TODO: doubt, should i return an "User" struct??
 	if err != nil {
 		context.Logger().Print(err)
 		errResp.FromError(errors.New("Cannot Login User"), http.StatusInternalServerError)
@@ -38,7 +36,7 @@ func HandleAuth(context echo.Context) error {
 		context.Logger().Printf(errMsg)
 		return context.JSON(http.StatusBadRequest, errResp)
 	}
-	token, err := controllerSharedFuncs.UpdateCacheNewSession(constants.LOGGED_USERS_SET, AuthTry.Username, constants.CACHE_REFRESH_INTERVAL)
+	token, err := updateCacheNewUserSession(userID, AuthTry.Username)
 	if err != nil {
 		context.Logger().Print(err)
 		errResp.FromError(errors.New("Cannot Login User"), http.StatusInternalServerError)
@@ -60,27 +58,30 @@ func HandleRegistration(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, errResp)
 	}
 	//check if user already exists
-	isRegisteredUser, err := isRegistered(RegTry.Username, RegTry.Email)
-	if err != nil {
-		context.Logger().Print(err)
+	isRegisteredUser, err := isRegistered(RegTry.Username)
+	//NOTE: doubl connection to DB, not so efficient, replace with a boolean
+	//combination to avoid second call.
+	isRegisteredUserEmail, errMail := isRegistered(RegTry.Email)
+	if err != nil || errMail != nil {
+		context.Logger().Printf("error username: %v, error mail:%v", err, errMail)
 		errResp.FromError(errors.New("Cannot insert user"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, errResp)
 	}
-	if isRegisteredUser {
-		context.Logger().Print("The user " + RegTry.Username + " is already registered into the system")
+	if isRegisteredUser || isRegisteredUserEmail {
+		context.Logger().Print("The user is already registered into the system")
 		errResp.FromError(errors.New("User already registered"), 2)
 		return context.JSON(http.StatusBadRequest, errResp)
 	}
 	//else query and if query successful add user also into cache and reply with session_token
 	//generating random salt
-	err = insertIntoArchives(RegTry)
+	userID, err := insertIntoArchives(RegTry)
 	if err != nil {
 		context.Logger().Print(err)
 		errResp.FromError(errors.New("Cannot Insert User"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, errResp)
 	}
 
-	token, err := updateCacheNewUserSession(RegTry.Email)
+	token, err := updateCacheNewUserSession(userID, RegTry.Username)
 	if err != nil {
 		context.Logger().Print(err)
 		errResp.FromError(errors.New("Cannot Insert User"), http.StatusInternalServerError)

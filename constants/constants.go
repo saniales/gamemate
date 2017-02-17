@@ -2,7 +2,6 @@ package constants
 
 import "time"
 
-//Paths Constants
 const (
 	ROOT_PATH              string = "/"              //Path to the root directory of the server.
 	USER_REGISTRATION_PATH string = "/user/register" //Path to handle user registration.
@@ -31,10 +30,14 @@ const (
 	GAME_OWNER_GAME_LIST         string = "/owner/game/list"   //Path to handle requests to show games of a GAME_OWNER.
 
 	//misc
-	MAX_NUMBER_SALT        int           = 20000               //base salt used in password hashing.
-	INVALID_TOKEN          string        = "INVALID"           //Represents an invalid token returned from a func with errors during the creation.
-	CACHE_REFRESH_INTERVAL time.Duration = time.Minute * 30    //The time between cache refreshes.
-	LOGGED_USERS_SET       string        = "logged_users"      //represents the name of session set in cache of logged users.
-	LOGGED_DEVELOPERS_SET  string        = "logged_developers" //represents the name of session set in cache of logged developers.
-	DEBUG                  bool          = true                //if true, application is being debugged.
+	MAX_NUMBER_SALT        int           = 20000            //base salt used in password hashing.
+	INVALID_TOKEN          string        = "INVALID"        //Represents an invalid token returned from a func with errors during the creation.
+	DEBUG                  bool          = true             //if true, application is being debugged.
+	CACHE_REFRESH_INTERVAL time.Duration = time.Minute * 30 //The time between cache refreshes.
+
+	//sets
+	LOGGED_USERS_SET      string = "users"      //represents the name of session set in cache of logged users.
+	LOGGED_DEVELOPERS_SET string = "developers" //represents the name of session set in cache of logged developers.
+	LOGGED_OWNERS_SET     string = "owners"     //represents the name of session set in cache of logged owners.
+	API_TOKENS_SET        string = "API_Tokens" //represents the name of set in cache of most used API tokens.
 )
