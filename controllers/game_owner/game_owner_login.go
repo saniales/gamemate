@@ -25,13 +25,13 @@ func registerOwner(RegTry gameOwnerRequests.GameOwnerRegistration) (int64, error
 	saltedPass := RegTry.Password + strconv.Itoa(salt)
 
 	stmtQuery, err := configurations.ArchivesPool.Prepare(
-		fmt.Sprintf("INSERT INTO game_owners (ID, email, password) VALUES (NULL, ?, %s)",
+		fmt.Sprintf("INSERT INTO game_owners (ownerID, email, hash_pwd, hash_salt) VALUES (NULL, ?, %s, ?)",
 			controllerSharedFuncs.ConvertToHexString(saltedPass)),
 	)
 	if err != nil {
 		return -1, err
 	}
-	result, err := stmtQuery.Exec(RegTry.Email)
+	result, err := stmtQuery.Exec(RegTry.Email, salt)
 	if err != nil {
 		return -1, err
 	}
@@ -61,7 +61,7 @@ func checkLogin(AuthTry gameOwnerRequests.GameOwnerAuth) (bool, int64, error) {
 	var ownerID int64
 	var salt int
 
-	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(*) AS num_rows, HEX(hash_pwd), hash_salt, ID FROM game_owners WHERE email = ? GROUP BY hash_pwd, hash_salt, ID")
+	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(*) AS num_rows, HEX(hash_pwd), hash_salt, ownerID FROM game_owners WHERE email = ? GROUP BY hash_pwd, hash_salt, ownerID")
 	if err != nil {
 		return false, -1, err
 	}

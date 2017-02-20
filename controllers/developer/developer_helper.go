@@ -2,6 +2,7 @@ package developerController
 
 import (
 	"errors"
+	"fmt"
 
 	"sanino/gamemate/configurations"
 	"sanino/gamemate/constants"
@@ -95,7 +96,10 @@ func removeAPI_TokenFromCache(token string) error {
 //
 //Return true if found, false otherwise.
 func checkAPI_TokenInArchives(token string) (bool, error) {
-	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(token) FROM API_Tokens WHERE token = ? AND enabled = 1")
+	stmtQuery, err := configurations.ArchivesPool.Prepare(
+		fmt.Sprintf("SELECT COUNT(token) FROM API_Tokens WHERE token = %s AND enabled = 1",
+			controllerSharedFuncs.ConvertToHexString(token)),
+	)
 	if err != nil {
 		return false, err
 	}
@@ -125,12 +129,15 @@ func checkAPI_TokenInArchives(token string) (bool, error) {
 func addAPI_TokenInArchives(developerID int64) (string, error) {
 	token := controllerSharedFuncs.GenerateToken()
 	//TODO: find a way to handle duplicates. or leave the query fail and retry.
-	stmtQuery, err := configurations.ArchivesPool.Prepare("INSERT INTO API_Tokens (developerID, token, enabled) VALUES (?, ?, 1)")
+	stmtQuery, err := configurations.ArchivesPool.Prepare(
+		fmt.Sprintf("INSERT INTO API_Tokens (developerID, token, enabled) VALUES (?, %s, 1)",
+			controllerSharedFuncs.ConvertToHexString(token)),
+	)
 	if err != nil {
 		return "", err
 	}
 	defer stmtQuery.Close()
-	result, err := stmtQuery.Exec(developerID, token)
+	result, err := stmtQuery.Exec(developerID)
 	if err != nil {
 		return "", err
 	}
@@ -148,13 +155,16 @@ func addAPI_TokenInArchives(developerID int64) (string, error) {
 //
 //Request is valid only if the API Token to remove is owned by the requestor.
 func removeAPI_TokenFromArchives(developerID int64, token string) error {
-	stmtQuery, err := configurations.ArchivesPool.Prepare("UPDATE API_Tokens SET enabled = 0 WHERE token = ? AND developerID = ?")
+	stmtQuery, err := configurations.ArchivesPool.Prepare(
+		fmt.Sprintf("UPDATE API_Tokens SET enabled = 0 WHERE token = %s AND developerID = ?",
+			controllerSharedFuncs.ConvertToHexString(token)),
+	)
 	if err != nil {
 		return err
 	}
 	defer stmtQuery.Close()
 
-	result, err := stmtQuery.Exec(token, developerID)
+	result, err := stmtQuery.Exec(developerID)
 	if err != nil {
 		return err
 	}

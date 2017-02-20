@@ -205,26 +205,51 @@ func HandleGameAction(context echo.Context) error {
 			return context.JSON(http.StatusBadRequest, errorResp)
 		} else {
 			if userID == request.UserID { //OK
-				EnableDisableGameForUser(request.UserID, request.GameID, request.Action)
-			} else {
-				errorResp := errorResponses.ErrorDetail{}
-				context.Logger().Print(fmt.Errorf("Request rejected by the system, Invalid Request : requestor ID invalid => %d intead of %d", request.UserID, userID))
-				errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
-				return context.JSON(http.StatusBadRequest, errorResp)
+				cacheUpdated, err := EnableDisableGameForUser(request.UserID, request.GameID, request.Action)
+				if err != nil {
+					errorResp := errorResponses.ErrorDetail{}
+					context.Logger().Print(fmt.Errorf("Error in archives : %v", err))
+					errorResp.FromError(errors.New("Cannot satisfy request"), http.StatusInternalServerError)
+					return context.JSON(http.StatusInternalServerError, errorResp)
+				}
+				if !cacheUpdated {
+					context.Logger().Print("Game Action completed on archives, but not on cache")
+				}
+				//NOTE:OK!!!_________________________________________________
+				response := gameOwnerResponses.GameOwnerGameAction{}
+				response.FromGameID(request.GameID)
+				return context.JSON(http.StatusOK, response)
 			}
+			errorResp := errorResponses.ErrorDetail{}
+			context.Logger().Print(fmt.Errorf("Request rejected by the system, Invalid Request : requestor ID invalid => %d intead of %d", request.UserID, userID))
+			errorResp.FromError(errors.New("You don't have the permission to perform this action"), http.StatusBadRequest)
+			return context.JSON(http.StatusBadRequest, errorResp)
 		}
-		//TODO:the user can only enable disable his games (not other users').
-		//TODO:the game owner can only enable disable his games(not other owners').
-
 	} else {
-		//TODO:verify owner act on his games.
+		//verify owner act on his games.
+		ownerOfGame, err := GetOwnerOfGame(request.GameID)
+		if err != nil {
+			context.Logger().Print(fmt.Errorf("Enable/disable %v: Cannot satisfy request, query error", request))
+			errorResp := errorResponses.ErrorDetail{}
+			errorResp.FromError(errors.New("Cannot satisfy request"), http.StatusInternalServerError)
+			return context.JSON(http.StatusInternalServerError, errorResp)
+		}
+		if ownerOfGame != ownerID {
+			context.Logger().Print(fmt.Errorf("Enable/disable %v: Cannot satisfy request, rejected owner", request))
+			errorResp := errorResponses.ErrorDetail{}
+			errorResp.FromError(errors.New("You don't have the permission to perform this action"), http.StatusBadRequest)
+			return context.JSON(http.StatusBadRequest, errorResp)
+		}
 	}
-	err = EnableDisableGameForUser(request.UserID, request.GameID, request.Action)
+	cacheUpdated, err := EnableDisableGameForUser(request.UserID, request.GameID, request.Action)
 	if err != nil {
 		context.Logger().Print(fmt.Errorf("Enable/disable %v: Cannot satisfy request, query error", request))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Cannot satisfy request"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, errorResp)
+	}
+	if !cacheUpdated {
+		context.Logger().Print("Game Action completed on archives, but not on cache")
 	}
 	response := gameOwnerResponses.GameOwnerGameAction{}
 	response.FromGameID(request.GameID)

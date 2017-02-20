@@ -28,7 +28,7 @@ func registerDeveloper(RegTry developerRequests.DevRegistration) (int64, error) 
 	saltedPass := RegTry.Password + strconv.Itoa(salt)
 
 	stmtQuery, err := configurations.ArchivesPool.Prepare(
-		fmt.Sprintf("INSERT INTO developers (ID, email, password) VALUES (NULL, ?, %s)",
+		fmt.Sprintf("INSERT INTO developers (developerID, email, hash_pwd, hash_salt) VALUES (NULL, ?, %s, ?)",
 			controllerSharedFuncs.ConvertToHexString(saltedPass)),
 	)
 	if err != nil {
@@ -36,7 +36,7 @@ func registerDeveloper(RegTry developerRequests.DevRegistration) (int64, error) 
 	}
 	defer stmtQuery.Close()
 
-	result, err := stmtQuery.Exec(RegTry.Email)
+	result, err := stmtQuery.Exec(RegTry.Email, salt)
 	if err != nil {
 		return -1, err
 	}
@@ -68,7 +68,7 @@ func checkLogin(AuthTry developerRequests.DevAuth) (bool, int64, error) {
 	var developerID int64
 	var salt int
 
-	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(*) AS num_rows, HEX(hash_pwd), hash_salt, ID FROM developers WHERE email = ? GROUP BY hash_pwd, hash_salt")
+	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(*) AS num_rows, HEX(hash_pwd), hash_salt, developerID FROM developers WHERE email = ? GROUP BY hash_pwd, hash_salt, developerID")
 	if err != nil {
 		return false, -1, err
 	}
