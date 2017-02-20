@@ -1,5 +1,5 @@
 # GameMate
-A fancy Game Architecture for next generation companies (Written in Go!!)
+A fancy, efficient and scalable architecture for next generation games.
 ___
 A light architecture for game companies which uses the power of redis, mySQL and Golang!<br>
 How to use : 
