@@ -227,12 +227,15 @@ func HandleGameAction(context echo.Context) error {
 		}
 	} else {
 		//verify owner act on his games.
-		ownerOfGame, err := GetOwnerOfGame(request.GameID)
+		ownerOfGame, cacheUpdated, err := GetOwnerOfGame(request.GameID)
 		if err != nil {
 			context.Logger().Print(fmt.Errorf("Enable/disable %v: Cannot satisfy request, query error", request))
 			errorResp := errorResponses.ErrorDetail{}
 			errorResp.FromError(errors.New("Cannot satisfy request"), http.StatusInternalServerError)
 			return context.JSON(http.StatusInternalServerError, errorResp)
+		}
+		if !cacheUpdated {
+			context.Logger().Print("Request satisfied, but cache has not been updated")
 		}
 		if ownerOfGame != ownerID {
 			context.Logger().Print(fmt.Errorf("Enable/disable %v: Cannot satisfy request, rejected owner", request))

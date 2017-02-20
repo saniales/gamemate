@@ -1,21 +1,39 @@
 package gameOwnerController
 
-import "sanino/gamemate/configurations"
+import (
+	"sanino/gamemate/configurations"
+	"sanino/gamemate/models/game_owner/data_structures"
+)
 
-//GetGamesEnabled gets the enabled games for the user.
-func GetGamesEnabled(userID int64) ([]Game, bool, error) {
-	Games, err := getGamesEnabledFromCache(userID)
-	if err != nil {
-		Games, err = getGamesEnabledFromArchives(userID)
-		if err != nil {
-			return nil, false, err
-		}
-		return Games, false, nil
-	}
-	return Games, true, nil
+//GetGames gets the enabled games for the owner (from the archives)
+//Will be cached by the client (owner app).
+func GetGames(ownerID int64) ([]gameOwnerDataStructs.Game, error) {
+	return getGamesFromArchives(ownerID)
 }
 
-func getGamesEnabledFromCache(gameID int64) ([]Game, error) {
-	conn := configurations.CachePool.Get()
-	defer conn.Close()
+func getGamesFromArchives(ownerID int64) ([]gameOwnerDataStructs.Game, error) {
+	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT gameID, name, description, maxPlayers, NULL FROM games WHERE ownerID = ?")
+	if err != nil {
+		return nil, err
+	}
+	defer stmtQuery.Close()
+
+	rows, err := stmtQuery.Query(ownerID)
+	if err != nil {
+		return nil, err
+	}
+
+	var game gameOwnerDataStructs.Game
+	ret := make([]gameOwnerDataStructs.Game, 0, 10)
+
+	for !rows.Next() {
+		err = rows.Scan(&game)
+		if err != nil {
+			return nil, err
+		}
+
+		ret = append(ret, game)
+	}
+
+	return ret, nil
 }
