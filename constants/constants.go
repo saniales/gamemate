@@ -29,6 +29,8 @@ const (
 	GAME_OWNER_REMOVE_GAME_PATH  string = "/owner/game/remove" //Path to handle remove game requests.
 	GAME_OWNER_GAME_LIST         string = "/owner/game/list"   //Path to handle requests to show games of a GAME_OWNER.
 
+	GAME_ENABLE_DISABLE_PATH string = "/game/action" //Path to handle game actions for game owner (enable, disable for users)
+
 	//misc
 	MAX_NUMBER_SALT        int           = 20000            //base salt used in password hashing.
 	INVALID_TOKEN          string        = "INVALID"        //Represents an invalid token returned from a func with errors during the creation.
@@ -40,4 +42,6 @@ const (
 	LOGGED_DEVELOPERS_SET string = "developers" //represents the name of session set in cache of logged developers.
 	LOGGED_OWNERS_SET     string = "owners"     //represents the name of session set in cache of logged owners.
 	API_TOKENS_SET        string = "API_Tokens" //represents the name of set in cache of most used API tokens.
+	GAMES_SET             string = "games"      //represents the name of set of all games.
+
 )

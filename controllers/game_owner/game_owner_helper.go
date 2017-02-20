@@ -178,3 +178,32 @@ func removeGameFromArchives(ownerID int64, gameID int64) error {
 	}
 	return nil
 }
+
+//EnableDisableGameForUser enables (or disables) a game for a user.
+func EnableDisableGameForUser(userID int64, gameID int64, enable bool) error {
+	var query string
+	if enable {
+		query = "INSERT INTO user_game_enabled (userID, gameID) VALUES (?, ?)"
+	} else {
+		query = "DELETE FROM user_game_enabled WHERE userID = ? and gameID = ?"
+	}
+
+	stmtQuery, err := configurations.ArchivesPool.Prepare(query)
+	if err != nil {
+		return err
+	}
+	defer stmtQuery.Close()
+
+	result, err := stmtQuery.Exec(userID, gameID)
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows <= 0 {
+		return errors.New("No Row Affected, possible problem with the query, or the owner is fake")
+	}
+	return nil
+}

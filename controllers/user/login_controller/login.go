@@ -2,12 +2,17 @@ package loginController
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+
+	"sanino/gamemate/configurations"
+	"sanino/gamemate/constants"
 
 	"sanino/gamemate/models/shared/responses/errors"
 	"sanino/gamemate/models/user/requests/login"
 	"sanino/gamemate/models/user/responses/login"
 
+	"github.com/garyburd/redigo/redis"
 	"github.com/labstack/echo"
 )
 
@@ -92,4 +97,20 @@ func HandleRegistration(context echo.Context) error {
 	responseFromServer := loginResponses.Auth{}
 	responseFromServer.FromToken(token)
 	return context.JSON(http.StatusCreated, responseFromServer)
+}
+
+//GetUserIDFromSessionToken gets the user ID from session token.
+//
+//Returns error if not found in cache.
+func GetUserIDFromSessionToken(token string) (int64, error) {
+	conn := configurations.CachePool.Get()
+	defer conn.Close()
+	return redis.Int64(conn.Do("GET", fmt.Sprintf("%s/token", constants.LOGGED_USERS_SET)))
+}
+
+//GetConnectedUsers get the number of connected users.
+func GetConnectedUsers() (int64, error) {
+	conn := configurations.CachePool.Get()
+	defer conn.Close()
+	return redis.Int64(conn.Do("ZCARD", constants.LOGGED_USERS_SET))
 }

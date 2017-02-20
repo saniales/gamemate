@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"sanino/gamemate/controllers/developer"
+	"sanino/gamemate/controllers/user/login_controller"
 	"sanino/gamemate/models/game_owner/requests"
 	"sanino/gamemate/models/game_owner/responses"
 	"sanino/gamemate/models/shared/responses/errors"
@@ -66,6 +67,7 @@ func HandleRemoveGame(context echo.Context) error {
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
+
 	ownerID, err := getOwnerIDFromSessionToken(request.SessionToken)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
@@ -73,6 +75,7 @@ func HandleRemoveGame(context echo.Context) error {
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, errorResp)
 	}
+
 	err = removeGameFromCache(request.GameID)
 	if err != nil {
 		context.Logger().Print(fmt.Errorf("Game with ID:%d not removed. Error => %v", request.GameID, err))
@@ -90,7 +93,7 @@ func HandleRemoveGame(context echo.Context) error {
 	}
 
 	response := gameOwnerResponses.RemoveGame{}
-	response.FromGameID(1)
+	response.FromGameID(request.GameID)
 	return context.JSON(http.StatusOK, response)
 }
 
@@ -172,4 +175,58 @@ func HandleLogin(context echo.Context) error {
 	response := gameOwnerResponses.GameOwnerAuth{}
 	response.FromToken(token)
 	return context.JSON(http.StatusCreated, response)
+}
+
+func HandleGameAction(context echo.Context) error {
+	request := gameOwnerRequests.GameOwnerAction{}
+	err := request.FromForm(context)
+	if err != nil {
+		errorResp := errorResponses.ErrorDetail{}
+		errorResp.FromError(err, http.StatusBadRequest)
+		return context.JSON(http.StatusBadRequest, errorResp)
+	}
+
+	IsValid, err := developerController.IsValidAPI_Token(request.API_Token)
+	if !IsValid || err != nil {
+		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
+		errorResp := errorResponses.ErrorDetail{}
+		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
+		return context.JSON(http.StatusBadRequest, errorResp)
+	}
+
+	//requires strictly seller/user
+	ownerID, errOwner := getOwnerIDFromSessionToken(request.SessionToken)
+	if errOwner != nil {
+		userID, errUser := loginController.GetUserIDFromSessionToken(request.SessionToken)
+		if errUser != nil {
+			errorResp := errorResponses.ErrorDetail{}
+			context.Logger().Print(fmt.Errorf("%s token rejected by the system, Invalid Session", request.SessionToken))
+			errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
+			return context.JSON(http.StatusBadRequest, errorResp)
+		} else {
+			if userID == request.UserID { //OK
+				EnableDisableGameForUser(request.UserID, request.GameID, request.Action)
+			} else {
+				errorResp := errorResponses.ErrorDetail{}
+				context.Logger().Print(fmt.Errorf("Request rejected by the system, Invalid Request : requestor ID invalid => %d intead of %d", request.UserID, userID))
+				errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
+				return context.JSON(http.StatusBadRequest, errorResp)
+			}
+		}
+		//TODO:the user can only enable disable his games (not other users').
+		//TODO:the game owner can only enable disable his games(not other owners').
+
+	} else {
+		//TODO:verify owner act on his games.
+	}
+	err = EnableDisableGameForUser(request.UserID, request.GameID, request.Action)
+	if err != nil {
+		context.Logger().Print(fmt.Errorf("Enable/disable %v: Cannot satisfy request, query error", request))
+		errorResp := errorResponses.ErrorDetail{}
+		errorResp.FromError(errors.New("Cannot satisfy request"), http.StatusInternalServerError)
+		return context.JSON(http.StatusInternalServerError, errorResp)
+	}
+	response := gameOwnerResponses.GameOwnerGameAction{}
+	response.FromGameID(request.GameID)
+	return context.JSON(http.StatusOK, response)
 }

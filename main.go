@@ -8,6 +8,7 @@ import (
 	"sanino/gamemate/configurations"
 	"sanino/gamemate/constants"
 	"sanino/gamemate/controllers/developer"
+	"sanino/gamemate/controllers/game_owner"
 	"sanino/gamemate/controllers/user/login_controller"
 )
 
@@ -28,11 +29,12 @@ func main() {
 	e.POST(constants.DEVELOPER_ADD_API_TOKEN_PATH, developerController.HandleAddAPI_Token)
 	e.POST(constants.DEVELOPER_DROP_API_TOKEN, developerController.HandleDropAPI_Token)
 
-	e.POST(constants.VENDOR_AUTH_PATH, nil)
-	e.POST(constants.VENDOR_REGISTRATION_PATH, nil)
-	e.POST(constants.VENDOR_ADD_GAME_PATH, nil)
-	e.POST(constants.VENDOR_REMOVE_GAME_PATH, nil)
-	e.POST(constants.VENDOR_GAME_LIST, nil)
+	e.POST(constants.GAME_OWNER_AUTH_PATH, gameOwnerController.HandleLogin)
+	e.POST(constants.GAME_OWNER_REGISTRATION_PATH, gameOwnerController.HandleRegistration)
+	e.POST(constants.GAME_OWNER_ADD_GAME_PATH, gameOwnerController.HandleAddGame)
+	e.POST(constants.GAME_OWNER_REMOVE_GAME_PATH, gameOwnerController.HandleRemoveGame)
+	e.POST(constants.GAME_ENABLE_DISABLE_PATH, gameOwnerController.HandleGameAction)
+	e.POST(constants.GAME_OWNER_GAME_LIST, nil)
 
 	e.Logger().Print(e.Run(fasthttp.New(":8080")))
 }

@@ -11,7 +11,7 @@ type GameOwnerGameAction struct {
 
 //FromGameID fills the struct with a POSITIVE response from a GameID.
 func (receiver *GameOwnerGameAction) FromGameID(GameID int64) {
-	receiver.Type = "gameOwnerGameAction"
+	receiver.Type = "GameOwnerGameAction"
 	receiver.GameID = GameID
 	receiver.Result = "OK"
 }
