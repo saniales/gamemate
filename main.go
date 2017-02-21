@@ -34,7 +34,7 @@ func main() {
 	e.POST(constants.GAME_OWNER_ADD_GAME_PATH, gameOwnerController.HandleAddGame)
 	e.POST(constants.GAME_OWNER_REMOVE_GAME_PATH, gameOwnerController.HandleRemoveGame)
 	e.POST(constants.GAME_ENABLE_DISABLE_PATH, gameOwnerController.HandleGameAction)
-	e.POST(constants.GAME_OWNER_GAME_LIST, nil)
+	e.POST(constants.GAME_OWNER_GAME_LIST, gameOwnerController.HandleShowMyGames)
 
 	e.Logger().Print(e.Run(fasthttp.New(":8080")))
 }

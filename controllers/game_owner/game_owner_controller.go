@@ -177,6 +177,7 @@ func HandleLogin(context echo.Context) error {
 	return context.JSON(http.StatusCreated, response)
 }
 
+//HandleGameAction handles the requests to enable/disable a game.
 func HandleGameAction(context echo.Context) error {
 	request := gameOwnerRequests.GameOwnerAction{}
 	err := request.FromForm(context)
@@ -256,5 +257,43 @@ func HandleGameAction(context echo.Context) error {
 	}
 	response := gameOwnerResponses.GameOwnerGameAction{}
 	response.FromGameID(request.GameID)
+	return context.JSON(http.StatusOK, response)
+}
+
+//HandleShowMyGames handles the request to show the games owned by a game_owner.
+func HandleShowMyGames(context echo.Context) error {
+	request := gameOwnerRequests.MyGames{}
+	err := request.FromForm(context)
+	if err != nil {
+		errorResp := errorResponses.ErrorDetail{}
+		errorResp.FromError(err, http.StatusBadRequest)
+		return context.JSON(http.StatusBadRequest, errorResp)
+	}
+
+	IsValid, err := developerController.IsValidAPI_Token(request.API_Token)
+	if !IsValid || err != nil {
+		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
+		errorResp := errorResponses.ErrorDetail{}
+		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
+		return context.JSON(http.StatusBadRequest, errorResp)
+	}
+
+	//requires strictly seller/user
+	ownerID, errOwner := getOwnerIDFromSessionToken(request.SessionToken)
+	if errOwner != nil {
+		errorResp := errorResponses.ErrorDetail{}
+		context.Logger().Print(fmt.Errorf("%s token rejected by the system, Invalid Session", request.SessionToken))
+		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
+		return context.JSON(http.StatusBadRequest, errorResp)
+	}
+	games, err := getGamesFromArchives(ownerID)
+	if err != nil {
+		context.Logger().Print(fmt.Errorf("Enable/disable %v: Cannot satisfy request, error => %v", request, err))
+		errorResp := errorResponses.ErrorDetail{}
+		errorResp.FromError(errors.New("Cannot satisfy request"), http.StatusInternalServerError)
+		return context.JSON(http.StatusInternalServerError, errorResp)
+	}
+	response := gameOwnerResponses.MyGames{}
+	response.FromGames(games)
 	return context.JSON(http.StatusOK, response)
 }

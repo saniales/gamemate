@@ -7,12 +7,15 @@ import (
 
 //GetGames gets the enabled games for the owner (from the archives)
 //Will be cached by the client (owner app).
+//Version 1.0
+//QUESTION: does it have sense to add cache even here?
 func GetGames(ownerID int64) ([]gameOwnerDataStructs.Game, error) {
 	return getGamesFromArchives(ownerID)
 }
 
+//getGamesFromArchives gets from the archives the games of a particular owner.
 func getGamesFromArchives(ownerID int64) ([]gameOwnerDataStructs.Game, error) {
-	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT gameID, name, description, maxPlayers, NULL FROM games WHERE ownerID = ?")
+	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT gameID, name, description, maxPlayers FROM games WHERE ownerID = ?")
 	if err != nil {
 		return nil, err
 	}
@@ -23,11 +26,11 @@ func getGamesFromArchives(ownerID int64) ([]gameOwnerDataStructs.Game, error) {
 		return nil, err
 	}
 
-	var game gameOwnerDataStructs.Game
 	ret := make([]gameOwnerDataStructs.Game, 0, 10)
 
 	for !rows.Next() {
-		err = rows.Scan(&game)
+		game := gameOwnerDataStructs.Game{}
+		err = rows.Scan(&game.ID, &game.Name, &game.Description, &game.MaxPlayers)
 		if err != nil {
 			return nil, err
 		}
