@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-//MyGames represents a request to all the games available to a single user.
+//MyGames represents a request dome (or all) the games available to a single user.
 type MyGames struct {
 	Type         string `json:"Type" xml:"Type" form:"Type"`
 	API_Token    string `json:"API_Token" xml:"API_Token" form:"API_Token"`
