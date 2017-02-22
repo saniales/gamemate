@@ -7,6 +7,7 @@ import (
 	"github.com/garyburd/redigo/redis"
 
 	"sanino/gamemate/configurations"
+	"sanino/gamemate/constants"
 	"sanino/gamemate/models/game_owner/data_structures"
 )
 
@@ -23,7 +24,7 @@ func updateCacheWithNewGame(Game gameOwnerDataStructs.Game) error {
 	}
 
 	//a game must be in cache until it's removed
-	err = conn.Send("SADD", "all_games", Game.ID)
+	err = conn.Send("ZADD", constants.SUMMARY_GAMES_SET, 0, fmt.Sprintf("%d:%s", Game.ID, Game.Name))
 	if err != nil {
 		return err
 	}
@@ -66,12 +67,7 @@ func removeGameFromCache(gameID int64) error {
 		return err
 	}
 
-	err = conn.Flush()
-	if err != nil {
-		return err
-	}
-
-	err = conn.Send("EXEC")
+	_, err = conn.Do("EXEC")
 	if err != nil {
 		return err
 	}

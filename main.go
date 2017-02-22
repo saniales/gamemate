@@ -10,6 +10,7 @@ import (
 	"sanino/gamemate/controllers/developer"
 	"sanino/gamemate/controllers/game_owner"
 	"sanino/gamemate/controllers/user/login_controller"
+	"sanino/gamemate/controllers/user/out_game_controller"
 )
 
 //Main function of the server : here there are the allowed types of connections
@@ -23,6 +24,8 @@ func main() {
 
 	e.POST(constants.AUTH_PATH, loginController.HandleAuth)
 	e.POST(constants.USER_REGISTRATION_PATH, loginController.HandleRegistration)
+	e.POST(constants.USER_ALL_GAME_LIST_PATH, outGameController.HandleAllGamesForUser)
+	e.POST(constants.USER_ENABLED_GAME_LIST_PATH, outGameController.HandleMyEnabledGamesForUser)
 
 	e.POST(constants.DEVELOPER_AUTH_PATH, developerController.HandleLogin)
 	e.POST(constants.DEVELOPER_REGISTRATION_PATH, developerController.HandleRegistration)
@@ -34,7 +37,7 @@ func main() {
 	e.POST(constants.GAME_OWNER_ADD_GAME_PATH, gameOwnerController.HandleAddGame)
 	e.POST(constants.GAME_OWNER_REMOVE_GAME_PATH, gameOwnerController.HandleRemoveGame)
 	e.POST(constants.GAME_ENABLE_DISABLE_PATH, gameOwnerController.HandleGameAction)
-	e.POST(constants.GAME_OWNER_GAME_LIST, gameOwnerController.HandleShowMyGames)
+	e.POST(constants.GAME_OWNER_GAME_LIST_PATH, gameOwnerController.HandleShowMyGames)
 
 	e.Logger().Print(e.Run(fasthttp.New(":8080")))
 }

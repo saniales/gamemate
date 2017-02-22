@@ -94,7 +94,7 @@ func updateCacheWithSessionOwnerToken(ownerID int64) (string, error) {
 
 func getOwnerIDFromSessionToken(token string) (int64, error) {
 	conn := configurations.CachePool.Get()
-	ID, err := redis.Int64(conn.Do("HMGET", "owner/with_token/"+token+"/", "ID"))
+	ID, err := redis.Int64(conn.Do("HMGET", "owners/with_token/"+token+"/", "ID"))
 	if err != nil {
 		return -1, err
 	}

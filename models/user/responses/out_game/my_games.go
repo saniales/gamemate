@@ -5,16 +5,16 @@ import (
 	"sanino/gamemate/models/user/data_structures"
 )
 
-//GameList represents a list of games available to an user, which made a SUCCESSFULL request.
+//MyGames represents a list of games available to an user, which made a SUCCESSFULL request.
 //
 //For NEGATIVE response, please refer to errorResponses.ErrorResponse.
-type GameList struct {
+type MyGames struct {
 	Type  string                           `json:"Type" xml:"Type" form:"Type"`
 	Games []userDataStructs.SummarizedGame `json:"Games" xml:"Games" form:"Games"`
 }
 
 //FromGames creates a GameList from a list of games.
-func (receiver *GameList) FromGames(Games []userDataStructs.SummarizedGame) error {
+func (receiver *MyGames) FromGames(Games []userDataStructs.SummarizedGame) error {
 	receiver.Type = "Game List"
 	if Games == nil {
 		return errors.New("Assigning a nil set of games; you can't do it")
