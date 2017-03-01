@@ -39,5 +39,5 @@ func main() {
 	e.POST(constants.GAME_ENABLE_DISABLE_PATH, gameOwnerController.HandleGameAction)
 	e.POST(constants.GAME_OWNER_GAME_LIST_PATH, gameOwnerController.HandleShowMyGames)
 
-	e.Logger().Print(e.Run(fasthttp.New(":8080")))
+	e.Logger().Print(e.Run(fasthttp.New(":8090")))
 }
