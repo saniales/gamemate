@@ -19,38 +19,38 @@ func HandleMyEnabledGamesForUser(context echo.Context) error {
 	request := outGameRequests.MyGames{}
 	err := request.FromForm(context)
 	if err != nil {
-		errorResp := errorResponses.ErrorDetail{}
+		errorResponse := errorResponses.ErrorDetail{}
 		context.Logger().Print(err)
-		errorResp.FromError(err, http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		errorResponse.FromError(err, http.StatusBadRequest)
+		return context.JSON(http.StatusBadRequest, errorResponse)
 	}
 	if val, err := developerController.IsValidAPI_Token(request.API_Token); !val || err != nil {
-		errorResp := errorResponses.ErrorDetail{}
+		errorResponse := errorResponses.ErrorDetail{}
 		context.Logger().Print(errors.New("Rejected by the system, requestor not valid"))
-		errorResp.FromError(errors.New("Rejected by the system, request not valid"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		errorResponse.FromError(errors.New("Rejected by the system, request not valid"), http.StatusBadRequest)
+		return context.JSON(http.StatusBadRequest, errorResponse)
 	}
 	userID, err := sessionController.GetUserIDFromSessionToken(request.SessionToken)
 	if err != nil {
-		errorResp := errorResponses.ErrorDetail{}
+		errorResponse := errorResponses.ErrorDetail{}
 		context.Logger().Print(errors.New("Rejected by the system, invalid session"))
-		errorResp.FromError(errors.New("Rejected by the system, invalid session"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		errorResponse.FromError(errors.New("Rejected by the system, invalid session"), http.StatusBadRequest)
+		return context.JSON(http.StatusBadRequest, errorResponse)
 	}
 	games, cacheUpdated, err := GetEnabledGameIDs(userID)
 	if err != nil {
-		errorResp := errorResponses.ErrorDetail{}
+		errorResponse := errorResponses.ErrorDetail{}
 		context.Logger().Print(err)
-		errorResp.FromError(errors.New("Cannot get games"), http.StatusInternalServerError)
-		return context.JSON(http.StatusInternalServerError, errorResp)
+		errorResponse.FromError(errors.New("Cannot get games"), http.StatusInternalServerError)
+		return context.JSON(http.StatusInternalServerError, errorResponse)
 	}
 	if !cacheUpdated {
 		context.Logger().Print("Request was successfull but cache was not updated")
 	}
 
-	response := outGameResponses.MyEnabledGames{}
-	response.FromGameIDs(games)
-	return context.JSON(http.StatusOK, response)
+	responseFromServer := outGameResponses.MyEnabledGames{}
+	responseFromServer.FromGameIDs(games)
+	return context.JSON(http.StatusOK, &responseFromServer)
 }
 
 //HandleAllGamesForUser handles a request to show all games summarized data
@@ -59,36 +59,36 @@ func HandleAllGamesForUser(context echo.Context) error {
 	request := outGameRequests.MyGames{}
 	err := request.FromForm(context)
 	if err != nil {
-		errorResp := errorResponses.ErrorDetail{}
+		errorResponse := errorResponses.ErrorDetail{}
 		context.Logger().Print(err)
-		errorResp.FromError(err, http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		errorResponse.FromError(err, http.StatusBadRequest)
+		return context.JSON(http.StatusBadRequest, errorResponse)
 	}
 	if val, err := developerController.IsValidAPI_Token(request.API_Token); !val || err != nil {
-		errorResp := errorResponses.ErrorDetail{}
+		errorResponse := errorResponses.ErrorDetail{}
 		context.Logger().Print(errors.New("Rejected by the system, requestor not valid"))
-		errorResp.FromError(errors.New("Rejected by the system, request not valid"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		errorResponse.FromError(errors.New("Rejected by the system, request not valid"), http.StatusBadRequest)
+		return context.JSON(http.StatusBadRequest, errorResponse)
 	}
 	_, err = sessionController.GetUserIDFromSessionToken(request.SessionToken)
 	if err != nil {
-		errorResp := errorResponses.ErrorDetail{}
+		errorResponse := errorResponses.ErrorDetail{}
 		context.Logger().Print(errors.New("Rejected by the system, invalid session"))
-		errorResp.FromError(errors.New("Rejected by the system, invalid session"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		errorResponse.FromError(errors.New("Rejected by the system, invalid session"), http.StatusBadRequest)
+		return context.JSON(http.StatusBadRequest, errorResponse)
 	}
 	games, cacheUpdated, err := GetGames()
 	if err != nil {
-		errorResp := errorResponses.ErrorDetail{}
+		errorResponse := errorResponses.ErrorDetail{}
 		context.Logger().Print(err)
-		errorResp.FromError(errors.New("Cannot get games"), http.StatusInternalServerError)
-		return context.JSON(http.StatusInternalServerError, errorResp)
+		errorResponse.FromError(errors.New("Cannot get games"), http.StatusInternalServerError)
+		return context.JSON(http.StatusInternalServerError, errorResponse)
 	}
 	if !cacheUpdated {
 		context.Logger().Print("Request was successfull but cache was not updated")
 	}
 
-	response := outGameResponses.MyGames{}
-	response.FromGames(games)
-	return context.JSON(http.StatusOK, response)
+	responseFromServer := outGameResponses.MyGames{}
+	responseFromServer.FromGames(games)
+	return context.JSON(http.StatusOK, &responseFromServer)
 }

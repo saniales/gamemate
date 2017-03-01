@@ -3,6 +3,9 @@
 package main
 
 import (
+	"net/http"
+
+	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/fasthttp" //fast go engine, can be replaced with standard.
 
 	"sanino/gamemate/configurations"
@@ -15,6 +18,10 @@ import (
 
 //Main function of the server : here there are the allowed types of connections
 //and their behaviour.
+type dummy struct {
+	Type string `json:"Type" xml:"Type" form:"Type"`
+}
+
 func main() {
 	e := configurations.InitServer()
 	//Links with redis to permit cache usage.
@@ -22,6 +29,7 @@ func main() {
 	configurations.InitArchives()
 	//defer redisPool.Close()
 
+	e.POST("/", func(c echo.Context) error { return c.JSON(http.StatusOK, &dummy{Type: "aoidsidad"}) })
 	e.POST(constants.AUTH_PATH, loginController.HandleAuth)
 	e.POST(constants.USER_REGISTRATION_PATH, loginController.HandleRegistration)
 	e.POST(constants.USER_ALL_GAME_LIST_PATH, outGameController.HandleAllGamesForUser)

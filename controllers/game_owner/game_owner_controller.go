@@ -22,20 +22,20 @@ func HandleAddGame(context echo.Context) error {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(err)
 		errorResp.FromError(err, http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 	if val, err := developerController.IsValidAPI_Token(request.API_Token); !val || err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(errors.New("Rejected by the system, requestor not valid"))
 		errorResp.FromError(err, http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 	ownerID, err := getOwnerIDFromSessionToken(request.SessionToken)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(fmt.Errorf("%s token rejected by the system, Invalid Session", request.SessionToken))
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 	gameID, err := addGameInArchives(ownerID, request.GameName, request.GameDescription, request.MatchMaxPlayers)
 	if err != nil {
@@ -57,7 +57,7 @@ func HandleRemoveGame(context echo.Context) error {
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(err, http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	IsValid, err := developerController.IsValidAPI_Token(request.API_Token)
@@ -65,7 +65,7 @@ func HandleRemoveGame(context echo.Context) error {
 		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	ownerID, err := getOwnerIDFromSessionToken(request.SessionToken)
@@ -73,7 +73,7 @@ func HandleRemoveGame(context echo.Context) error {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(fmt.Errorf("%s token rejected by the system, Invalid Session", request.SessionToken))
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	err = removeGameFromCache(request.GameID)
@@ -104,7 +104,7 @@ func HandleRegistration(context echo.Context) error {
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(err, http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	IsValid, err := developerController.IsValidAPI_Token(request.API_Token)
@@ -112,14 +112,14 @@ func HandleRegistration(context echo.Context) error {
 		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	ownerID, err := registerOwner(request)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(err, http.StatusInternalServerError)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	token, err := updateCacheWithSessionOwnerToken(ownerID)
@@ -141,7 +141,7 @@ func HandleLogin(context echo.Context) error {
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(err, http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	IsValid, err := developerController.IsValidAPI_Token(request.API_Token)
@@ -149,7 +149,7 @@ func HandleLogin(context echo.Context) error {
 		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	isLoggable, ownerID, err := checkLogin(request)
@@ -157,13 +157,13 @@ func HandleLogin(context echo.Context) error {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(err)
 		errorResp.FromError(errors.New("Login failed"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 	if !isLoggable {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(err)
 		errorResp.FromError(errors.New("User - Password combination wrong, retry"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 	token, err := updateCacheWithSessionOwnerToken(ownerID)
 	if err != nil {
@@ -184,7 +184,7 @@ func HandleGameAction(context echo.Context) error {
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(err, http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	IsValid, err := developerController.IsValidAPI_Token(request.API_Token)
@@ -192,7 +192,7 @@ func HandleGameAction(context echo.Context) error {
 		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	//requires strictly seller/user
@@ -203,7 +203,7 @@ func HandleGameAction(context echo.Context) error {
 			errorResp := errorResponses.ErrorDetail{}
 			context.Logger().Print(fmt.Errorf("%s token rejected by the system, Invalid Session", request.SessionToken))
 			errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
-			return context.JSON(http.StatusBadRequest, errorResp)
+			return context.JSON(http.StatusBadRequest, &errorResp)
 		} else {
 			if userID == request.UserID { //OK
 				cacheUpdated, err := EnableDisableGameForUser(request.UserID, request.GameID, request.Action)
@@ -224,7 +224,7 @@ func HandleGameAction(context echo.Context) error {
 			errorResp := errorResponses.ErrorDetail{}
 			context.Logger().Print(fmt.Errorf("Request rejected by the system, Invalid Request : requestor ID invalid => %d intead of %d", request.UserID, userID))
 			errorResp.FromError(errors.New("You don't have the permission to perform this action"), http.StatusBadRequest)
-			return context.JSON(http.StatusBadRequest, errorResp)
+			return context.JSON(http.StatusBadRequest, &errorResp)
 		}
 	} else {
 		//verify owner act on his games.
@@ -242,7 +242,7 @@ func HandleGameAction(context echo.Context) error {
 			context.Logger().Print(fmt.Errorf("Enable/disable %v: Cannot satisfy request, rejected owner", request))
 			errorResp := errorResponses.ErrorDetail{}
 			errorResp.FromError(errors.New("You don't have the permission to perform this action"), http.StatusBadRequest)
-			return context.JSON(http.StatusBadRequest, errorResp)
+			return context.JSON(http.StatusBadRequest, &errorResp)
 		}
 	}
 	cacheUpdated, err := EnableDisableGameForUser(request.UserID, request.GameID, request.Action)
@@ -267,7 +267,7 @@ func HandleShowMyGames(context echo.Context) error {
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(err, http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	IsValid, err := developerController.IsValidAPI_Token(request.API_Token)
@@ -275,7 +275,7 @@ func HandleShowMyGames(context echo.Context) error {
 		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	//requires strictly seller/user
@@ -284,7 +284,7 @@ func HandleShowMyGames(context echo.Context) error {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(fmt.Errorf("%s token rejected by the system, Invalid Session", request.SessionToken))
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 	games, err := getGamesFromArchives(ownerID)
 	if err != nil {

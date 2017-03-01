@@ -20,20 +20,20 @@ func HandleAddAPI_Token(context echo.Context) error {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(err)
 		errorResp.FromError(err, http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 	if val, err := IsValidAPI_Token(request.API_Token); !val || err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(errors.New("Rejected by the system, requestor not valid"))
 		errorResp.FromError(err, http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 	ID, err := getDevIDFromSessionToken(request.SessionToken)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(fmt.Errorf("%s token rejected by the system, Invalid Session", request.SessionToken))
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 	token, err := addAPI_TokenInArchives(ID)
 	if err != nil {
@@ -45,9 +45,9 @@ func HandleAddAPI_Token(context echo.Context) error {
 	if err != nil {
 		context.Logger().Print(fmt.Errorf("Cannot add new API Token in Cache, warning => %v", err))
 	}
-	response := developerResponses.AddToken{}
-	response.FromAPIToken(token)
-	return context.JSON(http.StatusCreated, response)
+	responseFromServer := developerResponses.AddToken{}
+	responseFromServer.FromAPIToken(token)
+	return context.JSON(http.StatusCreated, &responseFromServer)
 }
 
 //HandleDropAPI_Token handles a request to remove a developer API Token.
@@ -57,7 +57,7 @@ func HandleDropAPI_Token(context echo.Context) error {
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(err, http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	IsValid, err := IsValidAPI_Token(request.API_Token)
@@ -65,7 +65,7 @@ func HandleDropAPI_Token(context echo.Context) error {
 		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	err = removeAPI_TokenFromCache(request.TokenToDrop)
@@ -81,7 +81,7 @@ func HandleDropAPI_Token(context echo.Context) error {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(fmt.Errorf("%s token rejected by the system, Invalid Session", request.SessionToken))
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	err = removeAPI_TokenFromArchives(ID, request.TokenToDrop)
@@ -92,9 +92,9 @@ func HandleDropAPI_Token(context echo.Context) error {
 		return context.JSON(http.StatusInternalServerError, errorResp)
 	}
 
-	response := developerResponses.DropToken{}
-	response.FromOldAPIToken(request.TokenToDrop)
-	return context.JSON(http.StatusOK, response)
+	responseFromServer := developerResponses.DropToken{}
+	responseFromServer.FromOldAPIToken(request.TokenToDrop)
+	return context.JSON(http.StatusOK, &responseFromServer)
 }
 
 //HandleRegistration handles a request to register a developer.
@@ -104,14 +104,14 @@ func HandleRegistration(context echo.Context) error {
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(err, http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	ID, err := registerDeveloper(request)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(err, http.StatusInternalServerError)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	token, err := updateCacheWithSessionDeveloperToken(ID)
@@ -123,7 +123,7 @@ func HandleRegistration(context echo.Context) error {
 
 	responseFromServer := developerResponses.DevAuth{}
 	responseFromServer.FromToken(token)
-	return context.JSON(http.StatusCreated, responseFromServer)
+	return context.JSON(http.StatusCreated, &responseFromServer)
 }
 
 //HandleLogin handles login requests for developers.
@@ -133,7 +133,7 @@ func HandleLogin(context echo.Context) error {
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(err, http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	IsValid, err := IsValidAPI_Token(request.API_Token)
@@ -141,7 +141,7 @@ func HandleLogin(context echo.Context) error {
 		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	isLoggable, developerID, err := checkLogin(request)
@@ -149,13 +149,13 @@ func HandleLogin(context echo.Context) error {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(err)
 		errorResp.FromError(errors.New("Login failed"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 	if !isLoggable {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(err)
 		errorResp.FromError(errors.New("User - Password combination wrong, retry"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, errorResp)
+		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	token, err := updateCacheWithSessionDeveloperToken(developerID)
@@ -165,7 +165,7 @@ func HandleLogin(context echo.Context) error {
 		errorResp.FromError(errors.New("Temporary error, retry in a few seconds"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, errorResp)
 	}
-	response := developerResponses.DevAuth{}
-	response.FromToken(token)
-	return context.JSON(http.StatusCreated, response)
+	responseFromServer := developerResponses.DevAuth{}
+	responseFromServer.FromToken(token)
+	return context.JSON(http.StatusCreated, &responseFromServer)
 }
