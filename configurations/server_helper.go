@@ -15,7 +15,7 @@ func collectCacheGarbage(server *echo.Echo) {
 		<-timer.C //waiting for signal from timer channel
 		err := ClearExpiredCache()
 		if err != nil {
-			server.Logger().Print("Error during garbage collection of the cache => " + err.Error())
+			server.Logger.Print("Error during garbage collection of the cache => " + err.Error())
 		}
 	}()
 	go ExpireDaylyCacheAtMidnight(server)
@@ -59,7 +59,7 @@ func ExpireDaylyCacheAtMidnight(server *echo.Echo) {
 		<-timer.C
 		err := removeAPITokens()
 		if err != nil {
-			server.Logger().Print("Error during garbage collection, cannot remove API Tokens")
+			server.Logger.Print("Error during garbage collection, cannot remove API Tokens")
 		}
 		timer.Stop()
 		date = time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC).Add(time.Hour * 24)

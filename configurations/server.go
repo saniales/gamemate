@@ -2,18 +2,24 @@ package configurations
 
 import (
 	"math/rand"
-	"sanino/gamemate/constants"
 	"time"
 
 	"github.com/labstack/echo" //echo main package.
 	"github.com/labstack/echo/middleware"
+	"github.com/labstack/gommon/log"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 //InitServer configures the server for fresh start with the default configuration.
 func InitServer() *echo.Echo {
 	rand.Seed(time.Now().UTC().UnixNano())
 	server := echo.New()
+	server.Logger.SetLevel(log.INFO)
+	//Cache TLS Certificates
+	server.AutoTLSManager.Cache = autocert.DirCache("/tmp/gamemate/.cache")
+
 	// Middleware
+	server.Pre(middleware.HTTPSRedirect())
 	server.Use(middleware.Logger())
 	server.Use(middleware.Recover())
 	//CORS
@@ -21,7 +27,6 @@ func InitServer() *echo.Echo {
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{echo.POST},
 	}))
-	server.SetDebug(constants.DEBUG)
 	collectCacheGarbage(server)
 	return server
 }

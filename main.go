@@ -5,15 +5,15 @@ package main
 import (
 	"net/http"
 
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/engine/fasthttp" //fast go engine, can be replaced with standard.
-
 	"sanino/gamemate/configurations"
 	"sanino/gamemate/constants"
 	"sanino/gamemate/controllers/developer"
 	"sanino/gamemate/controllers/game_owner"
 	"sanino/gamemate/controllers/user/login_controller"
 	"sanino/gamemate/controllers/user/out_game_controller"
+
+	"github.com/labstack/echo"
+	//fast go engine, can be replaced with standard.
 )
 
 //Main function of the server : here there are the allowed types of connections
@@ -47,5 +47,5 @@ func main() {
 	e.POST(constants.GAME_ENABLE_DISABLE_PATH, gameOwnerController.HandleGameAction)
 	e.POST(constants.GAME_OWNER_GAME_LIST_PATH, gameOwnerController.HandleShowMyGames)
 
-	e.Logger().Print(e.Run(fasthttp.New(":8080")))
+	e.Logger.Print(e.StartAutoTLS(":8080"))
 }
