@@ -16,10 +16,10 @@ import (
 	//fast go engine, can be replaced with standard.
 )
 
-//Main function of the server : here there are the allowed types of connections
+//Main function of the server : here there are the allowed messages of connections
 //and their behaviour.
 type dummy struct {
-	Type string `json:"Type" xml:"Type" form:"Type"`
+	message string `json:"message" xml:"message" form:"message"`
 }
 
 func main() {
@@ -28,8 +28,7 @@ func main() {
 	configurations.InitCache()
 	configurations.InitArchives()
 	//defer redisPool.Close()
-
-	e.POST("/", func(c echo.Context) error { return c.JSON(http.StatusOK, &dummy{Type: "aoidsidad"}) })
+	e.POST("/", func(c echo.Context) error { return c.JSON(http.StatusOK, &dummy{message: "Up and running..."}) })
 	e.POST(constants.AUTH_PATH, loginController.HandleAuth)
 	e.POST(constants.USER_REGISTRATION_PATH, loginController.HandleRegistration)
 	e.POST(constants.USER_ALL_GAME_LIST_PATH, outGameController.HandleAllGamesForUser)
