@@ -14,7 +14,7 @@ import (
 func InitServer() *echo.Echo {
 	rand.Seed(time.Now().UTC().UnixNano())
 	server := echo.New()
-	server.Logger.SetLevel(log.INFO)
+	server.Logger.SetLevel(log.DEBUG)
 	//Cache TLS Certificates
 	server.AutoTLSManager.Cache = autocert.DirCache("/tmp/gamemate/.cache")
 
