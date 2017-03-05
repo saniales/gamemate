@@ -11,6 +11,7 @@ import (
 	"strconv"
 
 	"github.com/garyburd/redigo/redis"
+	"github.com/labstack/gommon/log"
 )
 
 //registerDeveloper inserts a developer into the archives.
@@ -20,9 +21,11 @@ func registerDeveloper(RegTry developerRequests.DevRegistration) (int64, error) 
 	authTry := developerRequests.DevAuth{Email: RegTry.Email, Password: RegTry.Password}
 	isLoggable, _, err := checkLogin(authTry)
 	if err == nil {
+		log.Print(err)
 		return -1, errors.New("Cannot check if user is registered")
 	}
 	if isLoggable {
+		log.Print(err)
 		return -1, errors.New("Developer already registered")
 	}
 	salt := rand.Intn(constants.MAX_NUMBER_SALT)
@@ -33,17 +36,20 @@ func registerDeveloper(RegTry developerRequests.DevRegistration) (int64, error) 
 			controllerSharedFuncs.ConvertToHexString(saltedPass)),
 	)
 	if err != nil {
+		log.Print(err)
 		return -1, err
 	}
 	defer stmtQuery.Close()
 
 	result, err := stmtQuery.Exec(RegTry.Email, salt)
 	if err != nil {
+		log.Print(err)
 		return -1, err
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
+		log.Print(err)
 		return -1, err
 	}
 	if rowsAff <= 0 {
