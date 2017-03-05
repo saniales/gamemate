@@ -17,7 +17,8 @@ import (
 //
 //Returns ID if successfull, error otherwise is filled.
 func registerDeveloper(RegTry developerRequests.DevRegistration) (int64, error) {
-	isLoggable, _, err := checkLogin(developerRequests.DevAuth{Email: RegTry.Email, Password: RegTry.Password})
+	authTry := developerRequests.DevAuth{Email: RegTry.Email, Password: RegTry.Password}
+	isLoggable, _, err := checkLogin(authTry)
 	if err == nil {
 		return -1, errors.New("Cannot check if user is registered")
 	}
