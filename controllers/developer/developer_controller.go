@@ -14,12 +14,14 @@ import (
 
 //HandleAddAPI_Token handles a request to add a developer API Token.
 func HandleAddAPI_Token(context echo.Context) error {
-	request := developerRequests.AddToken{}
+	request := new(developerRequests.AddToken)
 	err := request.FromForm(context)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(err)
 		errorResp.FromError(err, http.StatusBadRequest)
+		errorResp.ErrorMessage += fmt.Sprintf("%v", context.Request())
+		fmt.Print(errorResp.ErrorMessage)
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 	if val, err := IsValidAPI_Token(request.API_Token); !val || err != nil {
@@ -99,15 +101,16 @@ func HandleDropAPI_Token(context echo.Context) error {
 
 //HandleRegistration handles a request to register a developer.
 func HandleRegistration(context echo.Context) error {
-	request := developerRequests.DevRegistration{}
+	request := new(developerRequests.DevRegistration)
 	err := request.FromForm(context)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(err, http.StatusBadRequest)
+		errorResp.ErrorMessage += fmt.Sprintf("%v", context)
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
-	ID, err := registerDeveloper(request)
+	ID, err := registerDeveloper(*request)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(err, http.StatusInternalServerError)

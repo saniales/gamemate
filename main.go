@@ -13,7 +13,6 @@ import (
 	"sanino/gamemate/controllers/user/out_game_controller"
 
 	"github.com/labstack/echo"
-	//fast go engine, can be replaced with standard.
 )
 
 //Main function of the server : here there are the allowed messages of connections
