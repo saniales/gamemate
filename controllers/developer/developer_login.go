@@ -77,23 +77,23 @@ func checkLogin(AuthTry developerRequests.DevAuth) (bool, int64, error) {
 
 	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(*) AS num_rows, HEX(hash_pwd), hash_salt, developerID FROM developers WHERE email = ? GROUP BY hash_pwd, hash_salt, developerID")
 	if err != nil {
-		log.Print(err)
+		log.Print(err.Error())
 		return false, -1, err
 	}
 	defer stmtQuery.Close()
 
 	result, err := stmtQuery.Query(AuthTry.Email)
 	if err != nil {
-		log.Print(err)
+		log.Print(err.Error())
 		return false, -1, err
 	}
 	if !result.Next() {
-		log.Print(err)
+		log.Print(err.Error())
 		return false, -1, errors.New("Cannot login user")
 	}
 	err = result.Scan(&num_rows, &password_hash, &salt, &developerID)
 	if err != nil {
-		log.Print(err)
+		log.Print(err.Error())
 		return false, -1, err
 	}
 	salted_pwd := AuthTry.Password + strconv.Itoa(salt)
