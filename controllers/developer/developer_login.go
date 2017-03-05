@@ -3,6 +3,7 @@ package developerController
 import (
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"sanino/gamemate/configurations"
 	"sanino/gamemate/constants"
@@ -11,7 +12,6 @@ import (
 	"strconv"
 
 	"github.com/garyburd/redigo/redis"
-	"github.com/labstack/gommon/log"
 )
 
 //registerDeveloper inserts a developer into the archives.
@@ -22,10 +22,9 @@ func registerDeveloper(RegTry developerRequests.DevRegistration) (int64, error) 
 	isLoggable, _, err := checkLogin(authTry)
 	if err == nil {
 		log.Print(err)
-		return -1, errors.New("Cannot check if user is registered")
+		return -1, err //errors.New("Cannot check if user is registered")
 	}
 	if isLoggable {
-		log.Print(err)
 		return -1, errors.New("Developer already registered")
 	}
 	salt := rand.Intn(constants.MAX_NUMBER_SALT)
@@ -36,20 +35,17 @@ func registerDeveloper(RegTry developerRequests.DevRegistration) (int64, error) 
 			controllerSharedFuncs.ConvertToHexString(saltedPass)),
 	)
 	if err != nil {
-		log.Print(err)
 		return -1, err
 	}
 	defer stmtQuery.Close()
 
 	result, err := stmtQuery.Exec(RegTry.Email, salt)
 	if err != nil {
-		log.Print(err)
 		return -1, err
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		log.Print(err)
 		return -1, err
 	}
 	if rowsAff <= 0 {
@@ -77,23 +73,19 @@ func checkLogin(AuthTry developerRequests.DevAuth) (bool, int64, error) {
 
 	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(*) AS num_rows, HEX(hash_pwd), hash_salt, developerID FROM developers WHERE email = ? GROUP BY hash_pwd, hash_salt, developerID")
 	if err != nil {
-		log.Print(err.Error())
 		return false, -1, err
 	}
 	defer stmtQuery.Close()
 
 	result, err := stmtQuery.Query(AuthTry.Email)
 	if err != nil {
-		log.Print(err.Error())
 		return false, -1, err
 	}
 	if !result.Next() {
-		log.Print(err.Error())
 		return false, -1, errors.New("Cannot login user")
 	}
 	err = result.Scan(&num_rows, &password_hash, &salt, &developerID)
 	if err != nil {
-		log.Print(err.Error())
 		return false, -1, err
 	}
 	salted_pwd := AuthTry.Password + strconv.Itoa(salt)
