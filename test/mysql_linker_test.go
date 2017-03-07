@@ -1,7 +1,6 @@
 package test
 
 import (
-	"fmt"
 	"sanino/gamemate/configurations"
 	"testing"
 
@@ -29,9 +28,7 @@ func TestLinkMySQL(test *testing.T) {
 				test.Log("Error while pinging the DB : Cannot perform PING. Error => " + err.Error())
 				test.Fail()
 			} else {
-				test.Log(test_handle.Query("SELECT * FROM test_table")))
-
-
+				test.Log(test_handle.Query("SELECT * FROM test_table"))
 			}
 		}
 	}
