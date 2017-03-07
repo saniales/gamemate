@@ -18,14 +18,9 @@ type GameOwnerAuth struct {
 //
 // Does not check for the validity of the items inside the struct (e.g. tokens).
 func (receiver *GameOwnerAuth) FromForm(c echo.Context) error {
-	var err error
-	receiver.Type = c.FormValue("Type")
-	receiver.API_Token = c.FormValue("API_Token")
-	receiver.Email = c.FormValue("Email")
-	receiver.Password = c.FormValue("Password")
-
-	if receiver.Type != "GameOwnerAuth" || receiver.Email == "" || receiver.Password == "" || receiver.API_Token == "" {
-		err = errors.New("Invalid Form Submitted")
+	err := c.Bind(receiver)
+	if err != nil || receiver.Type != "GameOwnerAuth" {
+		return errors.New("Invalid Form Submitted")
 	}
-	return err
+	return nil
 }

@@ -2,7 +2,6 @@ package gameOwnerRequests
 
 import (
 	"errors"
-	"strconv"
 
 	"github.com/labstack/echo"
 )
@@ -21,18 +20,9 @@ type RemoveGame struct {
 //
 // Does not check for the validity of the items inside the struct (e.g. tokens)
 func (receiver *RemoveGame) FromForm(c echo.Context) error {
-	var err error
-	receiver.Type = c.FormValue("Type")
-	receiver.API_Token = c.FormValue("API_Token")
-	receiver.SessionToken = c.FormValue("SessionToken")
-	receiver.GameID, err = strconv.ParseInt(c.FormValue("GameID"), 10, 64)
-	if err != nil {
-		return errors.New("Invalid Form Submitted")
-	}
-
-	if receiver.Type != "RemoveGame" || receiver.API_Token == "" ||
-		receiver.SessionToken == "" || receiver.GameID <= 0 {
-		return errors.New("Invalid Form Submitted")
+	err := c.Bind(receiver)
+	if err != nil || receiver.Type != "RemoveGame" {
+		return errors.New("Invalid Form Submitted " + err.Error())
 	}
 
 	return err

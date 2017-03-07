@@ -2,7 +2,6 @@ package gameOwnerRequests
 
 import (
 	"errors"
-	"strconv"
 
 	"github.com/labstack/echo"
 )
@@ -21,32 +20,11 @@ type GameOwnerAction struct {
 //
 // Does not check for the validity of the items inside the struct (e.g. tokens)
 func (receiver *GameOwnerAction) FromForm(c echo.Context) error {
-	var err error
-	errMsg := "Invalid Form Submitted"
-	receiver.Type = c.FormValue("Type")
-	receiver.API_Token = c.FormValue("API_Token")
-	receiver.SessionToken = c.FormValue("SessionToken")
-
-	receiver.GameID, err = strconv.ParseInt(c.FormValue("GameID"), 10, 64)
-	if err != nil {
-		return errors.New(errMsg)
-	}
-
-	receiver.UserID, err = strconv.ParseInt(c.FormValue("UserID"), 10, 64)
-	if err != nil {
-		return errors.New(errMsg)
-	}
-
-	receiver.Action, err = strconv.ParseBool(c.FormValue("Action"))
-	if err != nil {
-		return errors.New(errMsg)
-	}
-
-	if receiver.Type != "GameOwnerAction" || receiver.API_Token == "" ||
-		receiver.SessionToken == "" || receiver.GameID <= 0 ||
+	err := c.Bind(receiver)
+	if err != nil || receiver.Type != "GameOwnerAction" || receiver.GameID <= 0 ||
 		receiver.UserID <= 0 {
-		return errors.New(errMsg)
+		return errors.New("Invalid Form Submitted " + err.Error())
 	}
 
-	return err
+	return nil
 }

@@ -18,15 +18,14 @@ type DevRegistration struct {
 //
 // Does not check for the validity of the items inside the struct (e.g. tokens)
 func (receiver *DevRegistration) FromForm(c echo.Context) error {
-	var err error
+	err := c.Bind(receiver)
 	/*
 		receiver.Type = c.FormValue("Type")
 		receiver.API_Token = c.FormValue("API_Token")
 		receiver.Password = c.FormValue("Password")
 		receiver.Email = c.FormValue("Email")
 	*/
-	err = c.Bind(receiver)
-	if receiver.Type != "DevRegistration" || err != nil {
+	if err != nil || receiver.Type != "DevRegistration" {
 		err = errors.New("Invalid Form Submitted " + err.Error())
 	}
 	return err

@@ -17,13 +17,9 @@ type MyEnabledGames struct {
 //
 // Does not check for the validity of the items inside the struct (e.g. tokens)
 func (receiver *MyEnabledGames) FromForm(c echo.Context) error {
-	var err error
-	receiver.Type = c.FormValue("Type")
-	receiver.API_Token = c.FormValue("API_Token")
-	receiver.SessionToken = c.FormValue("SessionToken")
-	if receiver.Type != "MyEnabledGames" || receiver.API_Token == "" || receiver.SessionToken == "" {
-		err = errors.New("Invalid Form Submitted")
+	err := c.Bind(receiver)
+	if err != nil || receiver.Type != "MyEnabledGames" {
+		return errors.New("Invalid Form Submitted " + err.Error())
 	}
-
-	return err
+	return nil
 }

@@ -15,12 +15,12 @@ import (
 	"github.com/labstack/echo"
 )
 
-//Main function of the server : here there are the allowed messages of connections
-//and their behaviour.
 type dummy struct {
 	message string `json:"message" xml:"message" form:"message"`
 }
 
+//Main function of the server : here there are the allowed messages of connections
+//and their behaviour.
 func main() {
 	e := configurations.InitServer()
 	//Links with redis to permit cache usage.

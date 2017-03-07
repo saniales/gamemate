@@ -22,23 +22,15 @@ type Registration struct {
 //
 // Does not check for the validity of the items inside the struct (e.g. tokens)
 func (receiver *Registration) FromForm(c echo.Context) error {
-	var err error
-	receiver.Type = c.FormValue("Type")
-	receiver.API_Token = c.FormValue("API_Token")
-	receiver.Username = c.FormValue("Username")
-	receiver.Password = c.FormValue("Password")
-	receiver.Email = c.FormValue("Email")
-	receiver.Birthday = c.FormValue("Birthday")
-	receiver.Gender = c.FormValue("Gender")
-
-	if receiver.Type != "Registration" || receiver.API_Token == "" ||
-		receiver.Username == "" || receiver.Password == "" || receiver.Email == "" ||
-		receiver.Birthday == "" || receiver.Gender == "" {
-		err = errors.New("Invalid Form Submitted")
-	} else if _, err = receiver.BirthdayDate(); err != nil {
-		err = errors.New("Invalid Form Submitted, Birthday is not in a correct format => " + receiver.Birthday)
+	err := c.Bind(receiver)
+	if err != nil || receiver.Type != "Registration" {
+		return errors.New("Invalid Form Submitted " + err.Error())
 	}
-	return err
+	_, err = receiver.BirthdayDate()
+	if err != nil {
+		return errors.New("Invalid Form Submitted, Birthday is not in a correct format => " + receiver.Birthday)
+	}
+	return nil
 }
 
 //BirthdayDate converts the date string in a time struct
