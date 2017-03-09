@@ -10,6 +10,6 @@ type DevAuth struct {
 
 //FromToken fills the struct's data with proper definition, based on a session token.
 func (receiver *DevAuth) FromToken(SessionToken string) {
-	receiver.Type = "Developer Session Token"
+	receiver.Type = "DevSessionToken"
 	receiver.SessionToken = SessionToken
 }
