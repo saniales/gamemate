@@ -16,7 +16,7 @@ import (
 )
 
 type dummy struct {
-	message string `json:"message" xml:"message" form:"message"`
+	Message string `json:"message" xml:"message" form:"message"`
 }
 
 //Main function of the server : here there are the allowed messages of connections
@@ -27,7 +27,7 @@ func main() {
 	configurations.InitCache()
 	configurations.InitArchives()
 	//defer redisPool.Close()
-	e.POST("/", func(c echo.Context) error { return c.JSON(http.StatusOK, &dummy{message: "Up and running..."}) })
+	e.POST("/", func(c echo.Context) error { return c.JSON(http.StatusOK, &dummy{Message: "Up and running..."}) })
 	e.POST(constants.AUTH_PATH, loginController.HandleAuth)
 	e.POST(constants.USER_REGISTRATION_PATH, loginController.HandleRegistration)
 	e.POST(constants.USER_ALL_GAME_LIST_PATH, outGameController.HandleAllGamesForUser)

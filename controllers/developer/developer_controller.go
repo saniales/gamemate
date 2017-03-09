@@ -54,7 +54,7 @@ func HandleAddAPI_Token(context echo.Context) error {
 
 //HandleDropAPI_Token handles a request to remove a developer API Token.
 func HandleDropAPI_Token(context echo.Context) error {
-	request := developerRequests.DropToken{}
+	request := new(developerRequests.DropToken)
 	err := request.FromForm(context)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
@@ -131,7 +131,7 @@ func HandleRegistration(context echo.Context) error {
 
 //HandleLogin handles login requests for developers.
 func HandleLogin(context echo.Context) error {
-	request := developerRequests.DevAuth{}
+	request := new(developerRequests.DevAuth)
 	err := request.FromForm(context)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
@@ -147,7 +147,7 @@ func HandleLogin(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
-	isLoggable, developerID, err := checkLogin(request)
+	isLoggable, developerID, err := checkLogin(*request)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(err)
