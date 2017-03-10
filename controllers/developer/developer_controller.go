@@ -153,13 +153,13 @@ func HandleRegistration(context echo.Context) error {
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(err, http.StatusBadRequest)
-		errorResp.ErrorMessage += fmt.Sprintf("%v", context)
+		//errorResp.ErrorMessage += fmt.Sprintf("%v", context)
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
 	IsValid, err := IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
-		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
+		context.Logger().Print(fmt.Errorf("API Token %s rejected : error %v", request.API_Token, err))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, &errorResp)
