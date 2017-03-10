@@ -187,13 +187,14 @@ func removeAPI_TokenFromCache(token string) error {
 //Return true if found, false otherwise.
 func checkAPI_TokenInArchives(token string) (bool, error) {
 	stmtQuery, err := configurations.ArchivesPool.Prepare(
-		"SELECT COUNT(token) FROM API_Tokens WHERE token = ? AND enabled = 1",
+		fmt.Sprintf("SELECT COUNT(token) FROM API_Tokens WHERE token = %s AND enabled = 1",
+			controllerSharedFuncs.ConvertToHexString(token)),
 	)
 	if err != nil {
 		return false, err
 	}
 	defer stmtQuery.Close()
-	result, err := stmtQuery.Query(token)
+	result, err := stmtQuery.Query()
 	if err != nil {
 		return false, err
 	}
