@@ -8,7 +8,7 @@ type ErrorResponse struct {
 
 //ErrorDetail is supposed to be used only during development to debug errors.
 type ErrorDetail struct {
-    Type         string        `json:"Type" xml:"Type" form:"Type"`
+	Type         string        `json:"Type" xml:"Type" form:"Type"`
 	Error        ErrorResponse `json:"Error" xml:"Error" form:"Error"`
 	ErrorMessage string        `json:"ErrorMessage" xml:"ErrorMessage" form:"ErrorMessage"`
 }

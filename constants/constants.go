@@ -23,11 +23,12 @@ const (
 	DEVELOPER_ADD_API_TOKEN_PATH  string = "/dev/api_token/add"  //DEVELOPER_ADD_API_TOKEN_PATH is the path to handle add api token requests.
 	DEVELOPER_DROP_API_TOKEN_PATH string = "/dev/api_token/drop" //DEVELOPER_DROP_API_TOKEN_PATH is the path to handle drop api token requests.
 	DEVELOPER_TOKEN_LIST_PATH     string = "/dev/api_token/list" //DEVELOPER_LIST_API_TOKEN_PATH is the path to handle list api token requests.
-	GAME_OWNER_AUTH_PATH          string = "/owner/auth"         //GAME_OWNER_AUTH_PATH is the path to handle GAME_OWNER authentication.
-	GAME_OWNER_REGISTRATION_PATH  string = "/owner/register"     //GAME_OWNER_REGISTRATION_PATH is the path to handle GAME_OWNER registration.
-	GAME_OWNER_ADD_GAME_PATH      string = "/owner/game/add"     //GAME_OWNER_ADD_GAME_PATH is the path to handle add game requests.
-	GAME_OWNER_REMOVE_GAME_PATH   string = "/owner/game/remove"  //GAME_OWNER_REMOVE_GAME_PATH is the path to handle remove game requests.
-	GAME_OWNER_GAME_LIST_PATH     string = "/owner/game/list"    //GAME_OWNER_GAME_LIST is the path to handle requests to show games of a GAME_OWNER.
+
+	GAME_OWNER_AUTH_PATH         string = "/owner/auth"        //GAME_OWNER_AUTH_PATH is the path to handle GAME_OWNER authentication.
+	GAME_OWNER_REGISTRATION_PATH string = "/owner/register"    //GAME_OWNER_REGISTRATION_PATH is the path to handle GAME_OWNER registration.
+	GAME_OWNER_ADD_GAME_PATH     string = "/owner/game/add"    //GAME_OWNER_ADD_GAME_PATH is the path to handle add game requests.
+	GAME_OWNER_REMOVE_GAME_PATH  string = "/owner/game/remove" //GAME_OWNER_REMOVE_GAME_PATH is the path to handle remove game requests.
+	GAME_OWNER_GAME_LIST_PATH    string = "/owner/game/list"   //GAME_OWNER_GAME_LIST is the path to handle requests to show games of a GAME_OWNER.
 
 	GAME_ENABLE_DISABLE_PATH string = "/game/action" //GAME_ENABLE_DISABLE_PATH is the path to handle game actions for game owner (enable, disable for users)
 
