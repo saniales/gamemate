@@ -3,6 +3,7 @@ package developerController
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"sanino/gamemate/configurations"
 	"sanino/gamemate/constants"
@@ -186,7 +187,7 @@ func removeAPI_TokenFromCache(token string) error {
 //
 //Return true if found, false otherwise.
 func checkAPI_TokenInArchives(token string) (bool, error) {
-	token = "0x" + token
+	token = "0x" + strings.ToUpper(token)
 	stmtQuery, err := configurations.ArchivesPool.Prepare(
 		"SELECT COUNT(token) FROM API_Tokens WHERE token = ? AND enabled = 1",
 	)
@@ -201,7 +202,6 @@ func checkAPI_TokenInArchives(token string) (bool, error) {
 	if !result.Next() {
 		return false, errors.New("Check API error (archives) : Empty Table, Query with errors (should report 0 when item is not in table)")
 	}
-
 	var num_rows int64
 	result.Scan(&num_rows)
 	fmt.Print(num_rows)
