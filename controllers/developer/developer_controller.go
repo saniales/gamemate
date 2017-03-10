@@ -196,7 +196,7 @@ func HandleLogin(context echo.Context) error {
 
 	IsValid, err := IsValidAPI_Token((*request).API_Token)
 	if !IsValid || err != nil {
-		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
+		context.Logger().Print(fmt.Errorf("API Token %s rejected", (*request).API_Token))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, &errorResp)
