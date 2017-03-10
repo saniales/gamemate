@@ -186,6 +186,7 @@ func removeAPI_TokenFromCache(token string) error {
 //
 //Return true if found, false otherwise.
 func checkAPI_TokenInArchives(token string) (bool, error) {
+	token = "0x" + token
 	stmtQuery, err := configurations.ArchivesPool.Prepare(
 		"SELECT COUNT(token) FROM API_Tokens WHERE token = ? AND enabled = 1",
 	)
@@ -193,7 +194,7 @@ func checkAPI_TokenInArchives(token string) (bool, error) {
 		return false, err
 	}
 	defer stmtQuery.Close()
-	result, err := stmtQuery.Query("0x" + token)
+	result, err := stmtQuery.Query(token)
 	if err != nil {
 		return false, err
 	}
