@@ -23,7 +23,7 @@ func InitServer() *echo.Echo {
 	//server.Pre(middleware.HTTPSRedirect())
 	server.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: `{"time":"${time_rfc3339_nano}","remote_ip":"${remote_ip}","host":"${host}",` +
-			`"method":"${method}", "form":"${form}", "uri":"${uri}","status":${status}, "latency":${latency},` +
+			`"method":"${method}", "uri":"${uri}","status":${status}, "latency":${latency},` +
 			`"latency_human":"${latency_human}","bytes_in":${bytes_in},` +
 			`"bytes_out":${bytes_out}}` + "\n",
 	}))

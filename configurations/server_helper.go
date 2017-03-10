@@ -57,18 +57,15 @@ func ExpireDaylyCacheAtMidnight(server *echo.Echo) {
 	timer := time.NewTimer(date.Sub(time.Now()))
 	for {
 		<-timer.C
-		err := removeAPITokens()
+		conn := CachePool.Get()
+		defer conn.Close()
+		_, err := conn.Do("FLUSH")
 		if err != nil {
-			server.Logger.Print("Error during garbage collection, cannot remove API Tokens")
+			server.Logger.Print("Error during garbage collection")
 		}
+		//TODO:set consistency to true
 		timer.Stop()
 		date = time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC).Add(time.Hour * 24)
 		timer = time.NewTimer(date.Sub(time.Now()))
 	}
-}
-
-func removeAPITokens() error {
-	conn := CachePool.Get()
-	defer conn.Close()
-	return conn.Send("DEL", constants.API_TOKENS_SET)
 }

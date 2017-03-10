@@ -18,16 +18,16 @@ const (
 	TURN_ACTION_PATH string = "/user/move/make"     //TURN_ACTION_PATH is the path to handle an action in a match.
 	TURN_END_PATH    string = "/user/move/end_turn" //TURN_END_PATH is the path to handle the end of a turn.
 
-	DEVELOPER_AUTH_PATH          string = "/dev/auth"           //DEVELOPER_AUTH_PATH is the path to handle developer authentication.
-	DEVELOPER_REGISTRATION_PATH  string = "/dev/register"       //DEVELOPER_REGISTRATION_PATH is the path to hande developer registration.
-	DEVELOPER_ADD_API_TOKEN_PATH string = "/dev/api_token/add"  //DEVELOPER_ADD_API_TOKEN_PATH is the path to handle add api token requests.
-	DEVELOPER_DROP_API_TOKEN     string = "/dev/api_token/drop" //DEVELOPER_DROP_API_TOKEN is the path to handle drop api token requests.
-
-	GAME_OWNER_AUTH_PATH         string = "/owner/auth"        //GAME_OWNER_AUTH_PATH is the path to handle GAME_OWNER authentication.
-	GAME_OWNER_REGISTRATION_PATH string = "/owner/register"    //GAME_OWNER_REGISTRATION_PATH is the path to handle GAME_OWNER registration.
-	GAME_OWNER_ADD_GAME_PATH     string = "/owner/game/add"    //GAME_OWNER_ADD_GAME_PATH is the path to handle add game requests.
-	GAME_OWNER_REMOVE_GAME_PATH  string = "/owner/game/remove" //GAME_OWNER_REMOVE_GAME_PATH is the path to handle remove game requests.
-	GAME_OWNER_GAME_LIST_PATH    string = "/owner/game/list"   //GAME_OWNER_GAME_LIST is the path to handle requests to show games of a GAME_OWNER.
+	DEVELOPER_AUTH_PATH           string = "/dev/auth"           //DEVELOPER_AUTH_PATH is the path to handle developer authentication.
+	DEVELOPER_REGISTRATION_PATH   string = "/dev/register"       //DEVELOPER_REGISTRATION_PATH is the path to hande developer registration.
+	DEVELOPER_ADD_API_TOKEN_PATH  string = "/dev/api_token/add"  //DEVELOPER_ADD_API_TOKEN_PATH is the path to handle add api token requests.
+	DEVELOPER_DROP_API_TOKEN_PATH string = "/dev/api_token/drop" //DEVELOPER_DROP_API_TOKEN_PATH is the path to handle drop api token requests.
+	DEVELOPER_TOKEN_LIST_PATH     string = "/dev/api_token/list" //DEVELOPER_LIST_API_TOKEN_PATH is the path to handle list api token requests.
+	GAME_OWNER_AUTH_PATH          string = "/owner/auth"         //GAME_OWNER_AUTH_PATH is the path to handle GAME_OWNER authentication.
+	GAME_OWNER_REGISTRATION_PATH  string = "/owner/register"     //GAME_OWNER_REGISTRATION_PATH is the path to handle GAME_OWNER registration.
+	GAME_OWNER_ADD_GAME_PATH      string = "/owner/game/add"     //GAME_OWNER_ADD_GAME_PATH is the path to handle add game requests.
+	GAME_OWNER_REMOVE_GAME_PATH   string = "/owner/game/remove"  //GAME_OWNER_REMOVE_GAME_PATH is the path to handle remove game requests.
+	GAME_OWNER_GAME_LIST_PATH     string = "/owner/game/list"    //GAME_OWNER_GAME_LIST is the path to handle requests to show games of a GAME_OWNER.
 
 	GAME_ENABLE_DISABLE_PATH string = "/game/action" //GAME_ENABLE_DISABLE_PATH is the path to handle game actions for game owner (enable, disable for users)
 
@@ -45,8 +45,9 @@ const (
 	SUMMARY_GAMES_SET     string = "games/summary/all" //SUMMARY_GAMES_SET represents the name of the set of all summaries of the games (name + desc only).
 
 	/* entities */
-	USER_IN_CACHE      string = LOGGED_USERS_SET + "/with_id/%d"      //USER_IN_CACHE represents how to find a single user from the ID in the cache.
-	USER_ENABLED_GAMES string = USER_IN_CACHE + "/enabled_games"      //USER_ENABLED_GAMES represents how to find enabled games for a user in cache.
-	OWNER_IN_CACHE     string = LOGGED_OWNERS_SET + "/with_id/%d"     //OWNER_IN_CACHE represents how to find a single owner from the ID in the cache.
-	DEVELOPER_IN_CACHE string = LOGGED_DEVELOPERS_SET + "/with_id/%d" //DEVELOPER_IN_CACHE represents how to find a single developer from the ID in the cache.
+	USER_IN_CACHE                 string = LOGGED_USERS_SET + "/with_id/%d"      //USER_IN_CACHE represents how to find a single user from the ID in the cache.
+	USER_ENABLED_GAMES            string = USER_IN_CACHE + "/enabled_games"      //USER_ENABLED_GAMES represents how to find enabled games for a user in cache.
+	OWNER_IN_CACHE                string = LOGGED_OWNERS_SET + "/with_id/%d"     //OWNER_IN_CACHE represents how to find a single owner from the ID in the cache.
+	DEVELOPER_IN_CACHE            string = LOGGED_DEVELOPERS_SET + "/with_id/%d" //DEVELOPER_IN_CACHE represents how to find a single developer from the ID in the cache.
+	DEVELOPER_TOKEN_LIST_IN_CACHE string = DEVELOPER_IN_CACHE + "/token_list"    //DEVELOPER_IN_CACHE represents how to find the token list of a developer in cache.
 )

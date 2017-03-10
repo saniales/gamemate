@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"sanino/gamemate/models/developer/requests"
 	"sanino/gamemate/models/developer/responses"
@@ -36,9 +37,12 @@ func HandleAllTokensForDeveloper(context echo.Context) error {
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
-	Tokens, err := getAPITokensOfDeveloper(ID)
+	Tokens, cacheUpdated, err := getAPITokensOfDeveloper(ID)
+	if cacheUpdated {
+		context.Logger().Print("Cache Updated with token_list of developer " + strconv.FormatInt(ID, 10))
+	}
 	if err != nil {
-		context.Logger().Print(err)
+		context.Logger().Print(err.Error() + ", developerID : " + strconv.FormatInt(ID, 10))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Cannot Get Tokens"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, &errorResp)
@@ -80,8 +84,15 @@ func HandleAddAPI_Token(context echo.Context) error {
 		errorResp.FromError(errors.New("Cannot create API Token"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, errorResp)
 	}
+	err = updateCacheWithAPI_Token(token)
 	if err != nil {
 		context.Logger().Print(fmt.Errorf("Cannot add new API Token in Cache, warning => %v", err))
+		//QUESTION: possible to put consistency flyweight here?
+	}
+	err = addTokenToCacheList(ID, token)
+	if err != nil {
+		context.Logger().Print(fmt.Errorf("Cannot add new API Token in Developer list in Cache, warning => %v", err))
+		//QUESTION: possible to put consistency flyweight here?
 	}
 	responseFromServer := developerResponses.AddToken{}
 	responseFromServer.FromAPIToken(token)

@@ -11,8 +11,70 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-//Gets tokens from the archives. This operation is not supposed to be done often.
-func getAPITokensOfDeveloper(developerID int64) ([]string, error) {
+//getAPITokensOfDeveloper gets tokens from the archives or cache.
+func getAPITokensOfDeveloper(developerID int64) ([]string, bool, error) {
+	tokens, err := checkAPITokenListInCache(developerID)
+	if err != nil {
+		tokens, err = getAPITokenListFromArchives(developerID)
+		if err != nil {
+			if updateCacheWithTokenList(developerID, tokens) != nil {
+				return tokens, false, nil
+			}
+		}
+		return tokens, true, nil
+	}
+	return tokens, true, nil
+}
+
+func checkAPITokenListInCache(developerID int64) ([]string, error) {
+	conn := configurations.CachePool.Get()
+	defer conn.Close()
+	key := fmt.Sprintf(constants.DEVELOPER_TOKEN_LIST_IN_CACHE, developerID)
+	_, err := conn.Do("EXPIRE", key, constants.CACHE_REFRESH_INTERVAL.Seconds())
+	if err != nil {
+		return nil, err
+	}
+	tokens, err := redis.Strings(conn.Do("SMEMBERS", key))
+	return tokens, err
+}
+
+func updateCacheWithTokenList(developerID int64, tokens []string) error {
+	conn := configurations.CachePool.Get()
+	defer conn.Close()
+	key := fmt.Sprintf(constants.DEVELOPER_TOKEN_LIST_IN_CACHE, developerID)
+	err := conn.Send("MULTI")
+	if err != nil {
+		return err
+	}
+	err = conn.Send("EXPIRE", key, constants.CACHE_REFRESH_INTERVAL.Seconds())
+	if err != nil {
+		conn.Do("DISCARD")
+		return err
+	}
+	for _, val := range tokens {
+		err = conn.Send("SADD", key, val)
+		if err != nil {
+			conn.Do("DISCARD")
+			return err
+		}
+	}
+	_, err = conn.Do("EXEC")
+	if err != nil {
+		conn.Do("DISCARD")
+		return err
+	}
+	return nil
+}
+
+func addTokenToCacheList(developerID int64, token string) error {
+	conn := configurations.CachePool.Get()
+	defer conn.Close()
+	key := fmt.Sprintf(constants.DEVELOPER_TOKEN_LIST_IN_CACHE, developerID)
+	_, err := conn.Do("SADD", key, token)
+	return err
+}
+
+func getAPITokenListFromArchives(developerID int64) ([]string, error) {
 	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT token FROM API_Tokens WHERE developerID = ?")
 	if err != nil {
 		return nil, errors.New("Cannot get tokens, query prepare error => " + err.Error())
