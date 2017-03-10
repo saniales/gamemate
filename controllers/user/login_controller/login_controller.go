@@ -20,8 +20,8 @@ import (
 func HandleAuth(context echo.Context) error {
 	errorResp := errorResponses.ErrorDetail{}
 	var isLoggable bool
-	var AuthTry = new(loginRequests.Auth)
-	var err = AuthTry.FromForm(context)
+	AuthTry := new(loginRequests.Auth)
+	err := AuthTry.FromForm(context)
 
 	if err != nil {
 		context.Logger().Print(err)
@@ -33,7 +33,7 @@ func HandleAuth(context echo.Context) error {
 	if err != nil {
 		context.Logger().Print(err)
 		errorResp.FromError(errors.New("Cannot Login User"), http.StatusInternalServerError)
-		return context.JSON(http.StatusInternalServerError, errorResp)
+		return context.JSON(http.StatusInternalServerError, &errorResp)
 	}
 	if !isLoggable {
 		errMsg := "Cannot login. User - Pwd Combination not correct"
