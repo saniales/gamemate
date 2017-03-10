@@ -55,7 +55,7 @@ func HandleAuth(context echo.Context) error {
 //HandleRegistration handles the registration of a user for the system.
 func HandleRegistration(context echo.Context) error {
 	errorResp := errorResponses.ErrorDetail{}
-	var RegTry = loginRequests.Registration{}
+	var RegTry = new(loginRequests.Registration)
 	var err = RegTry.FromForm(context)
 	if err != nil {
 		context.Logger().Print(err)
@@ -79,7 +79,7 @@ func HandleRegistration(context echo.Context) error {
 	}
 	//else query and if query successful add user also into cache and reply with session_token
 	//generating random salt
-	userID, err := insertIntoArchives(RegTry)
+	userID, err := insertIntoArchives(*RegTry)
 	if err != nil {
 		context.Logger().Print(err)
 		errorResp.FromError(errors.New("Cannot Insert User"), http.StatusInternalServerError)
