@@ -1,6 +1,7 @@
 package developerController
 
 import (
+	"encoding/hex"
 	"errors"
 	"fmt"
 
@@ -186,6 +187,10 @@ func removeAPI_TokenFromCache(token string) error {
 //
 //Return true if found, false otherwise.
 func checkAPI_TokenInArchives(token string) (bool, error) {
+	bytes, err := hex.DecodeString(token)
+	if err != nil {
+		return false, err
+	}
 	stmtQuery, err := configurations.ArchivesPool.Prepare(
 		"SELECT COUNT(token) FROM API_Tokens WHERE token = CAST(? AS BINARY(64)) AND enabled = 1",
 	)
@@ -193,7 +198,7 @@ func checkAPI_TokenInArchives(token string) (bool, error) {
 		return false, err
 	}
 	defer stmtQuery.Close()
-	result, err := stmtQuery.Query(token)
+	result, err := stmtQuery.Query(bytes)
 	if err != nil {
 		return false, err
 	}
