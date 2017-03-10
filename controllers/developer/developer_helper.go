@@ -11,6 +11,34 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
+//Gets tokens from the archives. This operation is not supposed to be done often.
+func getAPITokensOfDeveloper(developerID int64) ([]string, error) {
+	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT token FROM API_Tokens WHERE developerID = ?")
+	if err != nil {
+		return nil, errors.New("Cannot get tokens, query prepare error => " + err.Error())
+	}
+	defer stmtQuery.Close()
+	rows, err := stmtQuery.Query(developerID)
+	if err != nil {
+		return nil, errors.New("Cannot get tokens, query params error => " + err.Error())
+	}
+
+	tokens := make([]string, 10)
+
+	for rows.Next() {
+		var token string
+		if rows.Err() != nil {
+			return nil, errors.New("Cannot get tokens, query row error => " + err.Error())
+		}
+		if rows.Scan(token) != nil {
+			return nil, errors.New("Cannot get tokens, query row-scan error => " + err.Error())
+		}
+		tokens = append(tokens, token)
+	}
+
+	return tokens, nil
+}
+
 //IsValidAPI_Token Provides a control for forged requests with fake API_Tokens
 //
 //Returns true if the token is valid, false otherwise.

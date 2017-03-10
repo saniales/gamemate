@@ -12,6 +12,42 @@ import (
 	"github.com/labstack/echo"
 )
 
+func HandleAllTokensForDeveloper(context echo.Context) error {
+	request := new(developerRequests.TokenList)
+	err := request.FromForm(context)
+	if err != nil {
+		errorResp := errorResponses.ErrorDetail{}
+		context.Logger().Print(err)
+		errorResp.FromError(err, http.StatusBadRequest)
+		errorResp.ErrorMessage += fmt.Sprintf("%v", context.Request())
+		fmt.Print(errorResp.ErrorMessage)
+		return context.JSON(http.StatusBadRequest, &errorResp)
+	}
+	if val, err := IsValidAPI_Token(request.API_Token); !val || err != nil {
+		errorResp := errorResponses.ErrorDetail{}
+		context.Logger().Print(errors.New("Rejected by the system, requestor not valid"))
+		errorResp.FromError(err, http.StatusBadRequest)
+		return context.JSON(http.StatusBadRequest, &errorResp)
+	}
+	ID, err := getDevIDFromSessionToken(request.SessionToken)
+	if err != nil {
+		errorResp := errorResponses.ErrorDetail{}
+		context.Logger().Print(fmt.Errorf("%s token rejected by the system, Invalid Session", request.SessionToken))
+		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
+		return context.JSON(http.StatusBadRequest, &errorResp)
+	}
+	Tokens, err := getAPITokensOfDeveloper(ID)
+	if err != nil {
+		context.Logger().Print(err)
+		errorResp := errorResponses.ErrorDetail{}
+		errorResp.FromError(errors.New("Cannot Get Tokens"), http.StatusInternalServerError)
+		return context.JSON(http.StatusInternalServerError, &errorResp)
+	}
+	response := developerResponses.TokenList{}
+	response.FromTokens(Tokens)
+	return context.JSON(http.StatusOK, &response)
+}
+
 //HandleAddAPI_Token handles a request to add a developer API Token.
 func HandleAddAPI_Token(context echo.Context) error {
 	request := new(developerRequests.AddToken)

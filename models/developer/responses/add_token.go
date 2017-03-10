@@ -11,6 +11,6 @@ type AddToken struct {
 //FromAPIToken fills the struct's data with proper definition, based on an
 //API token.
 func (receiver *AddToken) FromAPIToken(API_Token string) {
-	receiver.Type = "Developer New API Token"
+	receiver.Type = "AddToken"
 	receiver.NewAPI_Token = API_Token
 }

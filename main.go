@@ -35,6 +35,7 @@ func main() {
 
 	e.POST(constants.DEVELOPER_AUTH_PATH, developerController.HandleLogin)
 	e.POST(constants.DEVELOPER_REGISTRATION_PATH, developerController.HandleRegistration)
+	e.POST(constants.DEVELOPER_REGISTRATION_PATH, developerController.HandleAllTokensForDeveloper)
 	e.POST(constants.DEVELOPER_ADD_API_TOKEN_PATH, developerController.HandleAddAPI_Token)
 	e.POST(constants.DEVELOPER_DROP_API_TOKEN, developerController.HandleDropAPI_Token)
 
