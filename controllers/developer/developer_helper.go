@@ -204,7 +204,7 @@ func checkAPI_TokenInArchives(token string) (bool, error) {
 
 	var num_rows int64
 	result.Scan(&num_rows)
-
+	fmt.Print(num_rows)
 	if num_rows > 0 {
 		err = updateCacheWithAPI_Token(token)
 		if err != nil { //did not update cache but the request has been satisfied.
@@ -212,7 +212,7 @@ func checkAPI_TokenInArchives(token string) (bool, error) {
 		}
 		return true, nil
 	}
-	return false, nil
+	return false, errors.New("API Token not found")
 }
 
 //addAPI_TokenInArchives adds a token linked to the specified developer to the archives.
