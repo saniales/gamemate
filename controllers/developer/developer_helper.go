@@ -125,7 +125,11 @@ func IsValidAPI_Token(token string) (bool, error) {
 				msgCache + "\" Message from Cache and \"" +
 				msgArchives + "\" Message from Archives.")
 		}
-		return true, errors.New("Check API Error: Cache says \"" + msgCache + "\"")
+		err := updateCacheWithAPI_Token(token)
+		if err != nil {
+			err = errors.New("Check API Error: Cache says \"" + err.Error() + "\"")
+		}
+		return true, err
 	}
 	return true, nil
 }
