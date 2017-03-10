@@ -194,7 +194,7 @@ func checkAPI_TokenInArchives(token string) (bool, error) {
 		return false, err
 	}
 	defer stmtQuery.Close()
-	result, err := stmtQuery.Query(token)
+	result, err := stmtQuery.Query()
 	if err != nil {
 		return false, err
 	}
