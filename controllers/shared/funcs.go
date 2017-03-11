@@ -26,7 +26,7 @@ func GenerateToken() string {
 //values represents additional data to create hashmaps,
 //they must be in the form ["key1", "value1", "key2", "value2", ..., and so on];
 //can be empty.
-func UpdateCacheNewSession(SessionSet string, expiration time.Duration, ID int64, values ...string) (string, error) {
+func UpdateCacheNewSession(SessionSet string, expiration time.Duration, ID int64, values ...interface{}) (string, error) {
 	var token string
 	conn := configurations.CachePool.Get()
 	defer conn.Close()
@@ -54,8 +54,10 @@ func UpdateCacheNewSession(SessionSet string, expiration time.Duration, ID int64
 	if err != nil {
 		return constants.INVALID_TOKEN, err
 	}
-
-	err = conn.Send("HMSET", SessionSet+"/with_token/"+token, "ID", ID)
+	var params []interface{}
+	params = append(params, SessionSet+"/with_token/"+token, "ID", ID)
+	params = append(params, values...)
+	err = conn.Send("HMSET", params...)
 	//if set when a user logons with an expired key it is removed from cache and set
 	if err != nil {
 		return constants.INVALID_TOKEN, err
