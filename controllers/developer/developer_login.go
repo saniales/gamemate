@@ -107,7 +107,7 @@ func getDevIDFromSessionToken(token string) (int64, error) {
 	}
 	ID, err := strconv.ParseInt(response[0], 10, 64)
 	if err != nil {
-		return -1, errors.New("Invalid Session : " + err.Error())
+		return -1, fmt.Errorf("Invalid Session : command = %s, response = %v, error = %v", command, response, err)
 	}
 	if ID == 0 {
 		return -1, errors.New("Invalid Session : " + err.Error())
