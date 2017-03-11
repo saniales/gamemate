@@ -42,7 +42,7 @@ const (
 	LOGGED_USERS_SET      string = "users"             //LOGGED_USERS_SET represents the name of session set in cache of logged users.
 	LOGGED_DEVELOPERS_SET string = "developers"        //LOGGED_DEVELOPERS_SET represents the name of session set in cache of logged developers.
 	LOGGED_OWNERS_SET     string = "owners"            //LOGGED_OWNERS_SET represents the name of session set in cache of logged owners.
-	API_TOKENS_SET        string = "API_Tokens"        //API_TOKENS_SET represents the name of set in cache of most used API tokens.
+	API_TOKENS_SET        string = "api_tokens"        //API_TOKENS_SET represents the name of set in cache of most used API tokens.
 	SUMMARY_GAMES_SET     string = "games/summary/all" //SUMMARY_GAMES_SET represents the name of the set of all summaries of the games (name + desc only).
 
 	/* entities */

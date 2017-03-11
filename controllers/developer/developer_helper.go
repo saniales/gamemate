@@ -176,11 +176,7 @@ func updateCacheWithAPI_Token(token string) error {
 func removeAPI_TokenFromCache(token string) error {
 	conn := configurations.CachePool.Get()
 	defer conn.Close()
-	err := conn.Send("SREM", constants.API_TOKENS_SET, token)
-	if err != nil {
-		return err
-	}
-	err = conn.Flush()
+	_, err := conn.Do("SREM", constants.API_TOKENS_SET, token)
 	if err != nil {
 		return err
 	}
