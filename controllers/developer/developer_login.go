@@ -9,8 +9,6 @@ import (
 	"sanino/gamemate/controllers/shared"
 	"sanino/gamemate/models/developer/requests"
 	"strconv"
-
-	"github.com/garyburd/redigo/redis"
 )
 
 //registerDeveloper inserts a developer into the archives.
@@ -98,15 +96,5 @@ func updateCacheWithSessionDeveloperToken(developerID int64) (string, error) {
 }
 
 func getDevIDFromSessionToken(token string) (int64, error) {
-	command := fmt.Sprintf("%s/with_token/%s", constants.LOGGED_DEVELOPERS_SET, token)
-
-	conn := configurations.CachePool.Get()
-	ID, err := redis.Int64(conn.Do("HGET", command, "ID"))
-	if err != nil {
-		return -1, fmt.Errorf("Invalid Session : command = %s, response = %d, error = %v", command, ID, err)
-	}
-	if ID == 0 {
-		return -1, fmt.Errorf("Invalid Session : command = %s, response = %d, error = %v", command, ID, err)
-	}
-	return ID, nil
+	return controllerSharedFuncs.GetIDFromSessionSet(constants.LOGGED_DEVELOPERS_SET, token)
 }

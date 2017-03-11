@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"sanino/gamemate/controllers/shared"
+
 	"sanino/gamemate/models/developer/requests"
 	"sanino/gamemate/models/developer/responses"
 	"sanino/gamemate/models/shared/responses/errors"
@@ -24,7 +26,7 @@ func HandleAllTokensForDeveloper(context echo.Context) error {
 		fmt.Print(errorResp.ErrorMessage)
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
-	if val, err := IsValidAPI_Token(request.API_Token); !val || err != nil {
+	if val, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token); !val || err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(errors.New("Rejected by the system, requestor not valid"))
 		errorResp.FromError(err, http.StatusBadRequest)
@@ -64,7 +66,7 @@ func HandleAddAPI_Token(context echo.Context) error {
 		fmt.Print(errorResp.ErrorMessage)
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
-	if val, err := IsValidAPI_Token(request.API_Token); !val || err != nil {
+	if val, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token); !val || err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(errors.New("Rejected by the system, requestor not valid"))
 		errorResp.FromError(err, http.StatusBadRequest)
@@ -84,7 +86,7 @@ func HandleAddAPI_Token(context echo.Context) error {
 		errorResp.FromError(errors.New("Cannot create API Token"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, errorResp)
 	}
-	err = updateCacheWithAPI_Token(token)
+	err = controllerSharedFuncs.UpdateCacheWithAPI_Token(token)
 	if err != nil {
 		context.Logger().Print(fmt.Errorf("Cannot add new API Token in Cache, warning => %v", err))
 		//QUESTION: possible to put consistency flyweight here?
@@ -109,7 +111,7 @@ func HandleDropAPI_Token(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
-	IsValid, err := IsValidAPI_Token(request.API_Token)
+	IsValid, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
 		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
@@ -157,7 +159,7 @@ func HandleRegistration(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
-	IsValid, err := IsValidAPI_Token(request.API_Token)
+	IsValid, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
 		context.Logger().Print(fmt.Errorf("API Token %s rejected : error %v", request.API_Token, err))
 		errorResp := errorResponses.ErrorDetail{}
@@ -194,7 +196,7 @@ func HandleLogin(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
-	IsValid, err := IsValidAPI_Token(request.API_Token)
+	IsValid, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
 		context.Logger().Print(fmt.Errorf("API Token rejected %v : error %v", request.API_Token, err))
 		errorResp := errorResponses.ErrorDetail{}

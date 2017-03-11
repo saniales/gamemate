@@ -93,13 +93,15 @@ func updateCacheWithSessionOwnerToken(ownerID int64) (string, error) {
 }
 
 func getOwnerIDFromSessionToken(token string) (int64, error) {
+	command := fmt.Sprintf("%s/with_token/%s", constants.LOGGED_OWNERS_SET, token)
+
 	conn := configurations.CachePool.Get()
-	ID, err := redis.Int64(conn.Do("HMGET", "owners/with_token/"+token+"/", "ID"))
+	ID, err := redis.Int64(conn.Do("HGET", command, "ID"))
 	if err != nil {
-		return -1, err
+		return -1, fmt.Errorf("Invalid Session : command = %s, response = %d, error = %v", command, ID, err)
 	}
 	if ID == 0 {
-		return -1, errors.New("Invalid Session")
+		return -1, fmt.Errorf("Invalid Session : command = %s, response = %d, error = %v", command, ID, err)
 	}
 	return ID, nil
 }

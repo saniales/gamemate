@@ -15,9 +15,9 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-//GenerateToken creates a valid session token, without "0x" HEX marker.
+//generateToken creates a valid session token.
 func GenerateToken() string {
-	return strings.Replace(ConvertToHexString(strconv.FormatInt(time.Now().UnixNano(), 10)), "0x", "", 1)
+	return ConvertToHexString(strconv.FormatInt(time.Now().UnixNano(), 10))
 }
 
 //UpdateCacheNewSession Updates the cache SessionSet with the email and the expiration.
@@ -54,17 +54,17 @@ func UpdateCacheNewSession(SessionSet string, expiration time.Duration, ID int64
 	if err != nil {
 		return constants.INVALID_TOKEN, err
 	}
-	var params []interface{}
-	params = append(params, SessionSet+"/with_token/"+token, "ID", ID)
-	params = append(params, values...)
-	err = conn.Send("HMSET", params...)
+
+	var args []interface{}
+	args = append(args, SessionSet+"/with_token/"+token, "ID", ID)
+	args = append(args, values...)
+	err = conn.Send("HMSET", args...)
 	//if set when a user logons with an expired key it is removed from cache and set
 	if err != nil {
 		return constants.INVALID_TOKEN, err
 	}
 
 	err = conn.Send("EXPIRE", SessionSet+"/with_token/"+token, expiration.Seconds())
-	//if set when a user logons with an expired key it is removed from cache and set
 	if err != nil {
 		return constants.INVALID_TOKEN, err
 	}
@@ -89,4 +89,19 @@ func ConvertToHexString(source string) string {
 	hash := sha512.New()
 	io.WriteString(hash, source)
 	return "0x" + strings.ToUpper(hex.EncodeToString(hash.Sum(nil)))
+}
+
+//GetIDFromSessionSet gets a generic ID of an entity from its set in cache and session token.
+func GetIDFromSessionSet(SessionSet string, Token string) (int64, error) {
+	command := fmt.Sprintf("%s/with_token/%s", SessionSet, Token)
+
+	conn := configurations.CachePool.Get()
+	ID, err := redis.Int64(conn.Do("HGET", command, "ID"))
+	if err != nil {
+		return -1, fmt.Errorf("Invalid Session : command = %s, response = %d, error = %v", command, ID, err)
+	}
+	if ID == 0 {
+		return -1, fmt.Errorf("Invalid Session : command = %s, response = %d, error = %v", command, ID, err)
+	}
+	return ID, nil
 }

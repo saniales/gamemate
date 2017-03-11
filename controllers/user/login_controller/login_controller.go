@@ -2,11 +2,11 @@ package loginController
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"sanino/gamemate/configurations"
 	"sanino/gamemate/constants"
+	"sanino/gamemate/controllers/shared"
 
 	"sanino/gamemate/models/shared/responses/errors"
 	"sanino/gamemate/models/user/requests/login"
@@ -103,9 +103,7 @@ func HandleRegistration(context echo.Context) error {
 //
 //Returns error if not found in cache.
 func GetUserIDFromSessionToken(token string) (int64, error) {
-	conn := configurations.CachePool.Get()
-	defer conn.Close()
-	return redis.Int64(conn.Do("GET", fmt.Sprintf("%s/token", constants.LOGGED_USERS_SET)))
+	return controllerSharedFuncs.GetIDFromSessionSet(constants.LOGGED_USERS_SET, token)
 }
 
 //GetConnectedUsers get the number of connected users.
