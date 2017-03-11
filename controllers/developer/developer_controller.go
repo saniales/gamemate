@@ -33,7 +33,7 @@ func HandleAllTokensForDeveloper(context echo.Context) error {
 	ID, err := getDevIDFromSessionToken(request.SessionToken)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
-		context.Logger().Print(fmt.Errorf("%s token rejected by the system, Invalid Session", request.SessionToken))
+		context.Logger().Print(fmt.Errorf("%s token rejected by the system, Invalid Session : error => %s", request.SessionToken, err.Error()))
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
