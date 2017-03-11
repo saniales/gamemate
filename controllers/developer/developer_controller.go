@@ -120,14 +120,6 @@ func HandleDropAPI_Token(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
-	err = removeAPI_TokenFromCache(request.TokenToDrop)
-	if err != nil {
-		context.Logger().Print(fmt.Errorf("%s API Token not removed. Error => %v", request.TokenToDrop, err))
-		errorResp := errorResponses.ErrorDetail{}
-		errorResp.FromError(errors.New("Cannot remove API Token"), http.StatusInternalServerError)
-		return context.JSON(http.StatusInternalServerError, errorResp)
-	}
-
 	ID, err := getDevIDFromSessionToken(request.SessionToken)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
@@ -136,8 +128,15 @@ func HandleDropAPI_Token(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
-	err = removeAPI_TokenFromArchives(ID, request.TokenToDrop)
+	cacheCleared, err := removeAPI_Token(ID, request.TokenToDrop)
 	if err != nil {
+		if cacheCleared {
+			//just Log and return error
+			context.Logger().Print("Cache error : see below")
+		} else {
+			//more like a warning : cache is ok but archives are not. which is not consistent.
+			context.Logger().Print("Warning from Archives : see below")
+		}
 		context.Logger().Print(fmt.Errorf("%s API Token not removed. Error => %v", request.TokenToDrop, err))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Cannot remove API Token"), http.StatusInternalServerError)

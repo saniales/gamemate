@@ -155,13 +155,49 @@ func removeAPI_TokenFromArchives(developerID int64, token string) error {
 	return nil
 }
 
+//removeAPI_Token removes an API token from cache and archives.
+//
+//Returns two values :
+//
+//Bool which tells if the cache has been cleared.
+//
+//error if any occurred, otherwise nil.
+func removeAPI_Token(developerID int64, token string) (bool, error) {
+	err := removeAPI_TokenFromCache(developerID, token)
+	if err != nil {
+		return false, errors.New("Remove API Token Error : cannot remove from cache - " + err.Error())
+	}
+	err = removeAPI_TokenFromArchives(developerID, token)
+	if err != nil {
+		//this error is not critical, simply removing from archives requires removal from cache.
+		//while is not vice versa: cache can be reupdated later.
+		return true, errors.New("Remove API Token Error : cannot remove from cache - " + err.Error())
+	}
+	return true, nil
+}
+
 //removeAPI_TokenFromCache removes from the Cache the specified API_Token.
 //
 //Return error if did not manage to update the cache.
-func removeAPI_TokenFromCache(token string) error {
+func removeAPI_TokenFromCache(developerID int64, token string) error {
 	conn := configurations.CachePool.Get()
 	defer conn.Close()
-	_, err := conn.Do("SREM", constants.API_TOKENS_SET, token)
+	err := conn.Send("MULTI")
+	if err != nil {
+		return err
+	}
+
+	err = conn.Send("SREM", constants.API_TOKENS_SET, token)
+	if err != nil {
+		return err
+	}
+
+	err = conn.Send("SREM", fmt.Sprintf(constants.DEVELOPER_TOKEN_LIST_IN_CACHE, developerID), token)
+	if err != nil {
+		return err
+	}
+
+	_, err = conn.Do("EXEC")
 	if err != nil {
 		return err
 	}
