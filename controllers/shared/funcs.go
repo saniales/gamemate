@@ -67,7 +67,7 @@ func UpdateCacheNewSession(SessionSet string, expiration time.Duration, ID int64
 		return constants.INVALID_TOKEN, err
 	}
 
-	command := fmt.Sprintf("%s/%d", SessionSet, ID)
+	command := fmt.Sprintf("%s/with_id/%d", SessionSet, ID)
 	err = conn.Send("SET", command, token, "EX", int(expiration.Seconds()))
 	//if set when a user logons with an expired key it is removed from cache and set
 	if err != nil {
