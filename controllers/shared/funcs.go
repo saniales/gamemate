@@ -68,12 +68,7 @@ func UpdateCacheNewSession(SessionSet string, expiration time.Duration, ID int64
 		return constants.INVALID_TOKEN, err
 	}
 
-	err = conn.Send("EXEC")
-	if err != nil {
-		return constants.INVALID_TOKEN, err
-	}
-
-	err = conn.Flush()
+	_, err = conn.Do("EXEC")
 	if err != nil {
 		return constants.INVALID_TOKEN, err
 	}
