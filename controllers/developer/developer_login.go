@@ -101,16 +101,12 @@ func getDevIDFromSessionToken(token string) (int64, error) {
 	command := fmt.Sprintf("%s/with_token/%s", constants.LOGGED_DEVELOPERS_SET, token)
 
 	conn := configurations.CachePool.Get()
-	response, err := redis.Strings(conn.Do("HMGET", command, "ID"))
+	ID, err := redis.Int64(conn.Do("HMGET", command, "ID"))
 	if err != nil {
-		return -1, err
-	}
-	ID, err := strconv.ParseInt(response[0], 10, 64)
-	if err != nil {
-		return -1, fmt.Errorf("Invalid Session : command = %s, response = %v, error = %v", command, response, err)
+		return -1, fmt.Errorf("Invalid Session : command = %s, response = %d, error = %v", command, ID, err)
 	}
 	if ID == 0 {
-		return -1, errors.New("Invalid Session : " + err.Error())
+		return -1, fmt.Errorf("Invalid Session : command = %s, response = %d, error = %v", command, ID, err)
 	}
 	return ID, nil
 }
