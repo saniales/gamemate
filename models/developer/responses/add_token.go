@@ -1,7 +1,5 @@
 package developerResponses
 
-import "strings"
-
 //AddToken represents a POSITIVE response from the server to a developerRequests.AddToken
 //
 //For NEGATIVE response, please refer to errorResponses.ErrorResponse.
@@ -14,5 +12,5 @@ type AddToken struct {
 //API token.
 func (receiver *AddToken) FromAPIToken(API_Token string) {
 	receiver.Type = "AddToken"
-	receiver.NewAPI_Token = strings.Replace(receiver.NewAPI_Token, "0x", "", 1)
+	receiver.NewAPI_Token = API_Token
 }
