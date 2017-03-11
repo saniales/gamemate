@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"sanino/gamemate/controllers/developer"
+	"sanino/gamemate/controllers/shared"
 	"sanino/gamemate/controllers/user/session_controller"
 
 	"sanino/gamemate/models/shared/responses/errors"
@@ -24,7 +24,7 @@ func HandleMyEnabledGamesForUser(context echo.Context) error {
 		errorResponse.FromError(err, http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, errorResponse)
 	}
-	if val, err := developerController.IsValidAPI_Token(request.API_Token); !val || err != nil {
+	if val, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token); !val || err != nil {
 		errorResponse := errorResponses.ErrorDetail{}
 		context.Logger().Print(errors.New("Rejected by the system, requestor not valid"))
 		errorResponse.FromError(errors.New("Rejected by the system, request not valid"), http.StatusBadRequest)
@@ -64,7 +64,7 @@ func HandleAllGamesForUser(context echo.Context) error {
 		errorResponse.FromError(err, http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, errorResponse)
 	}
-	if val, err := developerController.IsValidAPI_Token(request.API_Token); !val || err != nil {
+	if val, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token); !val || err != nil {
 		errorResponse := errorResponses.ErrorDetail{}
 		context.Logger().Print(errors.New("Rejected by the system, requestor not valid"))
 		errorResponse.FromError(errors.New("Rejected by the system, request not valid"), http.StatusBadRequest)
