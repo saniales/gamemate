@@ -1,5 +1,6 @@
 package loginController
 
+//TODO : use controllerSharedFuncs.IsValidAPI_Token
 import (
 	"errors"
 	"net/http"

@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"sanino/gamemate/controllers/developer"
+	"sanino/gamemate/controllers/shared"
 	"sanino/gamemate/controllers/user/login_controller"
+
 	"sanino/gamemate/models/game_owner/requests"
 	"sanino/gamemate/models/game_owner/responses"
 	"sanino/gamemate/models/shared/responses/errors"
@@ -24,7 +25,7 @@ func HandleAddGame(context echo.Context) error {
 		errorResp.FromError(err, http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
-	if val, err := developerController.IsValidAPI_Token(request.API_Token); !val || err != nil {
+	if val, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token); !val || err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(errors.New("Rejected by the system, requestor not valid"))
 		errorResp.FromError(err, http.StatusBadRequest)
@@ -60,7 +61,7 @@ func HandleRemoveGame(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
-	IsValid, err := developerController.IsValidAPI_Token(request.API_Token)
+	IsValid, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
 		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
@@ -107,7 +108,7 @@ func HandleRegistration(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
-	IsValid, err := developerController.IsValidAPI_Token(request.API_Token)
+	IsValid, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
 		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
@@ -144,7 +145,7 @@ func HandleLogin(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
-	IsValid, err := developerController.IsValidAPI_Token(request.API_Token)
+	IsValid, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
 		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
@@ -187,7 +188,7 @@ func HandleGameAction(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
-	IsValid, err := developerController.IsValidAPI_Token(request.API_Token)
+	IsValid, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
 		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
@@ -270,7 +271,7 @@ func HandleShowMyGames(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
-	IsValid, err := developerController.IsValidAPI_Token(request.API_Token)
+	IsValid, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
 		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
