@@ -15,9 +15,9 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-//generateToken creates a valid session token.
+//GenerateToken creates a valid session token, without "0x" HEX marker.
 func GenerateToken() string {
-	return ConvertToHexString(strconv.FormatInt(time.Now().UnixNano(), 10))
+	return strings.Replace(ConvertToHexString(strconv.FormatInt(time.Now().UnixNano(), 10)), "0x", "", 1)
 }
 
 //UpdateCacheNewSession Updates the cache SessionSet with the email and the expiration.
