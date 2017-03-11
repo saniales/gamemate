@@ -55,7 +55,7 @@ func UpdateCacheNewSession(SessionSet string, expiration time.Duration, ID int64
 		return constants.INVALID_TOKEN, err
 	}
 
-	err = conn.Send("HMSET", SessionSet+"/with_token/"+token, "ID", ID, values)
+	err = conn.Send("HMSET", SessionSet+"/with_token/"+token, "ID", ID)
 	//if set when a user logons with an expired key it is removed from cache and set
 	if err != nil {
 		return constants.INVALID_TOKEN, err
