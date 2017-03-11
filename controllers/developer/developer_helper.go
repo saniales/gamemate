@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"strings"
 
 	"sanino/gamemate/configurations"
 	"sanino/gamemate/constants"
@@ -96,7 +97,7 @@ func getAPITokenListFromArchives(developerID int64) ([]string, error) {
 		if rows.Scan(token) != nil {
 			return nil, errors.New("Cannot get tokens, query row-scan error => " + err.Error())
 		}
-		tokens = append(tokens, token)
+		tokens = append(tokens, strings.Replace(token, "0x", "", 1))
 	}
 
 	return tokens, nil
