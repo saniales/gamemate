@@ -18,7 +18,7 @@ func registerDeveloper(RegTry developerRequests.DevRegistration) (int64, error) 
 	authTry := developerRequests.DevAuth{Email: RegTry.Email, Password: RegTry.Password}
 	isLoggable, _, err := checkLogin(authTry)
 	if err != nil {
-		return -1, errors.New("Login Erro Check : " + err.Error())
+		return -1, errors.New("Login Error Check => " + err.Error())
 	}
 	if isLoggable {
 		return -1, errors.New("Developer already registered, cannot register again.")
@@ -76,8 +76,8 @@ func checkLogin(AuthTry developerRequests.DevAuth) (bool, int64, error) {
 	if err != nil {
 		return false, -1, err
 	}
-	if !result.Next() {
-		return false, -1, errors.New("Cannot login user")
+	if !result.Next() { //user not found, so no error
+		return false, -1, nil
 	}
 	err = result.Scan(&num_rows, &password_hash, &salt, &developerID)
 	if err != nil {
