@@ -17,8 +17,11 @@ import (
 func registerDeveloper(RegTry developerRequests.DevRegistration) (int64, error) {
 	authTry := developerRequests.DevAuth{Email: RegTry.Email, Password: RegTry.Password}
 	isLoggable, _, err := checkLogin(authTry)
-	if err != nil || isLoggable {
-		return -1, errors.New("Developer already registered")
+	if err != nil {
+		return -1, errors.New("Login Erro Check : " + err.Error())
+	}
+	if isLoggable {
+		return -1, errors.New("Developer already registered, cannot register again.")
 	}
 	salt := rand.Intn(constants.MAX_NUMBER_SALT)
 	saltedPass := controllerSharedFuncs.ConvertToHexString(RegTry.Password + strconv.Itoa(salt))
