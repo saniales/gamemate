@@ -13,7 +13,7 @@ type DropToken struct {
 //FromOldAPIToken fills the struct's data with proper definition, based on an old
 //API token.
 func (receiver *DropToken) FromOldAPIToken(API_Token string) {
-	receiver.Type = "Developer New API Token"
+	receiver.Type = "DropToken"
 	receiver.OldToken = API_Token
 	receiver.Result = "OK"
 }
