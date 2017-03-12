@@ -21,7 +21,7 @@ func registerDeveloper(RegTry developerRequests.DevRegistration) (int64, error) 
 		return -1, errors.New("Developer already registered")
 	}
 	salt := rand.Intn(constants.MAX_NUMBER_SALT)
-	saltedPass := RegTry.Password + strconv.Itoa(salt)
+	saltedPass := controllerSharedFuncs.ConvertToHexString(RegTry.Password + strconv.Itoa(salt))
 
 	stmtQuery, err := configurations.ArchivesPool.Prepare(
 		fmt.Sprintf("INSERT INTO developers (developerID, email, hash_pwd, hash_salt) VALUES (NULL, ?, UNHEX(?), ?)"),
