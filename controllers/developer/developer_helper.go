@@ -76,7 +76,7 @@ func addTokenToCacheList(developerID int64, token string) error {
 }
 
 func getAPITokenListFromArchives(developerID int64) ([]string, error) {
-	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT token FROM API_Tokens WHERE developerID = ?")
+	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT HEX(token) FROM API_Tokens WHERE developerID = ? and enabled = 1")
 	if err != nil {
 		return nil, errors.New("Cannot get tokens, query prepare error => " + err.Error())
 	}
