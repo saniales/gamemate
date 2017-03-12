@@ -131,11 +131,11 @@ func HandleDropAPI_Token(context echo.Context) error {
 	cacheCleared, err := removeAPI_Token(ID, request.TokenToDrop)
 	if err != nil {
 		if cacheCleared {
-			//just Log and return error
-			context.Logger().Print("Cache error : see below")
-		} else {
 			//more like a warning : cache is ok but archives are not. which is not consistent.
 			context.Logger().Print("Warning from Archives : see below")
+		} else {
+			//just Log and return error
+			context.Logger().Print("Cache error : see below")
 		}
 		context.Logger().Print(fmt.Errorf("%s API Token not removed. Error => %v", request.TokenToDrop, err))
 		errorResp := errorResponses.ErrorDetail{}

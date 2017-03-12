@@ -177,7 +177,7 @@ func removeAPI_Token(developerID int64, token string) (bool, error) {
 	if err != nil {
 		//this error is not critical, simply removing from archives requires removal from cache.
 		//while is not vice versa: cache can be reupdated later.
-		return true, errors.New("Remove API Token Error : cannot remove from cache - " + err.Error())
+		return true, errors.New("Remove API Token Error : cannot remove from archives - " + err.Error())
 	}
 	return true, nil
 }
