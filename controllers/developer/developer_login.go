@@ -31,7 +31,7 @@ func registerDeveloper(RegTry developerRequests.DevRegistration) (int64, error) 
 	}
 	defer stmtQuery.Close()
 
-	result, err := stmtQuery.Exec(RegTry.Email, saltedPass, alt)
+	result, err := stmtQuery.Exec(RegTry.Email, saltedPass, salt)
 	if err != nil {
 		return -1, err
 	}
