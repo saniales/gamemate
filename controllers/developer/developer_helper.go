@@ -37,8 +37,11 @@ func checkAPITokenListInCache(developerID int64) ([]string, error) {
 		return nil, err
 	}
 	tokens, err := redis.Strings(conn.Do("SMEMBERS", key))
-	if err != nil || len(tokens) == 0 {
+	if err != nil {
 		return nil, err
+	}
+	if len(tokens) == 0 {
+		return nil, errors.New("KEY DOES NOT EXIST OR THE CACHE IS EMPTY")
 	}
 	return tokens, err
 }
