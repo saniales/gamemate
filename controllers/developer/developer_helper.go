@@ -133,15 +133,14 @@ func addAPI_TokenInArchives(developerID int64) (string, error) {
 //Request is valid only if the API Token to remove is owned by the requestor.
 func removeAPI_TokenFromArchives(developerID int64, token string) error {
 	stmtQuery, err := configurations.ArchivesPool.Prepare(
-		fmt.Sprintf("UPDATE API_Tokens SET enabled = 0 WHERE token = %s AND developerID = ?",
-			controllerSharedFuncs.ConvertToHexString(token)),
+		fmt.Sprintf("UPDATE API_Tokens SET enabled = 0 WHERE token = CAST(? AS BINARY(64)) AND developerID = ?"),
 	)
 	if err != nil {
 		return err
 	}
 	defer stmtQuery.Close()
 
-	result, err := stmtQuery.Exec(developerID)
+	result, err := stmtQuery.Exec(token, developerID)
 	if err != nil {
 		return err
 	}
