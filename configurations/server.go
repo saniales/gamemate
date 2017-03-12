@@ -28,7 +28,7 @@ func InitServer() *echo.Echo {
 			`"bytes_out":${bytes_out}}` + "\n",
 	}))
 	server.Use(middleware.Recover())
-	server.Logger.SetLevel(log.ERROR)
+	server.Logger.SetLevel(log.INFO)
 	//CORS
 	server.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
