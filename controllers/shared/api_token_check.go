@@ -87,7 +87,7 @@ func checkAPI_TokenInArchives(token string) (bool, error) {
 		return false, err
 	}
 	stmtQuery, err := configurations.ArchivesPool.Prepare(
-		"SELECT COUNT(token) FROM API_Tokens WHERE token = CAST(? AS BINARY(64)) AND enabled = 1",
+		"SELECT COUNT(token) FROM API_Tokens WHERE token = ? AND enabled = 1",
 	)
 	if err != nil {
 		return false, err

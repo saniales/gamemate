@@ -1,6 +1,7 @@
 package developerController
 
 import (
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"strings"
@@ -76,7 +77,7 @@ func addTokenToCacheList(developerID int64, token string) error {
 }
 
 func getAPITokenListFromArchives(developerID int64) ([]string, error) {
-	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT HEX(token) FROM API_Tokens WHERE developerID = ? and enabled = 1")
+	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT token FROM API_Tokens WHERE developerID = ? and enabled = 1")
 	if err != nil {
 		return nil, errors.New("Cannot get tokens, query prepare error => " + err.Error())
 	}
@@ -89,13 +90,14 @@ func getAPITokenListFromArchives(developerID int64) ([]string, error) {
 	tokens := make([]string, 10)
 
 	for rows.Next() {
-		var token string
+		var binary []byte
 		if rows.Err() != nil {
 			return nil, errors.New("Cannot get tokens, query row error => " + err.Error())
 		}
-		if rows.Scan(token) != nil {
+		if rows.Scan(binary) != nil {
 			return nil, errors.New("Cannot get tokens, query row-scan error => " + err.Error())
 		}
+		token := hex.EncodeToString(binary)
 		tokens = append(tokens, strings.Replace(token, "0x", "", 1))
 	}
 
