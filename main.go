@@ -33,11 +33,11 @@ func main() {
 	e.POST(constants.USER_ALL_GAME_LIST_PATH, outGameController.HandleAllGamesForUser)
 	e.POST(constants.USER_ENABLED_GAME_LIST_PATH, outGameController.HandleMyEnabledGamesForUser)
 
+	e.POST(constants.DEVELOPER_DROP_API_TOKEN_PATH, developerController.HandleDropAPI_Token)
 	e.POST(constants.DEVELOPER_AUTH_PATH, developerController.HandleLogin)
 	e.POST(constants.DEVELOPER_REGISTRATION_PATH, developerController.HandleRegistration)
 	e.POST(constants.DEVELOPER_TOKEN_LIST_PATH, developerController.HandleAllTokensForDeveloper)
 	e.POST(constants.DEVELOPER_ADD_API_TOKEN_PATH, developerController.HandleAddAPI_Token)
-	e.POST(constants.DEVELOPER_DROP_API_TOKEN_PATH, developerController.HandleDropAPI_Token)
 
 	e.POST(constants.GAME_OWNER_AUTH_PATH, gameOwnerController.HandleLogin)
 	e.POST(constants.GAME_OWNER_REGISTRATION_PATH, gameOwnerController.HandleRegistration)
