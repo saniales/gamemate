@@ -13,6 +13,7 @@ import (
 	"sanino/gamemate/models/shared/responses/errors"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/gommon/log"
 )
 
 func HandleAllTokensForDeveloper(context echo.Context) error {
@@ -111,7 +112,7 @@ func HandleDropAPI_Token(context echo.Context) error {
 		errorResp.FromError(err, http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
-	context.Logger().Print(context)
+	log.Print(context)
 	IsValid, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
 		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
