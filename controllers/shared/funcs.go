@@ -88,7 +88,7 @@ func UpdateCacheNewSession(SessionSet string, expiration time.Duration, ID int64
 func ConvertToHexString(source string) string {
 	hash := sha512.New()
 	io.WriteString(hash, source)
-	return "0x" + strings.ToUpper(hex.EncodeToString(hash.Sum(nil)))
+	return strings.ToUpper(hex.EncodeToString(hash.Sum(nil)))
 }
 
 //GetIDFromSessionSet gets a generic ID of an entity from its set in cache and session token.
