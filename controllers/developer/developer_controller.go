@@ -13,7 +13,6 @@ import (
 	"sanino/gamemate/models/shared/responses/errors"
 
 	"github.com/labstack/echo"
-	"github.com/labstack/gommon/log"
 )
 
 func HandleAllTokensForDeveloper(context echo.Context) error {
@@ -112,7 +111,7 @@ func HandleDropAPI_Token(context echo.Context) error {
 		errorResp.FromError(err, http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
-	log.Error("asdasdasd")
+
 	IsValid, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
 		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
@@ -141,7 +140,7 @@ func HandleDropAPI_Token(context echo.Context) error {
 		context.Logger().Print(fmt.Errorf("%s API Token not removed. Error => %v", request.TokenToDrop, err))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Cannot remove API Token"), http.StatusInternalServerError)
-		return context.JSON(http.StatusInternalServerError, errorResp)
+		return context.JSON(http.StatusInternalServerError, &errorResp)
 	}
 
 	responseFromServer := developerResponses.DropToken{}

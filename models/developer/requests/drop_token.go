@@ -20,7 +20,7 @@ type DropToken struct {
 //
 // Does not check for the validity of the items inside the struct (e.g. tokens)
 func (receiver *DropToken) FromForm(c echo.Context) error {
-	err := c.Bind(*receiver)
+	err := c.Bind(receiver)
 	if err != nil || receiver.Type != "DropToken" {
 		err = errors.New("Invalid Form Submitted " + err.Error())
 	}
