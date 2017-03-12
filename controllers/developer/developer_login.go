@@ -17,7 +17,7 @@ import (
 func registerDeveloper(RegTry developerRequests.DevRegistration) (int64, error) {
 	authTry := developerRequests.DevAuth{Email: RegTry.Email, Password: RegTry.Password}
 	isLoggable, _, err := checkLogin(authTry)
-	if err == nil && isLoggable {
+	if err != nil || isLoggable {
 		return -1, errors.New("Developer already registered")
 	}
 	salt := rand.Intn(constants.MAX_NUMBER_SALT)
