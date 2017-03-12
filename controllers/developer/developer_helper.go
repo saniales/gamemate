@@ -112,7 +112,7 @@ func getAPITokenListFromArchives(developerID int64) ([]string, error) {
 
 //addAPI_TokenInArchives adds a token linked to the specified developer to the archives.
 func addAPI_TokenInArchives(developerID int64) (string, error) {
-	token := controllerSharedFuncs.GenerateToken()
+	token := strings.Replace(controllerSharedFuncs.GenerateToken(), "0x", "", 1)
 	//TODO: find a way to handle duplicates. or leave the query fail and retry.
 	stmtQuery, err := configurations.ArchivesPool.Prepare(
 		fmt.Sprintf("INSERT INTO API_Tokens (developerID, token, enabled) VALUES (?, UNHEX(?), 1)"),
