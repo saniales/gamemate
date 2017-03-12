@@ -214,6 +214,7 @@ func HandleLogin(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 	if !isLoggable {
+		context.Logger().Print("Login Error : " + err.Error())
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(err)
 		errorResp.FromError(errors.New("User - Password combination wrong, retry"), http.StatusBadRequest)
