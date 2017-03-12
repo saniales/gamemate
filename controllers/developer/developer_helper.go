@@ -100,7 +100,7 @@ func getAPITokenListFromArchives(developerID int64) ([]string, error) {
 		if rows.Err() != nil {
 			return nil, errors.New("Cannot get tokens, query row error => " + err.Error())
 		}
-		if rows.Scan(binary) != nil {
+		if rows.Scan(&binary) != nil {
 			return nil, errors.New("Cannot get tokens, query row-scan error => " + err.Error())
 		}
 		token := hex.EncodeToString(binary)
