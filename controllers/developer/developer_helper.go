@@ -132,7 +132,7 @@ func addAPI_TokenInArchives(developerID int64) (string, error) {
 	if rows <= 0 {
 		return "", errors.New("No Row Affected, possible problem with the query")
 	}
-	return token, nil
+	return strings.Replace(token, "0x", "", 1), nil
 }
 
 //removeAPI_TokenFromArchives removes a token from the Archives.
