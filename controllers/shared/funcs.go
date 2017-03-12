@@ -32,7 +32,7 @@ func UpdateCacheNewSession(SessionSet string, expiration time.Duration, ID int64
 	defer conn.Close()
 	tokenOk := false
 	for i := 0; i < 10; i++ {
-		token = GenerateToken()
+		token = strings.Replace(GenerateToken(), "0x", "", 1)
 		_, err := redis.String(conn.Do("ZSCORE", SessionSet, token))
 		if err != nil {
 			if err.Error() != "(redigo: nil returned)" { //if nil is ok, break
