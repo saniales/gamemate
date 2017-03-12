@@ -153,6 +153,7 @@ func HandleRegistration(context echo.Context) error {
 	request := new(developerRequests.DevRegistration)
 	err := request.FromForm(context)
 	if err != nil {
+		context.Logger().Print(err)
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(err, http.StatusBadRequest)
 		//errorResp.ErrorMessage += fmt.Sprintf("%v", context)
@@ -169,6 +170,7 @@ func HandleRegistration(context echo.Context) error {
 
 	ID, err := registerDeveloper(*request)
 	if err != nil {
+		context.Logger().Print(err)
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(err, http.StatusInternalServerError)
 		return context.JSON(http.StatusBadRequest, &errorResp)
