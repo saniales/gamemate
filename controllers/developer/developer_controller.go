@@ -112,7 +112,7 @@ func HandleDropAPI_Token(context echo.Context) error {
 		errorResp.FromError(err, http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
-	log.Print(context)
+	log.Debug(context)
 	IsValid, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
 		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
