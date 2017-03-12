@@ -1,7 +1,6 @@
 package developerController
 
 import (
-	"database/sql"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -114,10 +113,6 @@ func getAPITokenListFromArchives(developerID int64) ([]string, error) {
 //addAPI_TokenInArchives adds a token linked to the specified developer to the archives.
 func addAPI_TokenInArchives(developerID int64) (string, error) {
 	token := controllerSharedFuncs.GenerateToken()
-	bytes, err := hex.DecodeString(token)
-	if err != nil {
-		return "", err
-	}
 	//TODO: find a way to handle duplicates. or leave the query fail and retry.
 	stmtQuery, err := configurations.ArchivesPool.Prepare(
 		fmt.Sprintf("INSERT INTO API_Tokens (developerID, token, enabled) VALUES (?, ?, 1)"),
@@ -126,7 +121,7 @@ func addAPI_TokenInArchives(developerID int64) (string, error) {
 		return "", err
 	}
 	defer stmtQuery.Close()
-	result, err := stmtQuery.Exec(developerID, sql.RawBytes(bytes))
+	result, err := stmtQuery.Exec(developerID, token)
 	if err != nil {
 		return "", err
 	}
