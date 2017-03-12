@@ -32,7 +32,7 @@ func UpdateCacheNewSession(SessionSet string, expiration time.Duration, ID int64
 	defer conn.Close()
 	tokenOk := false
 	for i := 0; i < 10; i++ {
-		token = strings.Replace(GenerateToken(), "0x", "", 1)
+		token = GenerateToken()
 		_, err := redis.String(conn.Do("ZSCORE", SessionSet, token))
 		if err != nil {
 			if err.Error() != "(redigo: nil returned)" { //if nil is ok, break
@@ -88,7 +88,7 @@ func UpdateCacheNewSession(SessionSet string, expiration time.Duration, ID int64
 func ConvertToHexString(source string) string {
 	hash := sha512.New()
 	io.WriteString(hash, source)
-	return "0x" + strings.ToUpper(hex.EncodeToString(hash.Sum(nil)))
+	return strings.ToUpper(hex.EncodeToString(hash.Sum(nil)))
 }
 
 //GetIDFromSessionSet gets a generic ID of an entity from its set in cache and session token.
