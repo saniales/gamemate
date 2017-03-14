@@ -263,7 +263,7 @@ func HandleGameAction(context echo.Context) error {
 
 //HandleShowMyGames handles the request to show the games owned by a game_owner.
 func HandleShowMyGames(context echo.Context) error {
-	request := gameOwnerRequests.MyGames{}
+	request := gameOwnerRequests.GameOwnerGameList{}
 	err := request.FromForm(context)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
@@ -294,7 +294,7 @@ func HandleShowMyGames(context echo.Context) error {
 		errorResp.FromError(errors.New("Cannot satisfy request"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, &errorResp)
 	}
-	response := gameOwnerResponses.MyGames{}
+	response := gameOwnerResponses.GameOwnerGameList{}
 	response.FromGames(games)
 	return context.JSON(http.StatusOK, &response)
 }
