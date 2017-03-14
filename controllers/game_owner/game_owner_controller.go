@@ -43,12 +43,12 @@ func HandleAddGame(context echo.Context) error {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(fmt.Errorf("Cannot create new API Token, error => %v", err))
 		errorResp.FromError(errors.New("Cannot create API Token"), http.StatusInternalServerError)
-		return context.JSON(http.StatusInternalServerError, errorResp)
+		return context.JSON(http.StatusInternalServerError, &errorResp)
 	}
 	response := gameOwnerResponses.AddGame{}
 
 	response.FromGameID(gameID)
-	return context.JSON(http.StatusCreated, response)
+	return context.JSON(http.StatusCreated, &response)
 }
 
 //HandleRemoveGame handles a request to remove a developer API Token.
@@ -82,7 +82,7 @@ func HandleRemoveGame(context echo.Context) error {
 		context.Logger().Print(fmt.Errorf("Game with ID:%d not removed. Error => %v", request.GameID, err))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Cannot remove API Token"), http.StatusInternalServerError)
-		return context.JSON(http.StatusInternalServerError, errorResp)
+		return context.JSON(http.StatusInternalServerError, &errorResp)
 	}
 
 	err = removeGameFromArchives(ownerID, request.GameID)
@@ -90,12 +90,12 @@ func HandleRemoveGame(context echo.Context) error {
 		context.Logger().Print(fmt.Errorf("Game with ID:%d not removed. Error => %v", request.GameID, err))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Cannot remove API Token"), http.StatusInternalServerError)
-		return context.JSON(http.StatusInternalServerError, errorResp)
+		return context.JSON(http.StatusInternalServerError, &errorResp)
 	}
 
 	response := gameOwnerResponses.RemoveGame{}
 	response.FromGameID(request.GameID)
-	return context.JSON(http.StatusOK, response)
+	return context.JSON(http.StatusOK, &response)
 }
 
 //HandleRegistration handles a request to register a developer.
@@ -127,7 +127,7 @@ func HandleRegistration(context echo.Context) error {
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("User registered, but I did not login automatically, try to login later"), http.StatusBadRequest)
-		return context.JSON(http.StatusInternalServerError, errorResp)
+		return context.JSON(http.StatusInternalServerError, &errorResp)
 	}
 
 	responseFromServer := gameOwnerResponses.GameOwnerAuth{}
@@ -171,11 +171,11 @@ func HandleLogin(context echo.Context) error {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(err)
 		errorResp.FromError(errors.New("Temporary error, retry in a few seconds"), http.StatusInternalServerError)
-		return context.JSON(http.StatusInternalServerError, errorResp)
+		return context.JSON(http.StatusInternalServerError, &errorResp)
 	}
 	response := gameOwnerResponses.GameOwnerAuth{}
 	response.FromToken(token)
-	return context.JSON(http.StatusCreated, response)
+	return context.JSON(http.StatusCreated, &response)
 }
 
 //HandleGameAction handles the requests to enable/disable a game.
@@ -212,7 +212,7 @@ func HandleGameAction(context echo.Context) error {
 					errorResp := errorResponses.ErrorDetail{}
 					context.Logger().Print(fmt.Errorf("Error in archives : %v", err))
 					errorResp.FromError(errors.New("Cannot satisfy request"), http.StatusInternalServerError)
-					return context.JSON(http.StatusInternalServerError, errorResp)
+					return context.JSON(http.StatusInternalServerError, &errorResp)
 				}
 				if !cacheUpdated {
 					context.Logger().Print("Game Action completed on archives, but not on cache")
@@ -220,7 +220,7 @@ func HandleGameAction(context echo.Context) error {
 				//NOTE:OK!!!_________________________________________________
 				response := gameOwnerResponses.GameOwnerAction{}
 				response.FromGameID(request.GameID)
-				return context.JSON(http.StatusOK, response)
+				return context.JSON(http.StatusOK, &response)
 			}
 			errorResp := errorResponses.ErrorDetail{}
 			context.Logger().Print(fmt.Errorf("Request rejected by the system, Invalid Request : requestor ID invalid => %d intead of %d", request.UserID, userID))
@@ -234,7 +234,7 @@ func HandleGameAction(context echo.Context) error {
 			context.Logger().Print(fmt.Errorf("Enable/disable %v: Cannot satisfy request, query error", request))
 			errorResp := errorResponses.ErrorDetail{}
 			errorResp.FromError(errors.New("Cannot satisfy request"), http.StatusInternalServerError)
-			return context.JSON(http.StatusInternalServerError, errorResp)
+			return context.JSON(http.StatusInternalServerError, &errorResp)
 		}
 		if !cacheUpdated {
 			context.Logger().Print("Request satisfied, but cache has not been updated")
@@ -251,14 +251,14 @@ func HandleGameAction(context echo.Context) error {
 		context.Logger().Print(fmt.Errorf("Enable/disable %v: Cannot satisfy request, query error", request))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Cannot satisfy request"), http.StatusInternalServerError)
-		return context.JSON(http.StatusInternalServerError, errorResp)
+		return context.JSON(http.StatusInternalServerError, &errorResp)
 	}
 	if !cacheUpdated {
 		context.Logger().Print("Game Action completed on archives, but not on cache")
 	}
 	response := gameOwnerResponses.GameOwnerAction{}
 	response.FromGameID(request.GameID)
-	return context.JSON(http.StatusOK, response)
+	return context.JSON(http.StatusOK, &response)
 }
 
 //HandleShowMyGames handles the request to show the games owned by a game_owner.
@@ -292,9 +292,9 @@ func HandleShowMyGames(context echo.Context) error {
 		context.Logger().Print(fmt.Errorf("Enable/disable %v: Cannot satisfy request, error => %v", request, err))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Cannot satisfy request"), http.StatusInternalServerError)
-		return context.JSON(http.StatusInternalServerError, errorResp)
+		return context.JSON(http.StatusInternalServerError, &errorResp)
 	}
 	response := gameOwnerResponses.MyGames{}
 	response.FromGames(games)
-	return context.JSON(http.StatusOK, response)
+	return context.JSON(http.StatusOK, &response)
 }
