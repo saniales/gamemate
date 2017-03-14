@@ -44,7 +44,7 @@ func getGamesFromArchives(ownerID int64) ([]gameOwnerDataStructs.Game, error) {
 
 	ret := make([]gameOwnerDataStructs.Game, 0, 10)
 
-	for !rows.Next() {
+	for rows.Next() {
 		game := gameOwnerDataStructs.Game{}
 		err = rows.Err()
 		if err != nil {

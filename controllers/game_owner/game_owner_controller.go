@@ -287,9 +287,10 @@ func HandleShowMyGames(context echo.Context) error {
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
-	games, err := getGamesFromArchives(ownerID)
+	//games, cacheOk, err := GetGames(ownerID) TODO
+	games, err := GetGames(ownerID)
 	if err != nil {
-		context.Logger().Print(fmt.Errorf("GameList error : Cannot satisfy request, error => %v", err))
+		context.Logger().Printf("GameList error : Cannot satisfy request, error => %v", err)
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Cannot satisfy request"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, &errorResp)
