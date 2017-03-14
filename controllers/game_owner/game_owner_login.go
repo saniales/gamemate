@@ -18,7 +18,7 @@ func registerOwner(RegTry gameOwnerRequests.GameOwnerRegistration) (int64, error
 		return -1, errors.New("Login Error Check => " + err.Error())
 	}
 	if isLoggable {
-		return -1, errors.New("Owner already registered, cannot register again.")
+		return -1, errors.New("Owner already registered, cannot register again")
 	}
 	salt := rand.Intn(constants.MAX_NUMBER_SALT)
 	saltedPass := controllerSharedFuncs.ConvertToHexString(RegTry.Password + strconv.Itoa(salt))
@@ -53,7 +53,6 @@ func registerOwner(RegTry gameOwnerRequests.GameOwnerRegistration) (int64, error
 //
 //Returns true if found, false otherwise.
 func checkLogin(AuthTry gameOwnerRequests.GameOwnerAuth) (bool, int64, error) {
-
 	var num_rows int
 	var password_hash string
 	var ownerID int64

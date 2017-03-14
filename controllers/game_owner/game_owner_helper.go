@@ -97,7 +97,7 @@ func checkGameInArchives(name string, ownerID int64) (bool, error) {
 
 	var num_rows int64
 	var gameID int64
-	result.Scan(&num_rows, gameID)
+	result.Scan(&num_rows, &gameID)
 
 	if num_rows > 0 {
 		//gets full game from ID
@@ -111,8 +111,8 @@ func checkGameInArchives(name string, ownerID int64) (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		if !result.Next() {
-			return false, errors.New("Check game error (archives) : Empty Table, Query with errors")
+		if !result.Next() { //not found
+			return false, nil
 		}
 		var game gameOwnerDataStructs.Game
 		game.ID = gameID
