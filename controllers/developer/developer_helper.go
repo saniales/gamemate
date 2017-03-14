@@ -92,6 +92,7 @@ func getAPITokenListFromArchives(developerID int64) ([]string, error) {
 	if err != nil {
 		return nil, errors.New("Cannot get tokens, query params error => " + err.Error())
 	}
+	defer rows.Close()
 
 	tokens := make([]string, 0, 10)
 

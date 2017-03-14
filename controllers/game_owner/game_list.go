@@ -40,6 +40,7 @@ func getGamesFromArchives(ownerID int64) ([]gameOwnerDataStructs.Game, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	ret := make([]gameOwnerDataStructs.Game, 0, 10)
 

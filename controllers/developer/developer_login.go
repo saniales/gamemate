@@ -76,6 +76,8 @@ func checkLogin(AuthTry developerRequests.DevAuth) (bool, int64, error) {
 	if err != nil {
 		return false, -1, err
 	}
+	defer result.Close()
+
 	if !result.Next() { //user not found, so no error
 		return false, -1, nil
 	}

@@ -91,6 +91,8 @@ func checkGameInArchives(name string, ownerID int64) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	defer result.Close()
+
 	if !result.Next() {
 		return false, errors.New("Check game error (archives) : Empty Table, Query with errors (should report 0 when item is not in table)")
 	}
@@ -111,6 +113,8 @@ func checkGameInArchives(name string, ownerID int64) (bool, error) {
 		if err != nil {
 			return false, err
 		}
+		defer result.Close()
+
 		if !result.Next() { //not found
 			return false, nil
 		}
@@ -287,8 +291,15 @@ func getOwnerFromArchives(gameID int64) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
+	defer result.Close()
+
 	if !result.Next() {
-		return -1, errors.New("Owner not found")
+		return -1, nil //not found
+	}
+
+	err = result.Err()
+	if err != nil {
+		return -1, err
 	}
 	var ownerID int64
 	err = result.Scan(&ownerID)
