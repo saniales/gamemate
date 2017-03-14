@@ -289,7 +289,7 @@ func HandleShowMyGames(context echo.Context) error {
 	}
 	games, err := getGamesFromArchives(ownerID)
 	if err != nil {
-		context.Logger().Print(fmt.Errorf("Enable/disable %v: Cannot satisfy request, error => %v", request, err))
+		context.Logger().Print(fmt.Errorf("GameList error : Cannot satisfy request, error => %v", err))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Cannot satisfy request"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, &errorResp)
