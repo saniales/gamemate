@@ -256,7 +256,7 @@ func HandleGameAction(context echo.Context) error {
 	if !cacheUpdated {
 		context.Logger().Print("Game Action completed on archives, but not on cache")
 	}
-	response := gameOwnerResponses.GameOwnerGameAction{}
+	response := gameOwnerResponses.GameOwnerAction{}
 	response.FromGameID(request.GameID)
 	return context.JSON(http.StatusOK, response)
 }
