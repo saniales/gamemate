@@ -41,7 +41,7 @@ func HandleAddGame(context echo.Context) error {
 	gameID, err := addGameInArchives(ownerID, request.GameName, request.GameDescription, request.MaxPlayers)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
-		context.Logger().Print(fmt.Errorf("Cannot create new Game, error => %v", err))
+		context.Logger().Print(fmt.Errorf("Cannot create Game, error => %v", err))
 		errorResp.FromError(errors.New("Cannot create Game"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, &errorResp)
 	}
