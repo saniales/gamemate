@@ -15,7 +15,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-//HandleAddGame handles a request to add a developer API Token.
+//HandleAddGame handles a request to add a developer Game.
 func HandleAddGame(context echo.Context) error {
 	request := gameOwnerRequests.AddGame{}
 	err := request.FromForm(context)
@@ -27,8 +27,8 @@ func HandleAddGame(context echo.Context) error {
 	}
 	if val, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token); !val || err != nil {
 		errorResp := errorResponses.ErrorDetail{}
-		context.Logger().Print(errors.New("Rejected by the system, requestor not valid"))
-		errorResp.FromError(err, http.StatusBadRequest)
+		context.Logger().Print(err)
+		errorResp.FromError(errors.New("Rejected by the system, Invalid API Token"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 	ownerID, err := getOwnerIDFromSessionToken(request.SessionToken)
@@ -41,8 +41,8 @@ func HandleAddGame(context echo.Context) error {
 	gameID, err := addGameInArchives(ownerID, request.GameName, request.GameDescription, request.MaxPlayers)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
-		context.Logger().Print(fmt.Errorf("Cannot create new API Token, error => %v", err))
-		errorResp.FromError(errors.New("Cannot create API Token"), http.StatusInternalServerError)
+		context.Logger().Print(fmt.Errorf("Cannot create new Game, error => %v", err))
+		errorResp.FromError(errors.New("Cannot create Game"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, &errorResp)
 	}
 	response := gameOwnerResponses.AddGame{}
@@ -51,7 +51,7 @@ func HandleAddGame(context echo.Context) error {
 	return context.JSON(http.StatusCreated, &response)
 }
 
-//HandleRemoveGame handles a request to remove a developer API Token.
+//HandleRemoveGame handles a request to remove a developer Game.
 func HandleRemoveGame(context echo.Context) error {
 	request := gameOwnerRequests.RemoveGame{}
 	err := request.FromForm(context)
@@ -63,7 +63,7 @@ func HandleRemoveGame(context echo.Context) error {
 
 	IsValid, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
-		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
+		context.Logger().Print(fmt.Errorf("Game %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, &errorResp)
@@ -81,7 +81,7 @@ func HandleRemoveGame(context echo.Context) error {
 	if err != nil {
 		context.Logger().Print(fmt.Errorf("Game with ID:%d not removed. Error => %v", request.GameID, err))
 		errorResp := errorResponses.ErrorDetail{}
-		errorResp.FromError(errors.New("Cannot remove API Token"), http.StatusInternalServerError)
+		errorResp.FromError(errors.New("Cannot remove Game"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, &errorResp)
 	}
 
@@ -89,7 +89,7 @@ func HandleRemoveGame(context echo.Context) error {
 	if err != nil {
 		context.Logger().Print(fmt.Errorf("Game with ID:%d not removed. Error => %v", request.GameID, err))
 		errorResp := errorResponses.ErrorDetail{}
-		errorResp.FromError(errors.New("Cannot remove API Token"), http.StatusInternalServerError)
+		errorResp.FromError(errors.New("Cannot remove Game"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, &errorResp)
 	}
 
@@ -110,7 +110,7 @@ func HandleRegistration(context echo.Context) error {
 
 	IsValid, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
-		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
+		context.Logger().Print(fmt.Errorf("Game %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, &errorResp)
@@ -147,7 +147,7 @@ func HandleLogin(context echo.Context) error {
 
 	IsValid, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
-		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
+		context.Logger().Print(fmt.Errorf("Game %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, &errorResp)
@@ -190,7 +190,7 @@ func HandleGameAction(context echo.Context) error {
 
 	IsValid, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
-		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
+		context.Logger().Print(fmt.Errorf("Game %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, &errorResp)
@@ -273,7 +273,7 @@ func HandleShowMyGames(context echo.Context) error {
 
 	IsValid, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
-		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
+		context.Logger().Print(fmt.Errorf("Game %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, &errorResp)
