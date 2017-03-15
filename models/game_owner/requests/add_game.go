@@ -13,7 +13,7 @@ type AddGame struct {
 	SessionToken    string `json:"SessionToken" xml:"SessionToken" form:"SessionToken"`
 	GameName        string `json:"GameName" xml:"GameName" form:"GameName"`
 	GameDescription string `json:"GameDescription" xml:"GameDescription" form:"GameDescription"`
-	MatchMaxPlayers int64  `json:"MatchMaxPlayers" xml:"MatchMaxPlayers" form:"MatchMaxPlayers"`
+	MaxPlayers      int64  `json:"MaxPlayers" xml:"MaxPlayers" form:"MaxPlayers"`
 }
 
 //FromForm creates a valid Struct based on form data submitted, or returns error.
@@ -21,7 +21,7 @@ type AddGame struct {
 // Does not check for the validity of the items inside the struct (e.g. tokens)
 func (receiver *AddGame) FromForm(c echo.Context) error {
 	err := c.Bind(receiver)
-	if err != nil || receiver.Type != "AddGame" {
+	if err != nil || receiver.Type != "GameOwnerAddGame" {
 		return errors.New("Invalid Form Submitted " + err.Error())
 	}
 

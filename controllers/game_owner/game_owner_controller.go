@@ -38,7 +38,7 @@ func HandleAddGame(context echo.Context) error {
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
-	gameID, err := addGameInArchives(ownerID, request.GameName, request.GameDescription, request.MatchMaxPlayers)
+	gameID, err := addGameInArchives(ownerID, request.GameName, request.GameDescription, request.MaxPlayers)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(fmt.Errorf("Cannot create new API Token, error => %v", err))

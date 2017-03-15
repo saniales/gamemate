@@ -11,7 +11,7 @@ type AddGame struct {
 
 //FromGameID fills the struct with data from a game ID.
 func (receiver *AddGame) FromGameID(GameID int64) {
-	receiver.Type = "AddGame"
+	receiver.Type = "GameOwnerAddGame"
 	receiver.GameID = GameID
 	receiver.Result = "OK"
 }

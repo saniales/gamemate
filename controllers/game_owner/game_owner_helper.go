@@ -134,7 +134,6 @@ func checkGameInArchives(name string, ownerID int64) (bool, error) {
 //
 //return insertID of the game if successfull, otherwise fills error.
 func addGameInArchives(ownerID int64, name string, description string, maxPlayers int64) (int64, error) {
-	//TODO: find a way to handle duplicates. or leave the query fail and retry.
 	stmtQuery, err := configurations.ArchivesPool.Prepare("INSERT INTO games (gameID, ownerID, name, description, maxPlayers) VALUES (NULL, ?, ?, ?, ?)")
 	if err != nil {
 		return -1, err
