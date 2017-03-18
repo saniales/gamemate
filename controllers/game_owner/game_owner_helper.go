@@ -160,7 +160,7 @@ func addGameInArchives(ownerID int64, name string, description string, maxPlayer
 
 //removeGameFromArchives removes a token from the Archives.
 func removeGameFromArchives(ownerID int64, gameID int64) error {
-	stmtQuery, err := configurations.ArchivesPool.Prepare("DELETE FROM games WHERE ID = ? AND owner_ID = ?")
+	stmtQuery, err := configurations.ArchivesPool.Prepare("DELETE FROM games WHERE gameID = ? AND ownerID = ?")
 	if err != nil {
 		return err
 	}
