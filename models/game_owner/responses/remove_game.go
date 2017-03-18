@@ -12,7 +12,7 @@ type RemoveGame struct {
 
 //FromGameID fills the struct with a POSITIVE response from a GameID.
 func (receiver *RemoveGame) FromGameID(GameID int64) {
-	receiver.Type = "GameOwnerGameAction"
+	receiver.Type = "GameOwnerRemoveGame"
 	receiver.GameID = GameID
 	receiver.Result = "OK"
 }
