@@ -208,7 +208,7 @@ func HandleGameAction(context echo.Context) error {
 			errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
 			return context.JSON(http.StatusBadRequest, &errorResp)
 		} else {
-			if userID == request.UserID { //OK
+			if userID == request.UserID || request.UserID == -1 { //OK
 				cacheUpdated, err := controllerSharedFuncs.EnableDisableGameForUser(request.UserID, request.GameID, request.Action)
 				if err != nil {
 					errorResp := errorResponses.ErrorDetail{}
