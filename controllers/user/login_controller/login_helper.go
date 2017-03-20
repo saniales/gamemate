@@ -51,7 +51,7 @@ func checkLogin(AuthTry loginRequests.Auth) (bool, int64, error) {
 	var userID int64
 	var salt int
 
-	stmtQuery, err := configurations.ArchivesPool.Prepare("HEX(hash_pwd), hash_salt, userID FROM users WHERE username = ?")
+	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT HEX(hash_pwd), hash_salt, userID FROM users WHERE username = ?")
 	if err != nil {
 		return false, -1, err
 	}
