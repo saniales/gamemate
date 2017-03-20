@@ -50,7 +50,7 @@ func checkLogin(AuthTry loginRequests.Auth) (bool, int64, error) {
 	var userID int64
 	var salt int
 
-	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(*) AS num_rows, HEX(hash_pwd), hash_salt, userID FROM users WHERE username = ? GROUP BY hash_pwd, hash_salt, ID")
+	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(*) AS num_rows, HEX(hash_pwd), hash_salt, userID FROM users WHERE username = ? GROUP BY hash_pwd, hash_salt, userID")
 	if err != nil {
 		return false, -1, err
 	}
