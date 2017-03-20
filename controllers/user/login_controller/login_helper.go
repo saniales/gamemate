@@ -73,7 +73,7 @@ func checkLogin(AuthTry loginRequests.UserAuth) (bool, int64, error) {
 	salted_hash := controllerSharedFuncs.ConvertToHexString(salted_pwd)
 	//fmt.Println("0x" + password_hash)
 	//fmt.Println(salted_hash)
-	if salted_hash == "0x"+password_hash {
+	if salted_hash == password_hash {
 		return true, userID, nil
 	}
 	return false, -1, nil
