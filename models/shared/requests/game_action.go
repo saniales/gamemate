@@ -22,8 +22,8 @@ type GameAction struct {
 func (receiver *GameAction) FromForm(c echo.Context) error {
 	err := c.Bind(receiver)
 	if err != nil || receiver.Type != "GameAction" || receiver.GameID <= 0 ||
-		receiver.UserID <= 0 {
-		return errors.New("Invalid Form Submitted " + err.Error())
+		receiver.UserID < -1 { //userID = -1 means "requesting user"
+		return errors.New("Invalid Form Submitted")
 	}
 
 	return nil
