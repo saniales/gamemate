@@ -14,7 +14,7 @@ import (
 
 //insertIntoArchives (without check of previous insertions, only error reporting)
 //inserts a new User into the archives, doing the salty & hashy work.
-func insertIntoArchives(RegTry loginRequests.Registration) (int64, error) {
+func insertIntoArchives(RegTry loginRequests.UserRegistration) (int64, error) {
 	salt := rand.Intn(constants.MAX_NUMBER_SALT)
 	saltedPass := RegTry.Password + strconv.Itoa(salt)
 
@@ -49,7 +49,7 @@ func insertIntoArchives(RegTry loginRequests.Registration) (int64, error) {
 //checkLogin checks if a user pass combination is valid for the specified auth try.
 //
 //Returns true if login is valid, false otherwise and report errors.
-func checkLogin(AuthTry loginRequests.Auth) (bool, int64, error) {
+func checkLogin(AuthTry loginRequests.UserAuth) (bool, int64, error) {
 	var num_rows int
 	var password_hash string
 	var userID int64

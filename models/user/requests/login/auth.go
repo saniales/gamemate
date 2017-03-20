@@ -6,8 +6,8 @@ import (
 	"github.com/labstack/echo"
 )
 
-//Auth represents an auth try to the system.
-type Auth struct {
+//UserAuth represents an auth try to the system.
+type UserAuth struct {
 	Type      string `json:"Type" xml:"Type" form:"Type"`
 	API_Token string `json:"API_Token" xml:"API_Token" form:"API_Token"`
 	Username  string `json:"Username" xml:"Username" form:"Username"`
@@ -17,7 +17,7 @@ type Auth struct {
 // FromForm Converts from a submitted form (or request) to his struct.
 //
 // Does not check for the validity of the items inside the struct (e.g. tokens)
-func (receiver *Auth) FromForm(c echo.Context) error {
+func (receiver *UserAuth) FromForm(c echo.Context) error {
 	err := c.Bind(receiver)
 	if err != nil || receiver.Type != "UserAuth" {
 		return errors.New("Invalid Form Submitted " + err.Error())

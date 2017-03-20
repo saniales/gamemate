@@ -21,7 +21,7 @@ import (
 func HandleAuth(context echo.Context) error {
 	errorResp := errorResponses.ErrorDetail{}
 	var isLoggable bool
-	AuthTry := loginRequests.Auth{}
+	AuthTry := loginRequests.UserAuth{}
 	err := AuthTry.FromForm(context)
 
 	if err != nil {
@@ -48,7 +48,7 @@ func HandleAuth(context echo.Context) error {
 		errorResp.FromError(errors.New("Cannot Login User"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, &errorResp)
 	}
-	responseFromServer := loginResponses.Auth{}
+	responseFromServer := loginResponses.UserSessionToken{}
 	responseFromServer.FromToken(token)
 	return context.JSON(http.StatusCreated, &responseFromServer)
 }
@@ -56,7 +56,7 @@ func HandleAuth(context echo.Context) error {
 //HandleRegistration handles the registration of a user for the system.
 func HandleRegistration(context echo.Context) error {
 	errorResp := errorResponses.ErrorDetail{}
-	var RegTry = loginRequests.Registration{}
+	var RegTry = loginRequests.UserRegistration{}
 	var err = RegTry.FromForm(context)
 	if err != nil {
 		context.Logger().Print(err)
@@ -92,7 +92,7 @@ func HandleRegistration(context echo.Context) error {
 	}
 
 	//finished, sending token to client
-	responseFromServer := loginResponses.Auth{}
+	responseFromServer := loginResponses.UserSessionToken{}
 	responseFromServer.FromToken(token)
 	return context.JSON(http.StatusCreated, &responseFromServer)
 }
