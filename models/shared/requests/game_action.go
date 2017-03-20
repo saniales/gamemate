@@ -25,6 +25,5 @@ func (receiver *GameAction) FromForm(c echo.Context) error {
 		receiver.UserID < -1 { //userID = -1 means "requesting user"
 		return errors.New("Invalid Form Submitted")
 	}
-
 	return nil
 }
