@@ -26,9 +26,9 @@ func getGamesFromArchives(userID int64) ([]userDataStructs.SummarizedGame, error
 			"ON u.gameID = g.gameID AND u.userID = %d "+
 			"UNION "+
 			"SELECT g2.gameID, g2.name, 0 "+
-			"FROM games g2 LEFT JOIN user_game_enabled u2 "+
-			"ON u2.gameID = g2.gameID AND u2.userID IS NULL",
-		userID,
+			"FROM games g2 WHERE g2.gameID NOT IN "+
+			"(SELECT gameID FROM user_game_enabled WHERE userID = %d)",
+		userID, userID,
 	)
 	stmtQuery, err := configurations.ArchivesPool.Prepare(Query)
 	if err != nil {
