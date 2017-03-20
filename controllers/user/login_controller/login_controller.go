@@ -56,7 +56,7 @@ func HandleAuth(context echo.Context) error {
 //HandleRegistration handles the registration of a user for the system.
 func HandleRegistration(context echo.Context) error {
 	errorResp := errorResponses.ErrorDetail{}
-	var RegTry = new(loginRequests.Registration)
+	var RegTry = loginRequests.Registration{}
 	var err = RegTry.FromForm(context)
 	if err != nil {
 		context.Logger().Print(err)
@@ -65,22 +65,19 @@ func HandleRegistration(context echo.Context) error {
 	}
 	//check if user already exists
 	isRegisteredUser, err := isRegistered(RegTry.Username)
-	//NOTE: doubl connection to DB, not so efficient, replace with a boolean
-	//combination to avoid second call.
-	isRegisteredUserEmail, errMail := isRegistered(RegTry.Email)
-	if err != nil || errMail != nil {
-		context.Logger().Printf("error username: %v, error mail:%v", err, errMail)
+	if err != nil {
+		context.Logger().Printf("error username: %v", err)
 		errorResp.FromError(errors.New("Cannot insert user"), http.StatusInternalServerError)
 		return context.JSON(http.StatusInternalServerError, errorResp)
 	}
-	if isRegisteredUser || isRegisteredUserEmail {
+	if isRegisteredUser {
 		context.Logger().Print("The user is already registered into the system")
 		errorResp.FromError(errors.New("User already registered"), 2)
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 	//else query and if query successful add user also into cache and reply with session_token
 	//generating random salt
-	userID, err := insertIntoArchives(*RegTry)
+	userID, err := insertIntoArchives(RegTry)
 	if err != nil {
 		context.Logger().Print(err)
 		errorResp.FromError(errors.New("Cannot Insert User"), http.StatusInternalServerError)

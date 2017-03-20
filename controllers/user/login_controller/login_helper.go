@@ -1,6 +1,7 @@
 package loginController
 
 import (
+	"fmt"
 	"math/rand"
 
 	"sanino/gamemate/configurations"
@@ -17,13 +18,17 @@ func insertIntoArchives(RegTry loginRequests.Registration) (int64, error) {
 	salt := rand.Intn(constants.MAX_NUMBER_SALT)
 	saltedPass := RegTry.Password + strconv.Itoa(salt)
 
-	stmtQuery, err := configurations.ArchivesPool.Prepare("INSERT INTO users (id, username, hash_pwd, hash_salt, email, birthday, gender) VALUES (NULL, ?," + controllerSharedFuncs.ConvertToHexString(saltedPass) + ", ?, ?, ?, ?)")
+	stmtQuery, err := configurations.ArchivesPool.Prepare(
+		fmt.Sprintf("INSERT INTO users (id, username, hash_pwd, hash_salt) VALUES (NULL, ?, %s, ?)",
+			controllerSharedFuncs.ConvertToHexString(saltedPass),
+		),
+	)
 	if err != nil {
 		return -1, err
 	}
 	defer stmtQuery.Close()
 
-	result, err := stmtQuery.Exec(RegTry.Username, salt, RegTry.Email, RegTry.Birthday, RegTry.Gender)
+	result, err := stmtQuery.Exec(RegTry.Username, salt)
 	if err != nil { //did not exec query (syntax)
 		return -1, err
 	}
@@ -86,13 +91,13 @@ func checkLogin(AuthTry loginRequests.Auth) (bool, int64, error) {
 //Returns true if the user is already in the archives, false otherwise.
 //NOTE: should i return cachable values??? or get it with another request?
 func isRegistered(username string) (bool, error) {
-	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(*) AS num_rows FROM users WHERE username = ? OR email = ?")
+	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(*) AS num_rows FROM users WHERE username = ?")
 	if err != nil { //cannot check, consider error
 		return true, err
 	}
 	defer stmtQuery.Close()
 
-	rows, err := stmtQuery.Query(username, username)
+	rows, err := stmtQuery.Query(username)
 	if err != nil { //cannot check, consider error
 		return true, err
 	}
