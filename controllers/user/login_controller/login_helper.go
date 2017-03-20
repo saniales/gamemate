@@ -1,7 +1,6 @@
 package loginController
 
 import (
-	"errors"
 	"math/rand"
 
 	"sanino/gamemate/configurations"
@@ -57,14 +56,7 @@ func checkLogin(AuthTry loginRequests.Auth) (bool, int64, error) {
 	}
 	defer stmtQuery.Close()
 
-	result, err := stmtQuery.Query(AuthTry.Username)
-	if err != nil {
-		return false, -1, err
-	}
-	if !result.Next() {
-		return false, -1, errors.New("Cannot login user : " + err.Error())
-	}
-	err = result.Scan(&num_rows, &password_hash, &salt, &userID)
+	err = stmtQuery.QueryRow(AuthTry.Username, 0).Scan(&num_rows, &password_hash, &salt, &userID)
 	if err != nil {
 		return false, -1, err
 	}
