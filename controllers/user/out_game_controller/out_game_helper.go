@@ -41,7 +41,7 @@ func getGamesFromArchives(userID int64) ([]userDataStructs.SummarizedGame, error
 	}
 
 	ret := make([]userDataStructs.SummarizedGame, 0, 10)
-	for !result.Next() {
+	for result.Next() {
 		var ID int64
 		var name string
 		var enabledInt int64
