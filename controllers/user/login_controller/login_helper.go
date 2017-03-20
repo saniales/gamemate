@@ -17,7 +17,7 @@ func insertIntoArchives(RegTry loginRequests.UserRegistration) (int64, error) {
 	salt := rand.Intn(constants.MAX_NUMBER_SALT)
 	saltedPass := RegTry.Password + strconv.Itoa(salt)
 	hash_pwd := controllerSharedFuncs.ConvertToHexString(saltedPass)
-	stmtQuery, err := configurations.ArchivesPool.Prepare("INSERT INTO users (id, username, hash_pwd, hash_salt) VALUES (NULL, ?, UNHEX(?), ?)")
+	stmtQuery, err := configurations.ArchivesPool.Prepare("INSERT INTO users (userID, username, hash_pwd, hash_salt) VALUES (NULL, ?, UNHEX(?), ?)")
 	if err != nil {
 		return -1, err
 	}
