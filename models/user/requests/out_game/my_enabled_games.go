@@ -18,8 +18,8 @@ type MyEnabledGames struct {
 // Does not check for the validity of the items inside the struct (e.g. tokens)
 func (receiver *MyEnabledGames) FromForm(c echo.Context) error {
 	err := c.Bind(receiver)
-	if err != nil || receiver.Type != "MyEnabledGames" {
-		return errors.New("Invalid Form Submitted " + err.Error())
+	if err != nil || receiver.Type != "UserEnabledGameList" {
+		return errors.New("Invalid Form Submitted")
 	}
 	return nil
 }

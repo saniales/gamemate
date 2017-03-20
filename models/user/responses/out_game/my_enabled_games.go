@@ -8,6 +8,6 @@ type MyEnabledGames struct {
 
 //FromGameIDs fills the struct with the gameIDs data.
 func (receiver *MyEnabledGames) FromGameIDs(gameIDs []int64) {
-	receiver.Type = "My Enabled Games"
+	receiver.Type = "UserEnabledGameList"
 	receiver.Games = gameIDs
 }

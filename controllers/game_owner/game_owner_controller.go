@@ -10,6 +10,8 @@ import (
 
 	"sanino/gamemate/models/game_owner/requests"
 	"sanino/gamemate/models/game_owner/responses"
+	"sanino/gamemate/models/shared/requests"
+	"sanino/gamemate/models/shared/responses"
 	"sanino/gamemate/models/shared/responses/errors"
 
 	"github.com/labstack/echo"
@@ -180,7 +182,7 @@ func HandleLogin(context echo.Context) error {
 
 //HandleGameAction handles the requests to enable/disable a game.
 func HandleGameAction(context echo.Context) error {
-	request := gameOwnerRequests.GameOwnerAction{}
+	request := sharedRequests.GameAction{}
 	err := request.FromForm(context)
 	if err != nil {
 		errorResp := errorResponses.ErrorDetail{}
@@ -190,7 +192,7 @@ func HandleGameAction(context echo.Context) error {
 
 	IsValid, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token)
 	if !IsValid || err != nil {
-		context.Logger().Print(fmt.Errorf("Game %s rejected", request.API_Token))
+		context.Logger().Print(fmt.Errorf("API Token %s rejected", request.API_Token))
 		errorResp := errorResponses.ErrorDetail{}
 		errorResp.FromError(errors.New("Rejected by the system"), http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, &errorResp)
@@ -207,7 +209,7 @@ func HandleGameAction(context echo.Context) error {
 			return context.JSON(http.StatusBadRequest, &errorResp)
 		} else {
 			if userID == request.UserID { //OK
-				cacheUpdated, err := EnableDisableGameForUser(request.UserID, request.GameID, request.Action)
+				cacheUpdated, err := controllerSharedFuncs.EnableDisableGameForUser(request.UserID, request.GameID, request.Action)
 				if err != nil {
 					errorResp := errorResponses.ErrorDetail{}
 					context.Logger().Print(fmt.Errorf("Error in archives : %v", err))
@@ -218,7 +220,7 @@ func HandleGameAction(context echo.Context) error {
 					context.Logger().Print("Game Action completed on archives, but not on cache")
 				}
 				//NOTE:OK!!!_________________________________________________
-				response := gameOwnerResponses.GameOwnerAction{}
+				response := sharedResponses.GameAction{}
 				response.FromGameID(request.GameID)
 				return context.JSON(http.StatusOK, &response)
 			}
@@ -246,7 +248,7 @@ func HandleGameAction(context echo.Context) error {
 			return context.JSON(http.StatusBadRequest, &errorResp)
 		}
 	}
-	cacheUpdated, err := EnableDisableGameForUser(request.UserID, request.GameID, request.Action)
+	cacheUpdated, err := controllerSharedFuncs.EnableDisableGameForUser(request.UserID, request.GameID, request.Action)
 	if err != nil {
 		context.Logger().Print(fmt.Errorf("Enable/disable %v: Cannot satisfy request, query error", request))
 		errorResp := errorResponses.ErrorDetail{}
@@ -256,7 +258,7 @@ func HandleGameAction(context echo.Context) error {
 	if !cacheUpdated {
 		context.Logger().Print("Game Action completed on archives, but not on cache")
 	}
-	response := gameOwnerResponses.GameOwnerAction{}
+	response := sharedResponses.GameAction{}
 	response.FromGameID(request.GameID)
 	return context.JSON(http.StatusOK, &response)
 }

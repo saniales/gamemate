@@ -1,6 +1,7 @@
 package outGameController
 
 import (
+	"errors"
 	"fmt"
 	"sanino/gamemate/configurations"
 	"sanino/gamemate/constants"
@@ -11,39 +12,25 @@ import (
 )
 
 //getGamesFromCache gets the games from the cache, if present and consistent.
-func getGamesFromCache() ([]userDataStructs.SummarizedGame, error) {
-	conn := configurations.CachePool.Get()
-	defer conn.Close()
-
-	values, err := redis.Strings(conn.Do("ZRANGE", constants.SUMMARY_GAMES_SET, "0", "-1", "WITHSCORES"))
-	if err != nil {
-		return nil, err
-	}
-
-	ret := make([]userDataStructs.SummarizedGame, 0, 10)
-	var tempGame userDataStructs.SummarizedGame
-
-	for i, value := range values {
-		if i%2 == 0 { //object
-			tempGame = userDataStructs.SummarizedGame{Name: value, CurrentlyPlayedBy: -1}
-		} else { //score
-			tempGame.CurrentlyPlayedBy, err = strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				return nil, err
-			}
-			ret = append(ret, tempGame)
-		}
-	}
-	//tries to
-	conn.Do("EXPIRE", constants.SUMMARY_GAMES_SET, constants.CACHE_REFRESH_INTERVAL)
-	return ret, nil
+func getGamesFromCache(userID int64) ([]userDataStructs.SummarizedGame, error) {
+	return nil, errors.New("Currently not supported")
 }
 
 //getGamesFromArchives gets the games from the archives, WITHOUT Currently playing
 //users (which are in cache).
 //NOTE: if update the cache with this values remember to update call updateCacheCurrentlyPlayed().
-func getGamesFromArchives() ([]userDataStructs.SummarizedGame, error) {
-	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT gameID, name FROM games")
+func getGamesFromArchives(userID int64) ([]userDataStructs.SummarizedGame, error) {
+	Query := fmt.Sprintf(
+		"SELECT g.gameID, g.name, 1 "+
+			"FROM games g JOIN user_game_enabled u "+
+			"ON u.gameID = g.gameID AND u.userID = %d "+
+			"UNION "+
+			"SELECT g2.gameID, g2.name, 0 "+
+			"FROM games g2 LEFT JOIN user_game_enabled u2 "+
+			"ON u2.gameID = g2.gameID AND u2.userID IS NULL",
+		userID,
+	)
+	stmtQuery, err := configurations.ArchivesPool.Prepare(Query)
 	if err != nil {
 		return nil, err
 	}
@@ -55,48 +42,71 @@ func getGamesFromArchives() ([]userDataStructs.SummarizedGame, error) {
 
 	ret := make([]userDataStructs.SummarizedGame, 0, 10)
 	for !result.Next() {
-		game := userDataStructs.SummarizedGame{CurrentlyPlayedBy: 0}
-		result.Scan(&game.ID, &game.Name)
+		var ID int64
+		var name string
+		var enabledInt int64
+		result.Scan(&ID, &name, &enabledInt)
+		game := userDataStructs.SummarizedGame{ID: ID, Name: name, Enabled: enabledInt > 0}
 		ret = append(ret, game)
 	}
-	if result.Err() != nil {
-		return nil, result.Err()
+
+	err = result.Err()
+	if err != nil {
+		return nil, err
 	}
 
 	return ret, nil
 }
 
-func getEnabledGameIDsFromArchives(userID int64) ([]int64, error) {
-	conn := configurations.CachePool.Get()
-	defer conn.Close()
+//GetGames get the games from a requesting user, setting enabled flag.
+//NOTE: incomplete, do not use cache without finishing function implementation.
+func GetGames(userID int64) ([]userDataStructs.SummarizedGame, bool, error) {
+	//games, err := getGamesFromCache(userID)
+	//if err != nil {
+	games, err := getGamesFromArchives(userID)
+	if err != nil {
+		return nil, false, err
+	}
+	return games, false, nil
+	//err = updateCacheAllGames(userID)
+	//if err != nil {
+	//return games, false, nil
+	//}
+	//return games, true, nil
+	//}
+	//return games, false, nil
+}
 
-	strings, err := redis.Strings(conn.Do("SMEMBERS", fmt.Sprintf(constants.USER_ENABLED_GAMES, userID)))
+func getEnabledGameIDsFromArchives(userID int64) ([]int64, error) {
+	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT gameID FROM user_game_enabled WHERE userID = ?")
 	if err != nil {
 		return nil, err
 	}
+	defer stmtQuery.Close()
 
-	ints := make([]int64, len(strings))
-	for i, v := range strings {
-		ints[i], err = strconv.ParseInt(v, 10, 64)
+	result, err := stmtQuery.Query(userID)
+	if err != nil {
+		return nil, err
+	}
+	defer result.Close()
+
+	ret := make([]int64, 0, 10)
+
+	for !result.Next() {
+		var gameID int64
+
+		err = result.Err()
 		if err != nil {
 			return nil, err
 		}
-	}
-	return ints, nil
-}
 
-//GetGames get summarized data for games.
-func GetGames() ([]userDataStructs.SummarizedGame, bool, error) {
-	games, err := getGamesFromCache()
-	if err != nil {
-		games, err = getGamesFromArchives()
+		err = result.Scan(&gameID)
 		if err != nil {
-			return nil, false, err
+			return nil, err
 		}
-		err = UpdateCacheAllGames(games)
-		return games, err != nil, err
+		ret = append(ret, gameID)
 	}
-	return games, true, nil
+	return ret, nil
 }
 
 //GetEnabledGameIDs gets the IDs of the games enabled for a user.
@@ -137,21 +147,74 @@ func getEnabledGameIDsFromCache(userID int64) ([]int64, error) {
 //
 //N => number of games to add.
 func UpdateCacheAllGames(games []userDataStructs.SummarizedGame) error {
-	conn := configurations.CachePool.Get()
-	defer conn.Close()
+	return errors.New("Currently not supported")
+}
 
-	err := conn.Send("MULTI")
+func getGameDetail(gameID int64, userID int64) (userDataStructs.SummarizedGame, bool, error) {
+	game, err := getGameDetailFromCache(gameID, userID)
 	if err != nil {
-		return err
-	}
-
-	for _, game := range games {
-		err = conn.Send("ZADD", constants.SUMMARY_GAMES_SET, 0, fmt.Sprintf("%d:%s", game.ID, game.Name))
+		game, err = getGameDetailFromArchives(gameID, userID)
 		if err != nil {
-			return err
+			return userDataStructs.SummarizedGame{}, false, err
 		}
+		err := updateCacheGameDetail(game, userID)
+		if err != nil {
+			return game, false, nil
+		}
+		return game, true, nil
+	}
+	return game, false, nil
+}
+
+func getGameDetailFromCache(gameID int64, userID int64) (userDataStructs.SummarizedGame, error) {
+	return userDataStructs.SummarizedGame{}, errors.New("Currently not supported")
+}
+
+func getGameDetailFromArchives(gameID int64, userID int64) (userDataStructs.SummarizedGame, error) {
+	ret := userDataStructs.SummarizedGame{}
+	QueryGetDetail := fmt.Sprintf(
+		"SELECT gameID, name, maxPlayers FROM games WHERE gameID = %d",
+		gameID,
+	)
+
+	stmtQuery, err := configurations.ArchivesPool.Prepare(QueryGetDetail)
+	if err != nil {
+		return ret, err
 	}
 
-	_, err = conn.Do("EXEC")
-	return err
+	var ID int64
+	var name string
+	err = stmtQuery.QueryRow(0).Scan(&ID, &name)
+	if err != nil {
+		return ret, err
+	}
+
+	stmtQuery.Close()
+
+	QueryGetEnabled := fmt.Sprintf(
+		"SELECT COUNT(*) FROM user_game_enabled WHERE gameID = %d AND userID = %d",
+		gameID, userID,
+	)
+
+	stmtQuery, err = configurations.ArchivesPool.Prepare(QueryGetEnabled)
+	if err != nil {
+		return ret, err
+	}
+	defer stmtQuery.Close()
+
+	var count int64
+	err = stmtQuery.QueryRow(0).Scan(&count)
+	if err != nil {
+		return ret, err
+	}
+
+	ret.ID = gameID
+	ret.Name = name
+	ret.Enabled = count > 0
+
+	return ret, nil
+}
+
+func updateCacheGameDetail(game userDataStructs.SummarizedGame, userID int64) error {
+	return errors.New("Currently not supported")
 }

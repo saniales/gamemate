@@ -180,62 +180,6 @@ func removeGameFromArchives(ownerID int64, gameID int64) error {
 	return nil
 }
 
-//EnableDisableGameForUser makes an action on the specified game for the user, if valid.
-//
-//returns if the cache has been updated and the error if present.
-func EnableDisableGameForUser(userID int64, gameID int64, enable bool) (bool, error) {
-	err := enableDisableGameInArchives(userID, gameID, enable)
-	if err != nil {
-		return false, err
-	}
-	//updates cache
-	if enable {
-		err = enableGameInCache(userID, gameID)
-		if err != nil {
-			return false, nil
-		}
-		return true, nil
-	}
-	return true, err
-}
-
-//enableGameInCache enables a game for the user; it acts on the cache layer.
-func enableGameInCache(userID int64, gameID int64) error {
-	conn := configurations.CachePool.Get()
-	defer conn.Close()
-
-	return conn.Send("SADD", fmt.Sprintf("games/with_id/%d:enabled_players", gameID), userID)
-}
-
-//EnableDisableGameInArchives enables (or disables) a game for a user.
-func enableDisableGameInArchives(userID int64, gameID int64, enable bool) error {
-	var query string
-	if enable {
-		query = "INSERT INTO user_game_enabled (userID, gameID) VALUES (?, ?)"
-	} else {
-		query = "DELETE FROM user_game_enabled WHERE userID = ? and gameID = ?"
-	}
-
-	stmtQuery, err := configurations.ArchivesPool.Prepare(query)
-	if err != nil {
-		return err
-	}
-	defer stmtQuery.Close()
-
-	result, err := stmtQuery.Exec(userID, gameID)
-	if err != nil {
-		return err
-	}
-	rows, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if rows <= 0 {
-		return errors.New("No Row Affected, possible problem with the query, or the owner is fake")
-	}
-	return nil
-}
-
 //GetOwnerOfGame return the owner ID of the specified game.
 func GetOwnerOfGame(gameID int64) (int64, bool, error) {
 	ownerID, err := getOwnerFromGameInCache(gameID)
