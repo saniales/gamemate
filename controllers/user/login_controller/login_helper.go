@@ -45,7 +45,6 @@ func insertIntoArchives(RegTry loginRequests.UserRegistration) (int64, error) {
 //
 //Returns true if login is valid, false otherwise and report errors.
 func checkLogin(AuthTry loginRequests.UserAuth) (bool, int64, error) {
-	var num_rows int
 	var password_hash string
 	var userID int64
 	var salt int
@@ -66,7 +65,7 @@ func checkLogin(AuthTry loginRequests.UserAuth) (bool, int64, error) {
 		return false, -1, nil
 	}
 
-	err = result.Scan(&num_rows, &password_hash, &salt, &userID)
+	err = result.Scan(&password_hash, &salt, &userID)
 	if err != nil {
 		return false, -1, err
 	}
