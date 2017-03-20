@@ -37,9 +37,9 @@ func HandleAuth(context echo.Context) error {
 		return context.JSON(http.StatusInternalServerError, &errorResp)
 	}
 	if !isLoggable {
-		errMsg := "Cannot login. User - Pwd Combination not correct"
+		errMsg := "User - Pwd Combination not correct"
 		errorResp.FromError(errors.New(errMsg), 1)
-		context.Logger().Printf(errMsg)
+		context.Logger().Print(errMsg)
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 	token, err := updateCacheNewUserSession(userID, AuthTry.Username)

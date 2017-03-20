@@ -62,7 +62,7 @@ func checkLogin(AuthTry loginRequests.Auth) (bool, int64, error) {
 		return false, -1, err
 	}
 	if !result.Next() {
-		return false, -1, errors.New("Cannot login user, Database error")
+		return false, -1, errors.New("Cannot login user : " + err.Error())
 	}
 	err = result.Scan(&num_rows, &password_hash, &salt, &userID)
 	if err != nil {
