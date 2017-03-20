@@ -21,7 +21,7 @@ import (
 func HandleAuth(context echo.Context) error {
 	errorResp := errorResponses.ErrorDetail{}
 	var isLoggable bool
-	AuthTry := new(loginRequests.Auth)
+	AuthTry := loginRequests.Auth{}
 	err := AuthTry.FromForm(context)
 
 	if err != nil {
@@ -30,7 +30,7 @@ func HandleAuth(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
 
-	isLoggable, userID, err := checkLogin(*AuthTry) //TODO: doubt, should i return an "User" struct??
+	isLoggable, userID, err := checkLogin(AuthTry)
 	if err != nil {
 		context.Logger().Print(err)
 		errorResp.FromError(errors.New("Cannot Login User"), http.StatusInternalServerError)
