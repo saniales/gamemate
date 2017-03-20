@@ -64,7 +64,8 @@ func HandleAllGamesForUser(context echo.Context) error {
 		errorResponse.FromError(err, http.StatusBadRequest)
 		return context.JSON(http.StatusBadRequest, errorResponse)
 	}
-	if val, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token); !val || err != nil {
+	val, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token)
+	if !val || err != nil {
 		errorResponse := errorResponses.ErrorDetail{}
 		context.Logger().Print(errors.New("Rejected by the system, requestor not valid"))
 		errorResponse.FromError(errors.New("Rejected by the system, request not valid"), http.StatusBadRequest)
