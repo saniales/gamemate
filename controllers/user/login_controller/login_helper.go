@@ -1,6 +1,7 @@
 package loginController
 
 import (
+	"errors"
 	"math/rand"
 
 	"sanino/gamemate/configurations"
@@ -61,6 +62,10 @@ func checkLogin(AuthTry loginRequests.Auth) (bool, int64, error) {
 		return false, -1, err
 	}
 	defer result.Close()
+
+	if !result.Next() {
+		return false, -1, errors.New("Empty set, somthing is wrong with the query")
+	}
 
 	err = result.Scan(&num_rows, &password_hash, &salt, &userID)
 	if err != nil {
