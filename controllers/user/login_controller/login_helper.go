@@ -51,7 +51,7 @@ func checkLogin(AuthTry loginRequests.Auth) (bool, int64, error) {
 	var userID int64
 	var salt int
 
-	stmtQuery, err := configurations.ArchivesPool.Prepare("SELECT COUNT(*) AS num_rows, HEX(hash_pwd), hash_salt, userID FROM users WHERE username = ? GROUP BY hash_pwd, hash_salt, userID")
+	stmtQuery, err := configurations.ArchivesPool.Prepare("HEX(hash_pwd), hash_salt, userID FROM users WHERE username = ?")
 	if err != nil {
 		return false, -1, err
 	}
@@ -64,7 +64,7 @@ func checkLogin(AuthTry loginRequests.Auth) (bool, int64, error) {
 	defer result.Close()
 
 	if !result.Next() {
-		return false, -1, errors.New("Empty set, somthing is wrong with the query")
+		return false, -1, errors.New("Empty set, something is wrong with the query")
 	}
 
 	err = result.Scan(&num_rows, &password_hash, &salt, &userID)
