@@ -1,7 +1,6 @@
 package loginController
 
 import (
-	"fmt"
 	"math/rand"
 
 	"sanino/gamemate/configurations"
@@ -17,18 +16,14 @@ import (
 func insertIntoArchives(RegTry loginRequests.UserRegistration) (int64, error) {
 	salt := rand.Intn(constants.MAX_NUMBER_SALT)
 	saltedPass := RegTry.Password + strconv.Itoa(salt)
-
-	stmtQuery, err := configurations.ArchivesPool.Prepare(
-		fmt.Sprintf("INSERT INTO users (id, username, hash_pwd, hash_salt) VALUES (NULL, ?, %s, ?)",
-			controllerSharedFuncs.ConvertToHexString(saltedPass),
-		),
-	)
+	hash_pwd := controllerSharedFuncs.ConvertToHexString(saltedPass)
+	stmtQuery, err := configurations.ArchivesPool.Prepare("INSERT INTO users (id, username, hash_pwd, hash_salt) VALUES (NULL, ?, UNHEX(?), ?)")
 	if err != nil {
 		return -1, err
 	}
 	defer stmtQuery.Close()
 
-	result, err := stmtQuery.Exec(RegTry.Username, salt)
+	result, err := stmtQuery.Exec(RegTry.Username, hash_pwd, salt)
 	if err != nil { //did not exec query (syntax)
 		return -1, err
 	}
