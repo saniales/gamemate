@@ -46,5 +46,5 @@ func main() {
 	e.POST(constants.GAME_ENABLE_DISABLE_PATH, gameOwnerController.HandleGameAction)
 	e.POST(constants.GAME_OWNER_GAME_LIST_PATH, gameOwnerController.HandleShowMyGames)
 
-	e.Logger.Print(e.StartTLS(":8080", "/opt/GameMate/certs/cert.pem", "/opt/GameMate/certs/cert.pem"))
+	e.Logger.Print(e.StartTLS(":8080", "/opt/GameMate/certs/key.pem", "/opt/GameMate/certs/cert.pem"))
 }
