@@ -19,11 +19,14 @@ func InitServer() *echo.Echo {
 	// Middleware
 
 	//NOTE : HTTPS is valid only on port 443 for ACME generator, have to generate it manually
-	//      So for debugging purposes using HTTP bacause cannot use 443 (8080) assigned me from committant.
+	//      So for debugging purposes using HTTPS self signed certificate manually bacause
+	//      cannot use 443 (8080) assigned me from committant.
 	server.Pre(middleware.HTTPSRedirect())
 	server.Use(middleware.Secure())
 	server.Use(middleware.Logger())
 	server.Use(middleware.Recover())
+	server.Use(middleware.Gzip())
+	server.Use(middleware.BodyLimit("1M"))
 
 	server.Logger.SetLevel(log.INFO)
 	//CORS
