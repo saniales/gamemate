@@ -20,14 +20,11 @@ func InitServer() *echo.Echo {
 
 	//NOTE : HTTPS is valid only on port 443 for ACME generator, have to generate it manually
 	//      So for debugging purposes using HTTP bacause cannot use 443 (8080) assigned me from committant.
-	//server.Pre(middleware.HTTPSRedirect())
-	server.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: `{"time":"${time_rfc3339_nano}","remote_ip":"${remote_ip}","host":"${host}",` +
-			`"method":"${method}", "uri":"${uri}","status":${status}, "latency":${latency},` +
-			`"latency_human":"${latency_human}","bytes_in":${bytes_in},` +
-			`"bytes_out":${bytes_out}}` + "\n",
-	}))
+	server.Pre(middleware.HTTPSRedirect())
+	server.Use(middleware.Secure())
+	server.Use(middleware.Logger())
 	server.Use(middleware.Recover())
+
 	server.Logger.SetLevel(log.INFO)
 	//CORS
 	server.Use(middleware.CORSWithConfig(middleware.CORSConfig{
