@@ -53,5 +53,6 @@ func (receiver *ServerRoom) BroadcastRoomUpdate(typeOfUpdate string) []error {
 	}
 	Message["Players"] = Players
 	Message["PlayersLeft"] = receiver.PlayersLeft
+	Message["MatchStarted"] = receiver.MatchStarted
 	return receiver.hub.Broadcast(Message)
 }
