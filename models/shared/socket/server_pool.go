@@ -2,6 +2,7 @@ package socketModels
 
 import (
 	"errors"
+	"math/rand"
 	"sanino/gamemate/models/user/data_structures"
 
 	"github.com/gorilla/websocket"
@@ -54,5 +55,19 @@ func (receiver *ServerRoom) BroadcastRoomUpdate(typeOfUpdate string) []error {
 	Message["Players"] = Players
 	Message["PlayersLeft"] = receiver.PlayersLeft
 	Message["MatchStarted"] = receiver.MatchStarted
+	if receiver.MatchStarted {
+		Message["FirstPlayer"] = receiver.chooseRandomPlayer()
+	}
 	return receiver.hub.Broadcast(Message)
+}
+
+//chooseRandomPlayer selects a random player from the clients and returns it.
+func (receiver *ServerRoom) chooseRandomPlayer() userDataStructs.Player {
+	keys := make([]*websocket.Conn, len(receiver.hub.Clients))
+	i := 0
+	for k := range receiver.hub.Clients {
+		keys[i] = k
+		i++
+	}
+	return receiver.hub.Clients[keys[rand.Intn(i)]]
 }
