@@ -2,8 +2,6 @@ package socketController
 
 import (
 	"errors"
-	"fmt"
-	"log"
 	"net/http"
 
 	"sanino/gamemate/controllers/shared"
@@ -89,19 +87,6 @@ func HandleChannel(context echo.Context) error {
 		default:
 			return errors.New("No Type Defined")
 		}
-
-		// Write
-		err := ws.WriteMessage(websocket.TextMessage, []byte("Hello, Client!"))
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// Read
-		_, msg, err := ws.ReadMessage()
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("%s\n", msg)
 	}
 }
 

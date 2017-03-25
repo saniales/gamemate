@@ -26,7 +26,7 @@ func (receiver *SocketHub) AddClient(client *websocket.Conn, player userDataStru
 //Broadcast sends to all connected peers a message
 func (receiver *SocketHub) Broadcast(message interface{}) []error {
 	errors := make([]error, 0, 1)
-	for conn, _ := range receiver.Clients {
+	for conn := range receiver.Clients {
 		err := conn.WriteJSON(message)
 		if err != nil {
 			errors = append(errors, err)
