@@ -19,5 +19,5 @@ func InitGameServer(server *echo.Echo) {
 	InitArchives()
 	InitCache()
 
-	server.POST(constants.MATCH_WEBSOCKET_CHANNEL_PATH, socketController.HandleChannel)
+	server.GET(constants.MATCH_WEBSOCKET_CHANNEL_PATH, socketController.HandleChannel)
 }

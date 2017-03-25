@@ -32,7 +32,7 @@ func InitServer() *echo.Echo {
 	//CORS
 	server.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
-		AllowMethods: []string{echo.POST},
+		AllowMethods: []string{echo.POST, echo.GET},
 	}))
 	collectCacheGarbage(server)
 	return server
