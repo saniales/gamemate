@@ -79,9 +79,11 @@ func HandleChannel(context echo.Context) error {
 				ID:       userID,
 				Username: request.Username,
 			}, ws)
+			update := "NewPlayer"
 			if current.IsFull() {
-				current.BroadCastMatchStarted()
+				update = "MatchStarted"
 			}
+			current.BroadcastRoomUpdate(update)
 			break
 		case "":
 		default:
