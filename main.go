@@ -11,6 +11,7 @@ import (
 	"sanino/gamemate/controllers/game_owner"
 	"sanino/gamemate/controllers/user/login_controller"
 	"sanino/gamemate/controllers/user/out_game_controller"
+	"sanino/gamemate/game_server_configurations"
 
 	"github.com/labstack/echo"
 )
@@ -28,8 +29,10 @@ func main() {
 	configurations.InitArchives()
 	//defer redisPool.Close()
 	e.POST("/", func(c echo.Context) error { return c.JSON(http.StatusOK, &dummy{Message: "Up and running..."}) })
+
 	e.POST(constants.AUTH_PATH, loginController.HandleAuth)
 	e.POST(constants.USER_REGISTRATION_PATH, loginController.HandleRegistration)
+
 	e.POST(constants.USER_ALL_GAME_LIST_PATH, outGameController.HandleAllGamesForUser)
 	e.POST(constants.USER_ENABLED_GAME_LIST_PATH, outGameController.HandleMyEnabledGamesForUser)
 
@@ -45,6 +48,9 @@ func main() {
 	e.POST(constants.GAME_OWNER_REMOVE_GAME_PATH, gameOwnerController.HandleRemoveGame)
 	e.POST(constants.GAME_ENABLE_DISABLE_PATH, gameOwnerController.HandleGameAction)
 	e.POST(constants.GAME_OWNER_GAME_LIST_PATH, gameOwnerController.HandleShowMyGames)
+
+	gameServerConfigurations.InitGameServer(e)
+
 	e.Logger.Print(e.Start(":8080"))
 	//e.Logger.Print(e.StartTLS(":8080", "/opt/GameMate/certs/cert.pem", "/opt/GameMate/certs/key.pem"))
 }

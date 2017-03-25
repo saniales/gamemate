@@ -3,17 +3,13 @@ package constants
 import "time"
 
 const (
-	ROOT_PATH                   string = "/"                       //ROOT_PATH is the path to the root directory of the server.
-	USER_REGISTRATION_PATH      string = "/user/register"          //USER_REGISTRATION_PATH is the path to handle user registration.
-	AUTH_PATH                   string = "/user/auth"              //AUTH_PATH is the path to handle user authentication.
-	USER_ALL_GAME_LIST_PATH     string = "/user/game/list/all"     //USER_ALL_GAME_LIST_PATH is the path to handle a request to the list of games
-	USER_ENABLED_GAME_LIST_PATH string = "/user/game/list/enabled" //USER_ENABLED_GAME_LIST_PATH is the path to handle a request to get the games enabled for a user.
-	ROOM_CREATION_PATH          string = "/room/create"            //ROOM_CREATION_PATH is the path to handle the creation of a new room.
-	GET_ROOM_REQUEST_PATH       string = "/room/get"               //GET_ROOM_REQUEST_PATH is the path to handle the request of data of a particular room.
-
-	MATCH_CREATION_PATH     string = "/match/create" //MATCH_CREATION_PATH is the path to handle the creationd of a match (not started).
-	MATCH_START_PATH        string = "/match/start"  //MATCH_START_PATH is the path to handle the start of a match (it becomes LIVE).
-	MATCH_DATA_REQUEST_PATH string = "/match/get"    //MATCH_DATA_REQUEST_PATH is the path to handle the request of getting data of a particular match.
+	ROOT_PATH                    string = "/"                          //ROOT_PATH is the path to the root directory of the server.
+	USER_REGISTRATION_PATH       string = "/user/register"             //USER_REGISTRATION_PATH is the path to handle user registration.
+	AUTH_PATH                    string = "/user/auth"                 //AUTH_PATH is the path to handle user authentication.
+	USER_ALL_GAME_LIST_PATH      string = "/user/game/list/all"        //USER_ALL_GAME_LIST_PATH is the path to handle a request to the list of games
+	USER_ENABLED_GAME_LIST_PATH  string = "/user/game/list/enabled"    //USER_ENABLED_GAME_LIST_PATH is the path to handle a request to get the games enabled for a user.
+	GET_MATCH_REQUEST_PATH       string = "/game/with_id/%d/match/get" //GET_ROOM_REQUEST_PATH is the path to handle the request of data of a particular room.
+	MATCH_WEBSOCKET_CHANNEL_PATH string = "/match/channel"             //MATCH_WEBSOCKET_CHANNEL_PATH is the path to access the channel used to connect to live matches.
 
 	TURN_ACTION_PATH string = "/user/move/make"     //TURN_ACTION_PATH is the path to handle an action in a match.
 	TURN_END_PATH    string = "/user/move/end_turn" //TURN_END_PATH is the path to handle the end of a turn.

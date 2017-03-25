@@ -26,7 +26,8 @@ func HandleAllTokensForDeveloper(context echo.Context) error {
 		fmt.Print(errorResp.ErrorMessage)
 		return context.JSON(http.StatusBadRequest, &errorResp)
 	}
-	if val, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token); !val || err != nil {
+	val, err := controllerSharedFuncs.IsValidAPI_Token(request.API_Token)
+	if !val || err != nil {
 		errorResp := errorResponses.ErrorDetail{}
 		context.Logger().Print(errors.New("Rejected by the system, requestor not valid"))
 		errorResp.FromError(err, http.StatusBadRequest)
