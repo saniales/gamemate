@@ -1,6 +1,7 @@
 package socketModels
 
 import (
+	"errors"
 	"sanino/gamemate/models/user/data_structures"
 
 	"github.com/gorilla/websocket"
@@ -14,33 +15,35 @@ type ServerRoom struct {
 	MatchStarted bool      //Match started.
 }
 
+//NewServerRoom creates a new server room with the specified parameters.
+func NewServerRoom(roomID int64, maxPlayers int64) *ServerRoom {
+	ret := &ServerRoom{
+		ID:           roomID,
+		hub:          NewSocketHub(),
+		PlayersLeft:  maxPlayers,
+		MatchStarted: false,
+	}
+	return ret
+}
+
 //IsFull returns true if it is not possible to add other players,
 //false otherwise.
 func (receiver *ServerRoom) IsFull() bool {
 	return receiver.MatchStarted || receiver.PlayersLeft == 0
 }
 
-//NewServerRoom creates a new server room with the specified parameters.
-func NewServerRoom(roomID int64, maxPlayers int64) *ServerRoom {
-	ret := &ServerRoom{
-		ID:           roomID,
-		hub:          NewSocketHub(),
-		PlayersLeft:  maxPlayers - 1,
-		MatchStarted: false,
-	}
-	return ret
-}
-
 //AddPlayer Adds a player to the room.
-func (receiver *ServerRoom) AddPlayer(p userDataStructs.Player, socket *websocket.Conn) {
+func (receiver *ServerRoom) AddPlayer(p userDataStructs.Player, socket *websocket.Conn) error {
+	if receiver.IsFull() {
+		return errors.New("Room FULL")
+	}
 	receiver.hub.Clients[socket] = p
+	receiver.PlayersLeft--
+	return nil
 }
 
 //BroadcastRoomUpdate sends a message to update room of all connected peers.
 func (receiver *ServerRoom) BroadcastRoomUpdate(typeOfUpdate string) []error {
-	if typeOfUpdate == "MatchStarted" {
-		receiver.MatchStarted = true
-	}
 	Message := make(map[string]interface{})
 	Message["Action"] = typeOfUpdate
 	Message["RoomID"] = receiver.ID

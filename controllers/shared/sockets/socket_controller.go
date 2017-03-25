@@ -63,23 +63,24 @@ func HandleChannel(context echo.Context) error {
 			}
 			//TODO: check if the game is enabled.
 			currentRoom = getCurrentRoom()
-			if currentRoom.IsFull() {
-				errorResponse := errorResponses.ErrorDetail{}
-				context.Logger().Print("Room FULL")
-				errorResponse.FromError(errors.New("Rejected by the system, the lobby is full"), http.StatusBadRequest)
-				return context.JSON(http.StatusBadRequest, errorResponse)
-			}
 
 			//TODO: get user detail from cache, for now passing as parameter in request.
 			//add ws to the pool
 			current := getCurrentRoom()
-			current.AddPlayer(userDataStructs.Player{
+			playerToAdd := userDataStructs.Player{
 				ID:       userID,
 				Username: request.Username,
-			}, ws)
-			update := "NewPlayer"
+			}
+			err = current.AddPlayer(playerToAdd, ws)
+			if err != nil {
+				errorResponse := errorResponses.ErrorDetail{}
+				context.Logger().Print(err)
+				errorResponse.FromError(errors.New("Rejected by the system, the lobby is full"), http.StatusBadRequest)
+				return context.JSON(http.StatusBadRequest, errorResponse)
+			}
+			update := "RoomUpdate"
 			if current.IsFull() {
-				update = "MatchStarted"
+				current.MatchStarted = true
 			}
 			current.BroadcastRoomUpdate(update)
 			break
