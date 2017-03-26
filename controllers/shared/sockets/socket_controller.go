@@ -24,10 +24,7 @@ var (
 func HandleChannel(context echo.Context) error {
 	ws, err := upgrader.Upgrade(context.Response(), context.Request(), nil)
 	if err != nil {
-		errorResp := errorResponses.ErrorDetail{}
-		context.Logger().Print(err)
-		errorResp.FromError(errors.New("Cannot establish connection, retry later"), http.StatusBadRequest)
-		return context.JSON(http.StatusBadRequest, &errorResp)
+		return err
 	}
 	defer ws.Close()
 
@@ -47,19 +44,16 @@ func HandleChannel(context echo.Context) error {
 			}
 			//check api token
 			val, _ := controllerSharedFuncs.IsValidAPI_Token(IncomingMessage["API_Token"])
-			if !val || err != nil {
-				errorResp := errorResponses.ErrorDetail{}
-				context.Logger().Print(errors.New("Rejected by the system, requestor not valid"))
-				errorResp.FromError(err, http.StatusBadRequest)
-				return context.JSON(http.StatusBadRequest, &errorResp)
+			if err != nil {
+				return err
+			}
+			if !val {
+				return errors.New("Invalid API Token")
 			}
 			//check user logged
 			userID, _ := sessionController.GetUserIDFromSessionToken(IncomingMessage["SessionToken"])
 			if err != nil {
-				errorResponse := errorResponses.ErrorDetail{}
-				context.Logger().Print(errors.New("Rejected by the system, invalid session"))
-				errorResponse.FromError(errors.New("Rejected by the system, invalid session"), http.StatusBadRequest)
-				return context.JSON(http.StatusBadRequest, errorResponse)
+				return err
 			}
 			//TODO: check if the game is enabled.
 			currentRoom = getCurrentRoom()
@@ -84,6 +78,7 @@ func HandleChannel(context echo.Context) error {
 			}
 			current.BroadcastRoomUpdate(update)
 			break
+		case "Move":
 		case "":
 		default:
 			return errors.New("No Type Defined")
