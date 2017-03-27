@@ -57,21 +57,24 @@ func (receiver *ServerRoom) BroadcastRoomUpdate(typeOfUpdate string) []error {
 	Message["PlayersLeft"] = receiver.PlayersLeft
 	Message["MatchStarted"] = receiver.MatchStarted
 	if receiver.MatchStarted {
-		Message["FirstPlayer"] = receiver.chooseRandomPlayer()
+		conn, firstPlayer := receiver.chooseRandomPlayer()
+		Message["FirstPlayer"] = firstPlayer
+		receiver.SetFirstTurn(conn)
 	}
 	return receiver.hub.Broadcast(Message)
 }
 
 //chooseRandomPlayer selects a random player from the clients and returns it.
-func (receiver *ServerRoom) chooseRandomPlayer() userDataStructs.Player {
+func (receiver *ServerRoom) chooseRandomPlayer() (*websocket.Conn, userDataStructs.Player) {
 	keys := make([]*websocket.Conn, len(receiver.hub.Clients))
 	i := 0
 	for k := range receiver.hub.Clients {
 		keys[i] = k
 		i++
 	}
-	player, _ := receiver.GetConnectedPlayer(keys[rand.Intn(i)])
-	return player
+	key := keys[rand.Intn(i)]
+	player, _ := receiver.GetConnectedPlayer(key)
+	return key, player
 }
 
 //GetConnectedPlayer gets the player connected with the specified socket from this struct.
