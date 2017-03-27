@@ -98,9 +98,10 @@ func (receiver *ServerRoom) SetFirstTurn(conn *websocket.Conn) error {
 }
 
 //SendMoveRejected sends to the player which made an invalid move a notification.
-func (receiver *ServerRoom) SendMoveRejected(dest *websocket.Conn) error {
+func (receiver *ServerRoom) SendMoveRejected(dest *websocket.Conn, CustomData map[string]interface{}) error {
 	message := make(map[string]interface{})
 	message["Action"] = "MoveRejected"
+	message["Cell"] = CustomData["Cell"]
 	return dest.WriteJSON(message)
 }
 

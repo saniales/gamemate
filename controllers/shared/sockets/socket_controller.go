@@ -101,7 +101,7 @@ func HandleChannel(context echo.Context) error {
 				validMove, result := currentChecker.MakeMove(CustomData)
 				if !validMove {
 					//return move rejected
-					currentRoom.SendMoveRejected(ws)
+					currentRoom.SendMoveRejected(ws, CustomData)
 				}
 
 				currentRoom.NextTurn()
