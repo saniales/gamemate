@@ -59,7 +59,10 @@ func (receiver *ServerRoom) BroadcastRoomUpdate(typeOfUpdate string) []error {
 	if receiver.MatchStarted {
 		conn, firstPlayer := receiver.chooseRandomPlayer()
 		Message["FirstPlayer"] = firstPlayer
-		receiver.SetFirstTurn(conn)
+
+		if receiver.SetFirstTurn(conn) != nil {
+			panic("Cannot set first player")
+		}
 	}
 	return receiver.hub.Broadcast(Message)
 }
