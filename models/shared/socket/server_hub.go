@@ -74,3 +74,8 @@ func (receiver *SocketHub) SetFirstTurn(conn *websocket.Conn) error {
 	}
 	return errors.New("Player not found")
 }
+
+//CurrentPlayer gets the current player which is in turn.
+func (receiver *SocketHub) CurrentPlayer() userDataStructs.Player {
+	return receiver.Clients[receiver.Turns[receiver.CurrentTurnIndex]]
+}

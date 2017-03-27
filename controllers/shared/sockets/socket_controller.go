@@ -77,7 +77,6 @@ func HandleChannel(context echo.Context) error {
 			update := "RoomUpdate"
 			if current.IsFull() {
 				current.MatchStarted = true
-				currentChecker := getCurrentChecker()
 			}
 			current.BroadcastRoomUpdate(update)
 			break
@@ -99,21 +98,20 @@ func HandleChannel(context echo.Context) error {
 			if currentRoom.IsPlayerTurn(ws) {
 				var CustomData map[string]interface{} = IncomingMessage["CustomData"].(map[string]interface{})
 				currentChecker := getCurrentChecker()
-				if currentChecker.IsValidMove(CustomData) {
+				validMove, result := currentChecker.MakeMove(CustomData)
+				if !validMove {
+					//return move rejected
+					currentRoom.SendMoveRejected(ws)
+				}
 
+				currentRoom.NextTurn()
+				currentRoom.BroadcastNewMove(CustomData, result)
+				if result != gameServerLogic.ONGOING {
+					//match ended
+					//register Match into archives
+					//then close socket
 				}
 			}
-			//get player from conn
-			//if player's turn
-			//  checkmove
-			//else moverejected
-			//checkmove:
-			//  const {x, y, symbol, player} = request
-			//  if grid[x][y] != EMPTY_CELL
-			//    Rejected
-			//  else if !playersTurn
-			//    Rejected
-			//  return moveOK and broadcast.
 		case "":
 		default:
 			return errors.New("No Type Defined")

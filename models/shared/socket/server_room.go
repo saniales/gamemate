@@ -3,6 +3,7 @@ package socketModels
 import (
 	"errors"
 	"math/rand"
+	"sanino/gamemate/models/shared/game_server"
 	"sanino/gamemate/models/user/data_structures"
 
 	"github.com/gorilla/websocket"
@@ -94,4 +95,27 @@ func (receiver *ServerRoom) NextTurn() {
 //it returns an error.
 func (receiver *ServerRoom) SetFirstTurn(conn *websocket.Conn) error {
 	return receiver.hub.SetFirstTurn(conn)
+}
+
+//SendMoveRejected sends to the player which made an invalid move a notification.
+func (receiver *ServerRoom) SendMoveRejected(dest *websocket.Conn) error {
+	message := make(map[string]interface{})
+	message["Action"] = "MoveRejected"
+	return dest.WriteJSON(message)
+}
+
+//BroadcastNewMove sends a new move to connected players
+func (receiver *ServerRoom) BroadcastNewMove(Move map[string]interface{}, result gameServerLogic.Result) []error {
+	message := make(map[string]interface{})
+	message["Action"] = "NewMove"
+	message["NextPlayer"] = receiver.CurrentPlayer()
+	message["Cell"] = Move["Cell"]
+	message["Symbol"] = Move["Symbol"]
+	message["Result"] = result
+	return receiver.hub.Broadcast(message)
+}
+
+//CurrentPlayer gets the current player which is in turn.
+func (receiver *ServerRoom) CurrentPlayer() userDataStructs.Player {
+	return receiver.hub.CurrentPlayer()
 }
