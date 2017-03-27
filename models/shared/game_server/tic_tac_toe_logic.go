@@ -53,7 +53,7 @@ func (receiver *TicTacToeChecker) CheckWin(lastMove map[string]interface{}) Resu
 	Cell := lastMove["Cell"].(map[string]interface{})
 	x := int(Cell["X"].(float64))
 	y := int(Cell["Y"].(float64))
-	symbol := TicTacToeSymbol(Move["Symbol"].(float64))
+	symbol := TicTacToeSymbol(lastMove["Symbol"].(float64))
 	//check cross
 	//check rows
 	for i := 0; i < 3; i++ {
