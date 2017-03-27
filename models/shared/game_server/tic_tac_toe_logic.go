@@ -11,11 +11,13 @@ const (
 //TicTacToeChecker Represents the MoveChecker for Tic Tac Toe game.
 type TicTacToeChecker struct {
 	gameGrid [3][3]TicTacToeSymbol
-	moves    int
+	moves    []map[string]interface{}
 }
 
 func NewTicTacToeChecker() *TicTacToeChecker {
-	ret := &TicTacToeChecker{}
+	ret := &TicTacToeChecker{
+		moves: make([]map[string]interface{}, 0),
+	}
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
 			ret.gameGrid[i][j] = EMPTY_CELL
@@ -42,7 +44,7 @@ func (receiver *TicTacToeChecker) MakeMove(Move map[string]interface{}) (bool, R
 		symbol := Move["Symbol"].(TicTacToeSymbol)
 		receiver.gameGrid[x][y] = symbol
 	}
-	receiver.moves++
+	receiver.moves = append(receiver.moves, Move)
 	won := receiver.CheckWin(Move)
 	return valid, won
 }
@@ -94,7 +96,7 @@ func (receiver *TicTacToeChecker) CheckWin(lastMove map[string]interface{}) Resu
 			}
 		}
 	}
-	if receiver.moves == 9 {
+	if len(receiver.moves) == 9 {
 		return DRAW
 	}
 	return ONGOING

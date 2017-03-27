@@ -2,7 +2,6 @@ package socketModels
 
 import (
 	"errors"
-	"strconv"
 
 	"github.com/gorilla/websocket"
 
@@ -71,9 +70,7 @@ func (receiver *SocketHub) NextTurn() {
 //it returns an error.
 func (receiver *SocketHub) SetFirstTurn(conn *websocket.Conn) error {
 	for i, v := range receiver.Turns {
-		log.Debug("Scanning " + strconv.FormatInt(int64(i), 10))
 		if v == conn {
-			log.Debug("Found " + strconv.FormatInt(int64(i), 10))
 			receiver.CurrentTurnIndex = i
 			return nil
 		}
