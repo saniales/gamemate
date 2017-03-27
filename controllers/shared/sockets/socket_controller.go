@@ -2,12 +2,10 @@ package socketController
 
 import (
 	"errors"
-	"net/http"
 
 	"sanino/gamemate/controllers/shared"
 	"sanino/gamemate/controllers/user/session_controller"
 	"sanino/gamemate/models/shared/game_server"
-	"sanino/gamemate/models/shared/responses/errors"
 	"sanino/gamemate/models/shared/socket"
 	"sanino/gamemate/models/user/data_structures"
 	"sanino/gamemate/models/user/requests/out_match"
@@ -69,10 +67,7 @@ func HandleChannel(context echo.Context) error {
 			}
 			err = current.AddPlayer(playerToAdd, ws)
 			if err != nil {
-				errorResponse := errorResponses.ErrorDetail{}
-				context.Logger().Print(err)
-				errorResponse.FromError(errors.New("Rejected by the system, the lobby is full"), http.StatusBadRequest)
-				return context.JSON(http.StatusBadRequest, errorResponse)
+				return err
 			}
 			update := "RoomUpdate"
 			if current.IsFull() {
@@ -81,6 +76,7 @@ func HandleChannel(context echo.Context) error {
 			current.BroadcastRoomUpdate(update)
 			break
 		case "Move":
+			context.Logger().Print(IncomingMessage)
 			//check api token
 			val, _ := controllerSharedFuncs.IsValidAPI_Token(IncomingMessage["API_Token"].(string))
 			if err != nil {
@@ -101,6 +97,7 @@ func HandleChannel(context echo.Context) error {
 				validMove, result := currentChecker.MakeMove(CustomData)
 				if !validMove {
 					//return move rejected
+					context.Logger().Print(IncomingMessage)
 					currentRoom.SendMoveRejected(ws, CustomData)
 				}
 
