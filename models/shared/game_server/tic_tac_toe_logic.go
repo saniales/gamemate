@@ -41,7 +41,7 @@ func (receiver *TicTacToeChecker) MakeMove(Move map[string]interface{}) (bool, R
 		Cell := Move["Cell"].(map[string]interface{})
 		x := int(Cell["X"].(float64))
 		y := int(Cell["Y"].(float64))
-		symbol := Move["Symbol"].(TicTacToeSymbol)
+		symbol := TicTacToeSymbol(Move["Symbol"].(float64))
 		receiver.gameGrid[x][y] = symbol
 	}
 	receiver.moves = append(receiver.moves, Move)
@@ -53,7 +53,7 @@ func (receiver *TicTacToeChecker) CheckWin(lastMove map[string]interface{}) Resu
 	Cell := lastMove["Cell"].(map[string]interface{})
 	x := int(Cell["X"].(float64))
 	y := int(Cell["Y"].(float64))
-	symbol := lastMove["Symbol"].(TicTacToeSymbol)
+	symbol := TicTacToeSymbol(Move["Symbol"].(float64))
 	//check cross
 	//check rows
 	for i := 0; i < 3; i++ {
