@@ -35,11 +35,11 @@ func (receiver *ServerRoom) IsFull() bool {
 }
 
 //AddPlayer Adds a player to the room.
-func (receiver *ServerRoom) AddPlayer(p userDataStructs.Player, socket *websocket.Conn) error {
+func (receiver *ServerRoom) AddPlayer(player userDataStructs.Player, socket *websocket.Conn) error {
 	if receiver.IsFull() {
 		return errors.New("Room FULL")
 	}
-	receiver.hub.Clients[socket] = p
+	receiver.hub.AddClient(socket, player)
 	receiver.PlayersLeft--
 	return nil
 }
