@@ -29,8 +29,8 @@ func NewTicTacToeChecker() *TicTacToeChecker {
 //IsValidMove checks if a move is valid.
 func (receiver *TicTacToeChecker) IsValidMove(Move map[string]interface{}) bool {
 	Cell := Move["Cell"].(map[string]interface{})
-	x := Cell["X"].(int)
-	y := Cell["Y"].(int)
+	x := int(Cell["X"].(float64))
+	y := int(Cell["Y"].(float64))
 	return receiver.gameGrid[x][y] == EMPTY_CELL
 }
 
@@ -39,8 +39,8 @@ func (receiver *TicTacToeChecker) MakeMove(Move map[string]interface{}) (bool, R
 	valid := receiver.IsValidMove(Move)
 	if valid {
 		Cell := Move["Cell"].(map[string]interface{})
-		x := Cell["X"].(int)
-		y := Cell["Y"].(int)
+		x := int(Cell["X"].(float64))
+		y := int(Cell["Y"].(float64))
 		symbol := Move["Symbol"].(TicTacToeSymbol)
 		receiver.gameGrid[x][y] = symbol
 	}
@@ -51,8 +51,8 @@ func (receiver *TicTacToeChecker) MakeMove(Move map[string]interface{}) (bool, R
 
 func (receiver *TicTacToeChecker) CheckWin(lastMove map[string]interface{}) Result {
 	Cell := lastMove["Cell"].(map[string]interface{})
-	x := Cell["X"].(int)
-	y := Cell["Y"].(int)
+	x := int(Cell["X"].(float64))
+	y := int(Cell["Y"].(float64))
 	symbol := lastMove["Symbol"].(TicTacToeSymbol)
 	//check cross
 	//check rows
