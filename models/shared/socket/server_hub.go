@@ -72,7 +72,8 @@ func (receiver *SocketHub) NextTurn() {
 func (receiver *SocketHub) SetFirstTurn(conn *websocket.Conn) error {
 	for i, v := range receiver.Turns {
 		log.Debug("Scanning " + strconv.FormatInt(int64(i), 10))
-		if v.RemoteAddr() == conn.RemoteAddr() {
+		if v.RemoteAddr().String() == conn.RemoteAddr().String() {
+
 			log.Debug("Found " + strconv.FormatInt(int64(i), 10))
 			receiver.CurrentTurnIndex = i
 			return nil
