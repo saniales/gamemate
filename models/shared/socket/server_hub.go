@@ -2,10 +2,13 @@ package socketModels
 
 import (
 	"errors"
+	"strconv"
 
 	"github.com/gorilla/websocket"
 
 	"sanino/gamemate/models/user/data_structures"
+
+	log "github.com/labstack/gommon/log"
 )
 
 //SocketHub represents a hub with multiple connections to clients.
@@ -55,6 +58,7 @@ func (receiver *SocketHub) GetConnectedPlayer(conn *websocket.Conn) (userDataStr
 //IsPlayerTurn returns true if the requesting connection's player is the one who has
 //permission to play for this turn, false otherwise.
 func (receiver *SocketHub) IsPlayerTurn(conn *websocket.Conn) bool {
+	log.Debug(receiver.CurrentTurnIndex)
 	return receiver.Clients[conn] == receiver.Clients[receiver.Turns[receiver.CurrentTurnIndex]]
 }
 
@@ -67,7 +71,9 @@ func (receiver *SocketHub) NextTurn() {
 //it returns an error.
 func (receiver *SocketHub) SetFirstTurn(conn *websocket.Conn) error {
 	for i, v := range receiver.Turns {
+		log.Debug("Scanning " + strconv.FormatInt(int64(i), 10))
 		if v == conn {
+			log.Debug("Found " + strconv.FormatInt(int64(i), 10))
 			receiver.CurrentTurnIndex = i
 			return nil
 		}
