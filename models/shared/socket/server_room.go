@@ -69,5 +69,29 @@ func (receiver *ServerRoom) chooseRandomPlayer() userDataStructs.Player {
 		keys[i] = k
 		i++
 	}
-	return receiver.hub.Clients[keys[rand.Intn(i)]]
+	player, _ := receiver.GetConnectedPlayer(keys[rand.Intn(i)])
+	return player
+}
+
+//GetConnectedPlayer gets the player connected with the specified socket from this struct.
+//If not found second return value is set to false.
+func (receiver *ServerRoom) GetConnectedPlayer(conn *websocket.Conn) (userDataStructs.Player, bool) {
+	return receiver.hub.GetConnectedPlayer(conn)
+}
+
+//IsPlayerTurn returns true if the requesting connection's player is the one who has
+//permission to play for this turn, false otherwise.
+func (receiver *ServerRoom) IsPlayerTurn(conn *websocket.Conn) bool {
+	return receiver.hub.IsPlayerTurn(conn)
+}
+
+//NextTurn passes the turn to the nest player.
+func (receiver *ServerRoom) NextTurn() {
+	receiver.hub.NextTurn()
+}
+
+//SetFirstTurn sets, if possible, the first player's turn, otherwise
+//it returns an error.
+func (receiver *ServerRoom) SetFirstTurn(conn *websocket.Conn) error {
+	return receiver.hub.SetFirstTurn(conn)
 }

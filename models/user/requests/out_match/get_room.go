@@ -12,7 +12,7 @@ type GetRoom struct {
 
 //FromMap parses the a map and creates a valid struct, or
 //returns an error.
-func (receiver *GetRoom) FromMap(Map map[string]string) error {
+func (receiver *GetRoom) FromMap(Map map[string]interface{}) error {
 	//userID, err := strconv.ParseInt(Map["UserID"], 10, 64)
 	//if err != nil {
 	//return errors.New("Invalid Map : UserID not found")
@@ -21,7 +21,7 @@ func (receiver *GetRoom) FromMap(Map map[string]string) error {
 	//if err != nil || gameID <= 0 {
 	//return errors.New("Invalid Map : GameID not found")
 	//}
-	tmpUsername := Map["Username"]
+	tmpUsername := Map["Username"].(string)
 	if tmpUsername == "" {
 		return errors.New("Invalid Map : Username not found")
 	}
