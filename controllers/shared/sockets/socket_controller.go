@@ -100,12 +100,12 @@ func HandleChannel(context echo.Context) error {
 					context.Logger().Print(IncomingMessage)
 					currentRoom.SendMoveRejected(ws, CustomData)
 				}
-
 				currentRoom.NextTurn()
 				currentRoom.BroadcastNewMove(CustomData, result)
 				if result != gameServerLogic.ONGOING {
 					//match ended
 					//register Match into archives
+					//registerMatch(currentChecker)
 					//then close socket
 				}
 			}
@@ -130,4 +130,9 @@ func getCurrentChecker() gameServerLogic.MoveChecker {
 		currentChecker = gameServerLogic.NewTicTacToeChecker()
 	}
 	return currentChecker
+}
+
+func registerMatch(Match gameServerLogic.TicTacToeChecker) {
+	//stmtQuery, err := gameServerConfigurations.ArchivesPool.Prepare("INSERT INTO scores VALUES (NULL, ?, ?)")
+
 }
